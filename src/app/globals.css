@@ -1,26 +1,258 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
-@theme inline {
+@theme {
+  /* --- Spacing Scale (8px = 0.5rem) --- */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 4rem;
+  --spacing-3xl: 8rem;
+
+  /* --- Radius Scale --- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 32px;
+  --radius-xl: 64px;
+  --radius-2xl: 128px;
+
+  /* --- Fonts --- */
+  --font-plus-jakarta: var(--font-plus-jakarta-sans);
+  --font-inter: var(--font-inter);
+  --font-pacifico: var(--font-pacifico);
+
+  /* --- Colors --- */
+  --color-surface-main: var(--surface-main);
+  --color-surface-accent: var(--surface-accent);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-inverse: var(--surface-inverse);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-accent: var(--brand-accent);
+  --color-price-highlight: var(--price-highlight);
+
+  /* --- Special Styles --- */
+  --color-border-primary-50: rgba(51, 15, 0, 0.5);
+  --color-text-muted-50: rgba(112, 120, 120, 0.5);
+  --color-text-inverse-80: rgba(255, 255, 255, 0.8);
+  --color-text-inverse-10: rgba(255, 255, 255, 0.1);
+
+  --background-image-img-primary-gradient: linear-gradient(
+    90deg,
+    rgba(51, 15, 0, 0.9) 0%,
+    rgba(51, 15, 0, 0.2) 50%,
+    rgba(51, 15, 0, 0) 100%
+  );
+
+  /* --- Font Sizes --- */
+  --font-size-hero-bold: 96px;
+  --font-size-large-bold: 72px;
+  --font-size-medium-bold: 60px;
+  --font-size-h1: 48px;
+  --font-size-h2: 36px;
+  --font-size-h3: 24px;
+  --font-size-h4: 20px;
+  --font-size-h5: 18px;
+  --font-size-body-lg: 18px;
+  --font-size-body-md: 16px;
+  --font-size-body-sm: 14px;
+  --font-size-badge: 12px;
+  --font-size-caption: 11px;
+  --font-size-overline: 10px;
+
+  /* --- System Colors (Shadcn) --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* Fonts are provided by Next.js font/google in layout.tsx */
+
+  /* Shadcn defaults */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --border: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* Figma Collection */
+  --surface-main: rgb(255, 248, 243);
+  --surface-accent: rgb(250, 242, 235);
+  --surface-muted: rgb(235, 224, 217);
+  --surface-inverse: rgb(3, 43, 33);
+  --text-primary: rgb(51, 15, 0);
+  --text-secondary: rgb(56, 102, 97);
+  --text-muted: rgb(112, 120, 120);
+  --text-inverse: rgb(240, 236, 236);
+  --brand-primary: rgb(240, 102, 10);
+  --brand-accent: rgb(250, 115, 23);
+  --price-highlight: rgb(250, 107, 20);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* --- Display Styles --- */
+  .text-display-hero {
+    font-size: var(--font-size-hero-bold);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+  .text-display-lg {
+    font-size: var(--font-size-large-bold);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+  .text-display-md {
+    font-size: var(--font-size-medium-bold);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  /* --- Headings --- */
+  .text-h1-bold {
+    font-size: var(--font-size-h1);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+  .text-h2-bold {
+    font-size: var(--font-size-h2);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+  .text-h3-bold {
+    font-size: var(--font-size-h3);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .text-h4-bold {
+    font-size: var(--font-size-h4);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .text-h5-bold {
+    font-size: var(--font-size-h5);
+    font-family: var(--font-plus-jakarta);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  /* --- Body Styles --- */
+  .text-body-lg-reg {
+    font-size: var(--font-size-body-lg);
+    font-family: var(--font-inter);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .text-body-md-reg {
+    font-size: var(--font-size-body-md);
+    font-family: var(--font-inter);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .text-body-md-bold {
+    font-size: var(--font-size-body-md);
+    font-family: var(--font-inter);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .text-body-sm-reg {
+    font-size: var(--font-size-body-sm);
+    font-family: var(--font-inter);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .text-body-sm-semibold {
+    font-size: var(--font-size-body-sm);
+    font-family: var(--font-inter);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  /* --- Labels & Brand --- */
+  .label-button-lg {
+    font-size: 18px;
+    font-family: var(--font-plus-jakarta);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .label-button-md {
+    font-size: 16px;
+    font-family: var(--font-plus-jakarta);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .label-badge {
+    font-size: 12px;
+    font-family: var(--font-plus-jakarta);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .label-caption {
+    font-size: 11px;
+    font-family: var(--font-plus-jakarta);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .label-caption-inter {
+    font-size: 11px;
+    font-family: var(--font-inter);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .label-overline {
+    font-size: 10px;
+    font-family: var(--font-plus-jakarta);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .label-overline-inter {
+    font-size: 10px;
+    font-family: var(--font-inter);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  /* --- Brand Styles --- */
+  .text-brand-mobile {
+    font-size: 20px;
+    font-family: var(--font-pacifico);
+    font-weight: 400;
+    line-height: 28px;
+    letter-spacing: -1px;
+  }
+  .text-brand-desktop {
+    font-size: 36px;
+    font-family: var(--font-pacifico);
+    font-weight: 400;
+    line-height: 28px;
+    letter-spacing: -1px;
+  }
 }
