@@ -1,6 +1,6 @@
 import React from "react";
 import { House, Coffee, ScrollText, User, ShoppingCart } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib";
 import Link from "next/link";
 
 interface NavItemProps {

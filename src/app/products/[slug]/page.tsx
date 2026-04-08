@@ -5,8 +5,8 @@ import {
   SizeSelector,
   OptionButton,
   OptionCard,
-} from "@/components/Mobile/product/detail/size-selector";
-import { useIsMobile } from "@/hooks/use-mobile";
+} from "@/entities/product";
+import { useIsMobile } from "@/shared/lib";
 
 export default function ProductDetailPage({
   params,

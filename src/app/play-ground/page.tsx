@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui";
 import { useAuthStore } from "@/store/auth.store";
 import { UserType } from "@/types/contracts";
 import {

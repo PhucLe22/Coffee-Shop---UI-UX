@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
-import { AppButton } from "@/components/shared/app-button";
-import ProductCard from "@/components/Mobile/product/product-card";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { AppButton } from "@/shared/ui";
+import { ProductCard } from "@/entities/product";
+import { useIsMobile } from "@/shared/lib";
 
 export default function Home() {
   const isMobile = useIsMobile();

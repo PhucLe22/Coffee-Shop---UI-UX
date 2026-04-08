@@ -1,6 +1,5 @@
-import React from "react";
 import { Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -12,7 +11,7 @@ interface ProductCardProps {
   className?: string;
 }
 
-const ProductCard = ({
+export const ProductCard = ({
   name,
   size,
   price,
@@ -35,8 +34,7 @@ const ProductCard = ({
         </Link>
         <button
           className="absolute right-2 bottom-2 flex size-10 items-center justify-center rounded-md bg-brand-primary text-text-inverse shadow-smeffect transition-all hover:bg-brand-accent active:scale-90"
-          aria-label="Add to cart"
-        >
+          aria-label="Add to cart">
           <Plus className="size-6" />
         </button>
       </div>
@@ -54,5 +52,3 @@ const ProductCard = ({
     </div>
   );
 };
-
-export default ProductCard;

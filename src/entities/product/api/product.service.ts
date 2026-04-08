@@ -1,5 +1,5 @@
-import axiosInstance from "@/lib/axios";
-import { GetProductsQuery } from "@/types/contracts";
+import { axiosInstance } from "@/shared/api";
+import { GetProductsQuery } from "../model/types";
 
 export const ProductService = {
   getProducts: async (query?: GetProductsQuery) => {

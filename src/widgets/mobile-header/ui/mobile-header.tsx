@@ -1,6 +1,6 @@
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui";
+import { cn } from "@/shared/lib";
 
 export interface MobileHeaderProps {
   userName?: string;

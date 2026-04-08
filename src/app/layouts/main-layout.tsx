@@ -1,11 +1,11 @@
 "use client";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/shared/lib";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import MobileHeader from "@/components/Mobile/header";
-import MobileNavBar from "@/components/Mobile/nav-bar";
-import AddToCart from "../Mobile/product/add-to-cart";
+import { MobileHeader } from "@/widgets/mobile-header";
+import { MobileNavBar } from "@/widgets/mobile-nav-bar";
+import { AddToCart } from "@/features/add-to-cart";
 
 export default function ResponsiveLayout({
   children,
