@@ -272,6 +272,21 @@ npx steiger src
 - **Do not create god slices.** Slices with excessively broad responsibilities
   should be split into focused slices (e.g., split `user-management/` into
   `auth/`, `profile-edit/`, `password-reset/`).
+- **Do not import directly from internal slice modules.** Use only the Public API (`index.ts`) as the entry point.
+- **Do not bypass the encapsulation layer.** Accessing internal folders (e.g., `/ui/`, `/model/`) creates tight coupling and breaks refactoring stability.
+- **Do not expose internal logic unnecessarily.** If a module isn't in the Public API, it must remain private to that slice.
+
+### Examples of Correct vs. Incorrect Imports
+
+| Category          | ✅ Compliant (Via Public API)                             | ❌ Violation (Deep Import)                                   |
+| :---------------- | :-------------------------------------------------------- | :----------------------------------------------------------- |
+| **Shared UI**     | `import { Button } from '@/shared/ui'`                    | `import { buttonStyles } from '@/shared/ui/button/styles'`   |
+| **Localization**  | `import { translator } from '@/shared/i18n'`              | `import { translator } from '@/shared/i18n/translator'`      |
+| **Entities**      | `import { UserAvatar } from '@/entities/user'`            | `import { UserAvatar } from '@/entities/user/ui/UserAvatar'` |
+| **Cross-imports** | `import { UserAvatar } from '@/entities/user/@x/product'` | _(Accessing modules inside /ui/ or /model/)_                 |
+| **Pages**         | `import { EditorPage } from '@/pages/editor'`             | `import { EditorPage } from '@/pages/editor/ui/EditorPage'`  |
+
+> **Key Takeaway:** If a module is not exported by the slice's `index.ts`, it is considered **private**. You should either export it through the Public API (if it is meant to be shared) or keep it encapsulated within the slice.
 
 ---
 

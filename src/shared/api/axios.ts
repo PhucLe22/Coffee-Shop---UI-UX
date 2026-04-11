@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { API_ENDPOINTS } from "./endpoints";
 
 // This should ideally come from an auth store/hook
 let accessToken: string | null = null;
@@ -40,7 +41,7 @@ axiosInstance.interceptors.response.use(
         // Call refresh endpoint - Refresh token is automatically sent via cookie
         // The backend should return the new access token in the body
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+          `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
           {},
           { withCredentials: true }
         );

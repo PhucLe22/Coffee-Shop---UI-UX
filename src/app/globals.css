@@ -41,11 +41,30 @@
   --color-brand-accent: var(--brand-accent);
   --color-price-highlight: var(--price-highlight);
 
+  /* --- Functional Colors --- */
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
   /* --- Special Styles --- */
   --color-border-primary-50: rgba(51, 15, 0, 0.5);
   --color-text-muted-50: rgba(112, 120, 120, 0.5);
   --color-text-inverse-80: rgba(255, 255, 255, 0.8);
   --color-text-inverse-10: rgba(255, 255, 255, 0.1);
+
+  /* --- Opacity Variants --- */
+  --color-primary-80: rgba(51, 15, 0, 0.8);
+  --color-primary-50: rgba(51, 15, 0, 0.5);
+  --color-primary-10: rgba(51, 15, 0, 0.1);
+
+  --color-white-80: rgba(255, 255, 255, 0.8);
+  --color-white-50: rgba(255, 255, 255, 0.5);
+  --color-white-10: rgba(255, 255, 255, 0.1);
+
+  --color-green-80: rgba(57, 102, 96, 0.8);
+  --color-green-50: rgba(57, 102, 96, 0.5);
+  --color-green-10: rgba(57, 102, 96, 0.1);
 
   --background-image-img-primary-gradient: linear-gradient(
     90deg,
@@ -100,6 +119,12 @@
   --brand-primary: rgb(240, 102, 10);
   --brand-accent: rgb(250, 115, 23);
   --price-highlight: rgb(250, 107, 20);
+
+  /* Functional Actions */
+  --success: rgb(16, 185, 129);
+  --error: rgb(239, 68, 68);
+  --warning: rgb(245, 158, 11);
+  --info: rgb(59, 130, 246);
 }
 
 @layer base {

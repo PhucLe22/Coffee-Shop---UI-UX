@@ -6,6 +6,10 @@ import { AppButton } from "@/shared/ui";
 import { ProductCard } from "@/entities/product";
 import { useIsMobile } from "@/shared/lib";
 
+import { HomeHero } from "@/widgets/home-hero";
+import { HomeRituals } from "@/widgets/home-rituals";
+import { HomePopularChoices } from "@/widgets/home-popular-choices";
+
 export default function Home() {
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
@@ -18,20 +22,10 @@ export default function Home() {
 
   if (!isMobile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface-main">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-text-primary uppercase tracking-tighter">
-            Desktop View
-          </h1>
-          <p className="text-text-secondary mt-4 font-medium">
-            The desktop version of the home page is currently under development.
-          </p>
-          <div className="mt-8 p-10 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
-            <p className="text-sm text-muted-foreground font-mono">
-              [ Desktop Dashboard Placeholder ]
-            </p>
-          </div>
-        </div>
+      <div className="flex flex-col bg-surface-main">
+        <HomeHero />
+        <HomeRituals />
+        <HomePopularChoices />
       </div>
     );
   }

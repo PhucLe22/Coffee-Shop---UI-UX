@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { LoginOutput } from '@/types/contracts'
+import { LoginOutput } from '@/shared/api'
 
 interface AuthState {
   user: Omit<LoginOutput, 'accessToken' | 'refreshToken'> | null

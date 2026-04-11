@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/shared/ui";
 import { useAuthStore } from "@/store/auth.store";
-import { UserType } from "@/types/contracts";
+import { UserType } from "@/shared/api";
 import {
   Info,
   AlertTriangle,

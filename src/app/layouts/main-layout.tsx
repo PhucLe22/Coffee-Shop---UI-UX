@@ -3,6 +3,8 @@
 import { useIsMobile } from "@/shared/lib";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { Header } from "@/widgets/header";
+import { Footer } from "@/widgets/footer";
 import { MobileHeader } from "@/widgets/mobile-header";
 import { MobileNavBar } from "@/widgets/mobile-nav-bar";
 import { AddToCart } from "@/features/add-to-cart";
@@ -23,6 +25,15 @@ export default function ResponsiveLayout({
   const isProductDetailPage =
     pathname?.startsWith("/products/") && pathname !== "/products";
 
+  const getActiveTab = () => {
+    if (pathname === "/") return "home";
+    if (pathname?.startsWith("/menu")) return "menu";
+    if (pathname?.startsWith("/orders")) return "orders";
+    if (pathname?.startsWith("/profile")) return "profile";
+    if (pathname?.startsWith("/cart")) return "cart";
+    return "home";
+  };
+
   // Prevent hydration mismatch by returning a skeleton or null until mounted
   if (!mounted) {
     return (
@@ -32,43 +43,19 @@ export default function ResponsiveLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      {isMobile && <MobileHeader />}
+      {isMobile ? <MobileHeader /> : <Header />}
 
-      {!isMobile && (
-        <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-          <div className="container mx-auto flex h-16 items-center justify-between px-6">
-            <div className="flex items-center gap-2">
-              <div className="size-8 rounded-lg bg-brand-primary" />
-              <span className="text-xl font-bold tracking-tighter uppercase">Ritual Coffee</span>
-            </div>
-            <nav className="flex items-center gap-8 text-sm font-medium text-text-secondary">
-              <a href="/" className="hover:text-brand-primary transition-colors">Home</a>
-              <a href="/menu" className="hover:text-brand-primary transition-colors">Menu</a>
-              <a href="/rewards" className="hover:text-brand-primary transition-colors">Rewards</a>
-              <a href="/stores" className="hover:text-brand-primary transition-colors">Stores</a>
-            </nav>
-            <div className="flex items-center gap-4">
-              <button className="rounded-full bg-slate-100 px-4 py-2 text-xs font-bold uppercase tracking-wider text-text-primary hover:bg-slate-200 transition-colors">
-                Sign In
-              </button>
-            </div>
-          </div>
-        </header>
-      )}
-
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         {children}
       </main>
 
-      {isMobile && !isProductDetailPage && <MobileNavBar />}
-      {isMobile && isProductDetailPage && <AddToCart price={50} />}
-      
-      {!isMobile && (
-        <footer className="border-t bg-slate-50 py-12">
-          <div className="container mx-auto px-6 text-center text-sm text-muted-foreground">
-            © 2026 Ritual Coffee Co. All rights reserved.
-          </div>
-        </footer>
+      {isMobile ? (
+        <>
+          {!isProductDetailPage && <MobileNavBar activeTab={getActiveTab()} />}
+          {isProductDetailPage && <AddToCart price={50} />}
+        </>
+      ) : (
+        <Footer />
       )}
     </div>
   );
