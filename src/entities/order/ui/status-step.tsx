@@ -24,7 +24,7 @@ export function StatusStep({ step, isLast }: StatusStepProps) {
       )}>
         <Icon className={cn(
           "size-4",
-          step.isActive || step.isCompleted ? "text-text-inverse" : "text-text-muted"
+          step.isActive || step.isCompleted ? "text-inverse-text" : "text-text-muted"
         )} />
       </div>
 

@@ -15,7 +15,7 @@ import { AppButton } from "@/shared/ui";
 
 const CustomerCard = () => {
   return (
-    <div className="flex h-auto w-full flex-col justify-between rounded-[32px] bg-surface-inverse p-6 text-text-inverse shadow-lg">
+    <div className="flex h-auto w-full flex-col justify-between rounded-[32px] bg-surface-inverse p-6 text-inverse-text shadow-lg">
       <div className="flex flex-col gap-2">
         <h2 className="font-plus-jakarta text-[24px] font-bold leading-tight">
           Julian Estévez
@@ -29,18 +29,18 @@ const CustomerCard = () => {
       <div className="flex flex-col gap-4 rounded-[16px] border border-text-muted/50 bg-black/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="font-inter text-sm font-semibold uppercase tracking-wider text-text-inverse">
+            <span className="font-inter text-sm font-semibold uppercase tracking-wider text-inverse-text">
               COLLECTIVE POINTS
             </span>
             <div className="flex items-baseline gap-1">
               <span className="font-plus-jakarta text-[24px] font-bold text-brand-primary">
                 2,450
               </span>
-              <span className="font-inter text-sm text-text-inverse">pts</span>
+              <span className="font-inter text-sm text-inverse-text">pts</span>
             </div>
           </div>
           <div className="flex flex-col items-end">
-            <span className="font-plus-jakarta text-[11px] text-text-inverse">
+            <span className="font-plus-jakarta text-[11px] text-inverse-text">
               Next Tier: Platinum
             </span>
             <span className="font-inter text-sm font-semibold text-text-muted">

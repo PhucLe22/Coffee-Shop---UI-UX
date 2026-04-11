@@ -32,7 +32,7 @@ export function SuggestionCard({
           )}
         </Link>
         <button
-          className="absolute right-2 bottom-2 flex size-10 items-center justify-center rounded-2xl bg-brand-primary text-text-inverse shadow-smeffect transition-all hover:bg-brand-accent active:scale-90"
+          className="absolute right-2 bottom-2 flex size-10 items-center justify-center rounded-2xl bg-brand-primary text-inverse-text shadow-smeffect transition-all hover:bg-brand-accent active:scale-90"
           aria-label="Add to cart"
         >
           <Plus className="size-6" />

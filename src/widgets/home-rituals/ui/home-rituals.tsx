@@ -13,7 +13,7 @@ export function HomeRituals() {
         </div>
         <AppButton
           variant="outline"
-          className="h-[80px] px-xl border-text-primary text-text-primary rounded-none hover:bg-text-primary hover:text-text-inverse transition-all">
+          className="h-[80px] px-xl border-text-primary text-text-primary rounded-none hover:bg-text-primary hover:text-inverse-text transition-all">
           Explore All Traditions
         </AppButton>
       </div>
@@ -25,13 +25,13 @@ export function HomeRituals() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
           <div className="absolute bottom-xl left-xl flex flex-col gap-lg max-w-[404px]">
-            <span className="bg-white/20 backdrop-blur-md px-md py-1 rounded-full text-overline text-text-inverse w-fit uppercase">
+            <span className="bg-white/20 backdrop-blur-md px-md py-1 rounded-full text-overline text-inverse-text w-fit uppercase">
               MEMBER EXCLUSIVE
             </span>
-            <h3 className="text-display-md text-text-inverse leading-tight">
+            <h3 className="text-display-md text-inverse-text leading-tight">
               Sunrise Cupping Sessions
             </h3>
-            <p className="text-body-md-reg text-text-inverse opacity-80">
+            <p className="text-body-md-reg text-inverse-text opacity-80">
               Join our lead roasters every Saturday at 7AM for an intimate
               journey through three distinct origins.
             </p>
@@ -68,14 +68,14 @@ export function HomeRituals() {
 
         {/* Bottom Right Cards - Subgrid */}
         <div className="col-span-3 row-span-1 bg-brand-primary rounded-lg p-xl flex flex-col justify-between group cursor-pointer hover:bg-brand-accent transition-colors">
-          <h3 className="text-h3-bold text-text-inverse">
+          <h3 className="text-h3-bold text-inverse-text">
             The Collective Journal
           </h3>
           <div className="flex flex-col gap-lg">
-            <p className="text-body-sm-reg text-text-inverse opacity-80">
+            <p className="text-body-sm-reg text-inverse-text opacity-80">
               Issue #04: The High Altitude Harvest
             </p>
-            <div className="flex items-center gap-sm text-text-inverse font-bold">
+            <div className="flex items-center gap-sm text-inverse-text font-bold">
               Read Issue
               <MoveRight className="size-5 transition-transform group-hover:translate-x-1" />
             </div>
@@ -83,12 +83,12 @@ export function HomeRituals() {
         </div>
 
         <div className="col-span-3 row-span-1 bg-text-primary rounded-lg p-xl flex flex-col justify-between group cursor-pointer hover:bg-black transition-colors">
-          <h3 className="text-h3-bold text-text-inverse">
+          <h3 className="text-h3-bold text-inverse-text">
             Flash Cold Brew Subscription
           </h3>
           <div className="flex flex-col gap-1">
             <span className="text-overline text-text-muted">STARTING AT</span>
-            <span className="text-display-md text-text-inverse font-extrabold leading-none">
+            <span className="text-display-md text-inverse-text font-extrabold leading-none">
               $24/mo
             </span>
           </div>

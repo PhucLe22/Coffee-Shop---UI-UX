@@ -35,7 +35,7 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
-  --color-text-inverse: var(--text-inverse);
+  --color-inverse-text: var(--text-inverse);
 
   --color-brand-primary: var(--brand-primary);
   --color-brand-accent: var(--brand-accent);
@@ -50,8 +50,8 @@
   /* --- Special Styles --- */
   --color-border-primary-50: rgba(51, 15, 0, 0.5);
   --color-text-muted-50: rgba(112, 120, 120, 0.5);
-  --color-text-inverse-80: rgba(255, 255, 255, 0.8);
-  --color-text-inverse-10: rgba(255, 255, 255, 0.1);
+  --color-inverse-text-80: rgba(240, 236, 236, 0.8);
+  --color-inverse-text-10: rgba(240, 236, 236, 0.1);
 
   /* --- Opacity Variants --- */
   --color-primary-80: rgba(51, 15, 0, 0.8);
@@ -108,23 +108,23 @@
   --ring: oklch(0.708 0 0);
 
   /* Figma Collection */
-  --surface-main: rgb(255, 248, 243);
-  --surface-accent: rgb(250, 242, 235);
-  --surface-muted: rgb(235, 224, 217);
-  --surface-inverse: rgb(3, 43, 33);
-  --text-primary: rgb(51, 15, 0);
-  --text-secondary: rgb(56, 102, 97);
-  --text-muted: rgb(112, 120, 120);
-  --text-inverse: rgb(240, 236, 236);
-  --brand-primary: rgb(240, 102, 10);
-  --brand-accent: rgb(250, 115, 23);
-  --price-highlight: rgb(250, 107, 20);
+  --surface-main: #FFF8F3;
+  --surface-accent: #FBF2EA;
+  --surface-muted: #EAE1D9;
+  --surface-inverse: #022C22;
+  --text-primary: #330F00;
+  --text-secondary: #396660;
+  --text-muted: #707977;
+  --text-inverse: #F0ECEC;
+  --brand-primary: #F0660A;
+  --brand-accent: #F97316;
+  --price-highlight: #F96C14;
 
   /* Functional Actions */
-  --success: rgb(16, 185, 129);
-  --error: rgb(239, 68, 68);
-  --warning: rgb(245, 158, 11);
-  --info: rgb(59, 130, 246);
+  --success: #10B981;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --info: #3B82F6;
 }
 
 @layer base {

@@ -65,7 +65,7 @@ export function DesktopOrderStatusTimeline({ order }: DesktopOrderStatusTimeline
                   )}>
                     <Icon className={cn(
                       "size-5",
-                      step.isActive || step.isCompleted ? "text-text-inverse" : "text-text-muted"
+                      step.isActive || step.isCompleted ? "text-inverse-text" : "text-text-muted"
                     )} />
                   </div>
 

@@ -24,7 +24,7 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
   return (
     <div
       className={cn(
-        "flex flex-col gap-md rounded-[24px] border border-border-primary-50 bg-text-inverse p-[18px]",
+        "flex flex-col gap-md rounded-[24px] border border-border-primary-50 bg-inverse-text p-[18px]",
         className,
       )}>
       {/* Header: ID, Date, Status */}
@@ -39,7 +39,7 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
         </div>
         <Badge
           className={cn(
-            "h-[25px] rounded-full px-4 text-[11px] font-semibold tracking-wider text-text-inverse border-none",
+            "h-[25px] rounded-full px-4 text-[11px] font-semibold tracking-wider text-inverse-text border-none",
             status.className,
           )}>
           {status.label}
@@ -52,7 +52,7 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
           {order.items.slice(0, 2).map((item, index) => (
             <div
               key={item.id}
-              className="relative size-12 overflow-hidden rounded-[16px] border-2 border-text-inverse bg-surface-muted shadow-sm"
+              className="relative size-12 overflow-hidden rounded-[16px] border-2 border-inverse-text bg-surface-muted shadow-sm"
               style={{ zIndex: 2 - index }}>
               {/* Fallback if no image, in real app we'd have imageUrl in OrderItem */}
               <div className="flex h-full w-full items-center justify-center bg-brand-primary/10 text-brand-primary">

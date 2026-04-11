@@ -40,10 +40,10 @@ export function HomeHero() {
 
         {/* Info Card Overlay */}
         <div className="absolute bottom-md left-md bg-white/20 backdrop-blur-lg border border-white/30 rounded-md p-md w-[307px] shadow-lg">
-          <h3 className="text-h4-bold text-text-inverse mb-sm">
+          <h3 className="text-h4-bold text-inverse-text mb-sm">
             Estate Series No. 24
           </h3>
-          <p className="text-body-sm-reg text-text-inverse opacity-80">
+          <p className="text-body-sm-reg text-inverse-text opacity-80">
             Single-origin beans from the Sidama region, Ethiopia. Roasted in
             small batches every Tuesday.
           </p>

@@ -16,7 +16,7 @@ const NavItem = ({ icon: Icon, label, href, isActive }: NavItemProps) => {
       href={href}
       className={cn(
         "flex h-[51px] w-[83px] flex-col items-center justify-center gap-1 rounded-sm transition-all",
-        isActive ? "bg-text-primary text-text-inverse" : "text-text-secondary"
+        isActive ? "bg-text-primary text-inverse-text" : "text-text-secondary"
       )}
     >
       <Icon className="size-4" />

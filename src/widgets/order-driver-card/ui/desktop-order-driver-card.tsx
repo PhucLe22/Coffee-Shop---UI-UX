@@ -35,7 +35,7 @@ export function DesktopOrderDriverCard({ order }: DesktopOrderDriverCardProps) {
           variant="secondary" 
           className="size-14 rounded-full bg-text-secondary hover:bg-text-secondary/90 shadow-none"
         >
-          <Phone className="size-6 text-text-inverse" />
+          <Phone className="size-6 text-inverse-text" />
         </AppButton>
         <AppButton variant="primary" className="h-14 px-xl label-button-md">
           HELP CENTER

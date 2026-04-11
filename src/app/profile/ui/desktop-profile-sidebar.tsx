@@ -40,7 +40,7 @@ export function DesktopProfileSidebar() {
   return (
     <aside className="flex w-[400px] flex-col gap-8">
       {/* Profile Card */}
-      <div className="flex flex-col items-center gap-4 rounded-md bg-surface-inverse p-8 text-center text-text-inverse overflow-hidden relative">
+      <div className="flex flex-col items-center gap-4 rounded-md bg-surface-inverse p-8 text-center text-inverse-text overflow-hidden relative">
         {/* Large Background Text Decoration */}
         <span className="absolute -bottom-4 -left-4 text-[60px] font-pacifico opacity-10 whitespace-nowrap pointer-events-none">
           Verdant Amber
@@ -54,7 +54,7 @@ export function DesktopProfileSidebar() {
         {/* Points Display (Simplified from mobile version) */}
         <div className="mt-4 flex w-full flex-col gap-2 rounded-lg bg-white/5 p-4 z-10">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-text-inverse/60">COLLECTIVE POINTS</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-inverse-text/60">COLLECTIVE POINTS</span>
             <span className="text-lg font-bold text-brand-primary">2,450 pts</span>
           </div>
           <div className="h-1 w-full bg-white/10 rounded-full">

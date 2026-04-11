@@ -47,7 +47,7 @@ export const OptionCard = ({
         className={cn(
           "p-2 flex items-center justify-center rounded-md transition-colors",
           isSelected
-            ? "bg-text-inverse/10 text-surface-accent"
+            ? "bg-inverse-text/10 text-surface-accent"
             : "bg-surface-muted text-text-secondary",
         )}>
         {isSelected ? <X className="size-6" /> : <Plus className="size-6" />}

@@ -15,15 +15,15 @@ const AddressCard = ({ label, address, isPrimary }: AddressCardProps) => (
     className={cn(
       "flex flex-col gap-2 rounded-sm p-4 transition-all",
       isPrimary
-        ? "bg-text-secondary text-text-inverse shadow-md"
+        ? "bg-text-secondary text-inverse-text shadow-md"
         : "bg-surface-accent text-text-primary border border-black/5"
     )}
   >
     <div className="flex items-center gap-2">
-      <MapPin className={cn("size-4", isPrimary ? "text-text-inverse" : "text-text-secondary")} />
+      <MapPin className={cn("size-4", isPrimary ? "text-inverse-text" : "text-text-secondary")} />
       <span className="text-body-sm-semibold">{label}</span>
     </div>
-    <p className={cn("text-body-sm-reg", isPrimary ? "text-text-inverse/80" : "text-text-muted")}>
+    <p className={cn("text-body-sm-reg", isPrimary ? "text-inverse-text/80" : "text-text-muted")}>
       {address}
     </p>
   </div>

@@ -26,7 +26,7 @@ export const ProductCardDetailed = ({
   className,
 }: ProductCardDetailedProps) => {
   return (
-    <div className={cn("flex w-full flex-col overflow-hidden rounded-md bg-text-inverse", className)}>
+    <div className={cn("flex w-full flex-col overflow-hidden rounded-md bg-inverse-text", className)}>
       {/* Product Image & Badge */}
       <div className="relative aspect-[358/256] w-full overflow-hidden bg-surface-accent">
         <Link href={`/products/${slug}`} className="block h-full w-full">
@@ -43,7 +43,7 @@ export const ProductCardDetailed = ({
           )}
         </Link>
         {badge && (
-          <div className="absolute right-4 top-2 rounded-full bg-brand-primary px-2 py-0.5 text-overline text-text-inverse">
+          <div className="absolute right-4 top-2 rounded-full bg-brand-primary px-2 py-0.5 text-overline text-inverse-text">
             {badge}
           </div>
         )}
@@ -70,7 +70,7 @@ export const ProductCardDetailed = ({
                 </span>
             </div>
             <button
-                className="flex size-10 items-center justify-center rounded-md bg-brand-primary text-text-inverse shadow-sm transition-all hover:bg-brand-accent active:scale-90"
+                className="flex size-10 items-center justify-center rounded-md bg-brand-primary text-inverse-text shadow-sm transition-all hover:bg-brand-accent active:scale-90"
                 aria-label="Add to cart"
             >
                 <Plus className="size-6" />

@@ -31,7 +31,7 @@ export const CategoryChips = ({
           className={cn(
             "flex items-center justify-center rounded-2xl px-6 py-2 label-badge transition-colors",
             activeId === category.id
-              ? "bg-text-primary text-text-inverse"
+              ? "bg-text-primary text-inverse-text"
               : "bg-surface-muted text-text-secondary"
           )}
         >

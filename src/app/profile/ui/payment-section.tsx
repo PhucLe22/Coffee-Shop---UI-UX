@@ -24,7 +24,7 @@ const PaymentCard = ({ brand, last4, expiry, isPrimary }: PaymentCardProps) => (
       </div>
     </div>
     {isPrimary && (
-      <Badge className="bg-text-secondary text-text-inverse border-none font-bold">
+      <Badge className="bg-text-secondary text-inverse-text border-none font-bold">
         PRIMARY
       </Badge>
     )}
