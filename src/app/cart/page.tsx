@@ -9,7 +9,7 @@ import {
 } from "@/widgets/cart";
 import { AuthModal } from "@/widgets/auth";
 import { useCartStore } from "@/entities/cart";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore } from "@/shared/auth";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { AppButton } from "@/shared/ui";

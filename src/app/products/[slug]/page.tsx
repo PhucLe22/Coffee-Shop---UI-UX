@@ -161,6 +161,7 @@ export default function ProductDetailPage({
                 name={topping.name}
                 price={topping.price}
                 isSelected={topping.selected}
+
                 onToggle={() => toggleTopping(topping.id)}
               />
             ))}

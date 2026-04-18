@@ -1,9 +1,9 @@
 import { Box, Plus, X } from "lucide-react";
-import { cn } from "@/shared/lib";
+import { cn, formatToVND } from "@/shared/lib";
 
 interface OptionCardProps {
   name: string;
-  price: string | number;
+  price: number;
   isSelected?: boolean;
   onToggle?: () => void;
   className?: string;
@@ -16,10 +16,6 @@ export const OptionCard = ({
   onToggle,
   className,
 }: OptionCardProps) => {
-  const formattedPrice = typeof price === 'number' 
-    ? `+${price.toLocaleString('vi-VN')}đ` 
-    : price;
-
   return (
     <div
       onClick={onToggle}
@@ -40,7 +36,9 @@ export const OptionCard = ({
         </div>
         <div className="flex flex-col">
           <span className="text-body-sm-semibold leading-tight">{name}</span>
-          <span className="label-overline-inter leading-tight">{formattedPrice}</span>
+          <span className="label-overline-inter leading-tight">
+            {formatToVND(price)}
+          </span>
         </div>
       </div>
       <div

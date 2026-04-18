@@ -5,3 +5,6 @@ export * from "./avatar";
 export * from "./card";
 export * from "./separator";
 export * from "./skeleton";
+export * from "./input";
+export * from "./label";
+export * from "./checkbox";

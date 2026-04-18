@@ -1,4 +1,4 @@
-import { cn } from "@/shared/lib";
+import { cn, formatToVND } from "@/shared/lib";
 import { Badge, Button } from "@/shared/ui";
 import { Order, OrderStatus } from "../model/types";
 
@@ -80,7 +80,7 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
             TOTAL
           </span>
           <span className="font-plus-jakarta text-[18px] font-bold text-brand-primary">
-            {order.totalPrice.toLocaleString("vi-VN")}đ
+            {formatToVND(order.totalPrice)}đ
           </span>
         </div>
         <Button

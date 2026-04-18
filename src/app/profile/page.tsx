@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useIsMobile } from "@/shared/lib";
-import { MobileProfileView } from "./ui/mobile-profile-view";
-import { DesktopProfileView } from "./ui/desktop-profile-view";
+import { MobileProfileView } from "./mobile-profile-view";
+import { DesktopProfileView } from "./desktop-profile-view";
 
 export default function ProfilePage() {
   const isMobile = useIsMobile();

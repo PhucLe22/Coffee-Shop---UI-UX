@@ -136,7 +136,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                 <OptionCard
                   key={topping.id}
                   name={topping.name}
-                  price={`+$${topping.price.toFixed(2)}`}
+                  price={topping.price}
                   isSelected={topping.selected}
                   onToggle={() => toggleTopping(topping.id)}
                   className="rounded-md border-border-primary-50"

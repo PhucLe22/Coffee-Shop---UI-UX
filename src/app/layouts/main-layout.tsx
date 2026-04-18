@@ -34,10 +34,20 @@ export default function ResponsiveLayout({
     return "home";
   };
 
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+
   // Prevent hydration mismatch by returning a skeleton or null until mounted
   if (!mounted) {
     return (
       <div className="min-h-screen bg-surface-main" />
+    );
+  }
+
+  if (isAuthPage) {
+    return (
+      <main className="flex min-h-screen flex-col">
+        {children}
+      </main>
     );
   }
 
@@ -52,7 +62,16 @@ export default function ResponsiveLayout({
       {isMobile ? (
         <>
           {!isProductDetailPage && <MobileNavBar activeTab={getActiveTab()} />}
-          {isProductDetailPage && <AddToCart price={50} />}
+          {isProductDetailPage && (
+            <AddToCart
+              product={{
+                id: "placeholder",
+                name: "Placeholder",
+                price: 50,
+                options: "",
+              }}
+            />
+          )}
         </>
       ) : (
         <Footer />
