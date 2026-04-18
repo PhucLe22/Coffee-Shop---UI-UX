@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
-import { AppButton } from "@/components/shared/app-button";
-import ProductCard from "@/components/Mobile/product/product-card";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { AppButton } from "@/shared/ui";
+import { ProductCard } from "@/entities/product";
+import { useIsMobile } from "@/shared/lib";
+
+import { HomeHero } from "@/widgets/home-hero";
+import { HomeRituals } from "@/widgets/home-rituals";
+import { HomePopularChoices } from "@/widgets/home-popular-choices";
 
 export default function Home() {
   const isMobile = useIsMobile();
@@ -18,20 +22,10 @@ export default function Home() {
 
   if (!isMobile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface-main">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-text-primary uppercase tracking-tighter">
-            Desktop View
-          </h1>
-          <p className="text-text-secondary mt-4 font-medium">
-            The desktop version of the home page is currently under development.
-          </p>
-          <div className="mt-8 p-10 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
-            <p className="text-sm text-muted-foreground font-mono">
-              [ Desktop Dashboard Placeholder ]
-            </p>
-          </div>
-        </div>
+      <div className="flex flex-col bg-surface-main">
+        <HomeHero />
+        <HomeRituals />
+        <HomePopularChoices />
       </div>
     );
   }
@@ -71,13 +65,13 @@ export default function Home() {
             <div className="relative aspect-357/400 w-full overflow-hidden rounded-lg bg-text-primary">
               <div className="absolute inset-0 bg-linear-to-t from-text-primary/90 via-text-primary/20 to-transparent" />
               <div className="absolute inset-0 flex flex-col justify-end p-lg">
-                <div className="mb-sm flex w-fit items-center rounded-full bg-brand-primary px-3 py-1 text-[10px] font-bold text-text-inverse">
+                <div className="mb-sm flex w-fit items-center rounded-full bg-brand-primary px-3 py-1 text-[10px] font-bold text-inverse-text">
                   NEW SEASON
                 </div>
                 <h3 className="mb-sm font-plus-jakarta text-[48px] font-extrabold leading-[1.2] text-brand-primary">
                   The Honey- Oak Flat White
                 </h3>
-                <p className="mb-md font-inter text-[16px] font-bold text-text-inverse">
+                <p className="mb-md font-inter text-[16px] font-bold text-inverse-text">
                   Sourced from the highlands of Ethiopia, infused with
                   sustainable forest honey.
                 </p>
@@ -86,7 +80,7 @@ export default function Home() {
             </div>
 
             {/* Accent Promo Card */}
-            <div className="flex flex-col gap-md rounded-lg bg-brand-primary p-lg text-text-inverse">
+            <div className="flex flex-col gap-md rounded-lg bg-brand-primary p-lg text-inverse-text">
               <div className="flex flex-col gap-1">
                 <h3 className="font-plus-jakarta text-[36px] font-extrabold leading-tight">
                   Monday Roast
