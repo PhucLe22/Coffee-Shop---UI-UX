@@ -3,6 +3,7 @@ export * from "./ui/product-card-detailed";
 export * from "./ui/desktop-product-card";
 export * from "./api/product.service";
 export * from "./api/use-products";
+export * from "./api/use-product";
 export * from "./api/use-infinite-products";
 export * from "./model/types";
 export * from "./ui/option-button";

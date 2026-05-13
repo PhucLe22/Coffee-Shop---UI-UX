@@ -20,8 +20,9 @@ export function RegisterForm() {
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      fullName: "",
+      name: "",
       email: "",
+      phone: "",
       password: "",
       joinRewards: false,
     },
@@ -52,15 +53,15 @@ export function RegisterForm() {
         )}
 
         <div className="flex flex-col gap-xs">
-          <Label htmlFor="fullName" className="text-text-secondary">FULL NAME</Label>
+          <Label htmlFor="name" className="text-text-secondary">FULL NAME</Label>
           <Input
-            id="fullName"
+            id="name"
             placeholder="Enter your full name"
-            {...register("fullName")}
-            className={errors.fullName ? "border-error focus-visible:ring-error" : "border-none"}
+            {...register("name")}
+            className={errors.name ? "border-error focus-visible:ring-error" : "border-none"}
           />
-          {errors.fullName && (
-            <span className="text-overline text-error">{errors.fullName.message}</span>
+          {errors.name && (
+            <span className="text-overline text-error">{errors.name.message}</span>
           )}
         </div>
 
@@ -75,6 +76,20 @@ export function RegisterForm() {
           />
           {errors.email && (
             <span className="text-overline text-error">{errors.email.message}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-xs">
+          <Label htmlFor="phone" className="text-text-secondary">PHONE NUMBER</Label>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder="0933710444"
+            {...register("phone")}
+            className={errors.phone ? "border-error focus-visible:ring-error" : "border-none"}
+          />
+          {errors.phone && (
+            <span className="text-overline text-error">{errors.phone.message}</span>
           )}
         </div>
 

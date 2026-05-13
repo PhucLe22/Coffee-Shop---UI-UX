@@ -19,7 +19,7 @@ export function LoginForm() {
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
       keepLoggedIn: false,
     },
@@ -31,7 +31,7 @@ export function LoginForm() {
 
   const errorMessage = error instanceof AxiosError 
     ? error.response?.data?.message 
-    : "Invalid email or password";
+    : "Invalid email, phone or password";
 
   return (
     <div className="flex w-full flex-col gap-lg">
@@ -50,16 +50,16 @@ export function LoginForm() {
         )}
 
         <div className="flex flex-col gap-xs">
-          <Label htmlFor="email" className="text-text-secondary">EMAIL ADDRESS</Label>
+          <Label htmlFor="identifier" className="text-text-secondary">EMAIL OR PHONE NUMBER</Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="email@example.com"
-            {...register("email")}
-            className={errors.email ? "border-error focus-visible:ring-error" : "border-none"}
+            id="identifier"
+            type="text"
+            placeholder="email@example.com or 0917..."
+            {...register("identifier")}
+            className={errors.identifier ? "border-error focus-visible:ring-error" : "border-none"}
           />
-          {errors.email && (
-            <span className="text-overline text-error">{errors.email.message}</span>
+          {errors.identifier && (
+            <span className="text-overline text-error">{errors.identifier.message}</span>
           )}
         </div>
 

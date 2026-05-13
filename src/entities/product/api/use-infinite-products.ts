@@ -12,8 +12,9 @@ export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "lim
         limit: 6 
       }),
     getNextPageParam: (lastPage) => {
-      if (lastPage.meta && lastPage.meta.page < lastPage.meta.totalPages) {
-        return lastPage.meta.page + 1;
+      const { meta } = lastPage.data;
+      if (meta.hasNext) {
+        return meta.currentPage + 1;
       }
       return undefined;
     },

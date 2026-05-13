@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { LoginOutput } from '@/shared/api'
+import { LoginOutput } from '../api/contracts'
+import { setAccessToken } from '../api/axios'
 
 interface AuthState {
   user: Omit<LoginOutput, 'accessToken' | 'refreshToken'> | null
@@ -50,6 +51,9 @@ export const useAuthStore = create<AuthStore>()(
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true)
+        if (state?.accessToken) {
+          setAccessToken(state.accessToken)
+        }
       },
       // Optionally partialize what to persist
       partialize: (state) => ({

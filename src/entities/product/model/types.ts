@@ -5,16 +5,31 @@ export const ProductType = {
 } as const;
 export type ProductType = (typeof ProductType)[keyof typeof ProductType];
 
-export interface Product {
+export interface CategorySummary {
   id: string;
   name: string;
-  description: string;
-  price: number;
-  thumbnail: string | null;
   slug?: string;
-  calories?: string;
-  size?: string;
-  badge?: string;
+}
+
+export interface Product {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  description: string;
+  type: ProductType;
+  basePrice: number;
+  costPrice: number;
+  taxRate: number;
+  thumbnail: string | null;
+  images: string[];
+  categoryId: string;
+  category: CategorySummary;
+  sortOrder: number | null;
+  preparationTime: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface GetProductsQuery {
@@ -28,10 +43,14 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
-  meta?: {
-    total: number;
-    page: number;
-    limit: number;
+}
+
+export interface PaginatedData<T> {
+  items: T[];
+  meta: {
+    totalItems: number;
+    currentPage: number;
     totalPages: number;
+    hasNext: boolean;
   };
 }

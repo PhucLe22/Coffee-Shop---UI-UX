@@ -112,6 +112,12 @@ export const UserType = {
 } as const;
 export type UserType = (typeof UserType)[keyof typeof UserType];
 
+export interface BaseResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
 // --- AUTH (auth.output.schema.js) ---
 
 export interface RegisterOutput {

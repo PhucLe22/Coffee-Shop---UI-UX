@@ -1,8 +1,8 @@
 import { axiosInstance, API_ENDPOINTS } from "@/shared/api";
-import { GetProductsQuery, Product, ApiResponse } from "../model/types";
+import { GetProductsQuery, Product, ApiResponse, PaginatedData } from "../model/types";
 
 export const ProductService = {
-  getProducts: async (query?: GetProductsQuery): Promise<ApiResponse<Product[]>> => {
+  getProducts: async (query?: GetProductsQuery): Promise<ApiResponse<PaginatedData<Product>>> => {
     const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.BASE, {
       params: query,
     });

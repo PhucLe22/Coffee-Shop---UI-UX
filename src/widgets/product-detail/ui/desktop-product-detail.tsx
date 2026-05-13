@@ -2,29 +2,32 @@
 
 import { useState } from 'react';
 import { Leaf, Minus, Plus, ShoppingCart } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
+import { cn, formatToVND } from '@/shared/lib';
 import { AppButton } from '@/shared/ui';
-import { SizeSelector, OptionButton, OptionCard } from '@/entities/product';
-
-interface Product {
-  name: string;
-  category: string;
-  description: string;
-  basePrice: number;
-  image: string;
-  sizes: { id: string; label: string; volume: string; price: number }[];
-  sweetness: string[];
-  toppings: { id: number; name: string; description: string; price: number; selected: boolean }[];
-}
+import { SizeSelector, OptionButton, OptionCard, Product } from '@/entities/product';
 
 interface DesktopProductDetailProps {
   product: Product;
 }
 
+// UI-only defaults until backend supports these
+const MOCK_SIZES = [
+  { id: "s", label: "Standard", volume: "12oz", price: 0 },
+  { id: "m", label: "Medium", volume: "16oz", price: 15000 },
+  { id: "l", label: "Large", volume: "20oz", price: 25000 },
+];
+
+const MOCK_SWEETNESS = ["None", "25%", "50%", "75%", "100%"];
+
+const MOCK_TOPPINGS = [
+  { id: 1, name: "Cold Foam Head", description: "Signature silky texture", price: 5000, selected: false },
+  { id: 2, name: "Extra Maldon Salt", description: "For the bold palate", price: 2000, selected: false },
+];
+
 export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0].id);
-  const [selectedSweetness, setSelectedSweetness] = useState(product.sweetness[1]);
-  const [toppings, setToppings] = useState(product.toppings);
+  const [selectedSize, setSelectedSize] = useState(MOCK_SIZES[1].id);
+  const [selectedSweetness, setSelectedSweetness] = useState(MOCK_SWEETNESS[1]);
+  const [toppings, setToppings] = useState(MOCK_TOPPINGS);
   const [quantity, setQuantity] = useState(1);
 
   const toggleTopping = (id: number) => {
@@ -33,9 +36,11 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
     );
   };
 
+  const selectedSizeData = MOCK_SIZES.find(s => s.id === selectedSize);
+  
   const totalPrice = (
     product.basePrice + 
-    (product.sizes.find(s => s.id === selectedSize)?.price || 0) +
+    (selectedSizeData?.price || 0) +
     toppings.filter(t => t.selected).reduce((acc, t) => acc + t.price, 0)
   ) * quantity;
 
@@ -44,7 +49,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
       {/* Left Side: Image */}
       <div className="w-[50%] sticky top-[102px] h-[calc(100vh-102px)] overflow-hidden bg-surface-accent">
         <img 
-          src={product.image} 
+          src={product.thumbnail || "/placeholder-product.jpg"} 
           alt={product.name} 
           className="w-full h-full object-cover"
         />
@@ -57,7 +62,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
           <div className="flex flex-col gap-md">
             <div className="flex items-center gap-sm text-text-secondary">
               <Leaf className="size-4 fill-text-secondary" />
-              <span className="text-body-sm-semibold uppercase tracking-wider">{product.category}</span>
+              <span className="text-body-sm-semibold uppercase tracking-wider">{product.category.name}</span>
             </div>
             <h1 className="text-display-md text-text-primary leading-tight">
               {product.name}
@@ -73,7 +78,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
               CHOOSE SIZE
             </h3>
             <div className="flex gap-md">
-              {product.sizes.map((size) => (
+              {MOCK_SIZES.map((size) => (
                 <SizeSelector
                   key={size.id}
                   label={size.label}
@@ -93,34 +98,17 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                 SWEETNESS LEVEL
               </h3>
               <span className="text-body-sm-semibold text-text-secondary">
-                {selectedSweetness} Honey Blend
+                {selectedSweetness} Sugar Level
               </span>
             </div>
             <div className="flex gap-sm overflow-x-auto no-scrollbar">
-              {product.sweetness.map((level) => (
+              {MOCK_SWEETNESS.map((level) => (
                 <OptionButton
                   key={level}
                   label={level}
                   isSelected={selectedSweetness === level}
                   onClick={() => setSelectedSweetness(level)}
                   className="rounded-md h-[52px] min-w-[120px]"
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Milk Options */}
-          <div className="flex flex-col gap-md">
-            <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-              MILK CHOICE
-            </h3>
-            <div className="grid grid-cols-4 gap-sm">
-              {['Oat milk', 'Almond', 'Whole milk', 'Macadamia'].map((milk) => (
-                <OptionButton
-                  key={milk}
-                  label={milk}
-                  isSelected={milk === 'Oat milk'}
-                  className="rounded-md h-[52px]"
                 />
               ))}
             </div>
@@ -153,7 +141,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                   TOTAL AMOUNT
                 </span>
                 <span className="text-display-md text-text-secondary leading-none">
-                  ${totalPrice.toFixed(2)}
+                  {formatToVND(totalPrice)}
                 </span>
               </div>
               

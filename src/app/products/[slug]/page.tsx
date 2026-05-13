@@ -5,9 +5,25 @@ import {
   SizeSelector,
   OptionButton,
   OptionCard,
+  useProduct,
 } from "@/entities/product";
-import { useIsMobile } from "@/shared/lib";
+import { useIsMobile, formatToVND } from "@/shared/lib";
 import { DesktopProductDetail } from "@/widgets/product-detail";
+import { Skeleton } from "@/shared/ui/skeleton";
+
+// UI-only defaults until backend supports these
+const MOCK_SIZES = [
+  { id: "s", label: "Standard", volume: "12oz", price: 0 },
+  { id: "m", label: "Medium", volume: "16oz", price: 15000 },
+  { id: "l", label: "Large", volume: "20oz", price: 25000 },
+];
+
+const MOCK_SWEETNESS = ["None", "25%", "50%", "75%", "100%"];
+
+const MOCK_TOPPINGS = [
+  { id: 1, name: "Cold Foam Head", description: "Signature silky texture", price: 5000, selected: false },
+  { id: 2, name: "Extra Maldon Salt", description: "For the bold palate", price: 2000, selected: false },
+];
 
 export default function ProductDetailPage({
   params,
@@ -18,36 +34,17 @@ export default function ProductDetailPage({
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Mock data
-  const product = {
-    name: "Iced Salted Latte",
-    category: "SEASONAL COLD BREW",
-    origin: "Single Estate Ethiopian Beans",
-    basePrice: 6.50,
-    description:
-      "Our signature double-shot espresso, velvet-soft milk, and a delicate touch of hand-harvested Maldon sea salt. Finished with a burnt-sugar drizzle.",
-    image:
-      "https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=1974&auto=format&fit=crop",
-    sizes: [
-      { id: "s", label: "Standard", volume: "12oz", price: 0 },
-      { id: "m", label: "Medium", volume: "16oz", price: 1.50 },
-      { id: "l", label: "Large", volume: "20oz", price: 2.50 },
-    ],
-    sweetness: ["None", "25%", "50%", "75%", "100%"],
-    toppings: [
-      { id: 1, name: "Cold Foam Head", description: "Signature silky texture", price: 0.85, selected: true },
-      { id: 2, name: "Extra Maldon Salt", description: "For the bold palate", price: 0.25, selected: false },
-    ],
-  };
+  const { data: response, isLoading, isError } = useProduct(slug);
+  const product = response?.data;
 
   // State quản lý lựa chọn
   const [selectedSize, setSelectedSize] = useState("m");
   const [selectedSweetness, setSelectedSweetness] = useState("25%");
-  const [toppings, setToppings] = useState(product.toppings);
+  const [toppings, setToppings] = useState(MOCK_TOPPINGS);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Hàm toggle topping
   const toggleTopping = (id: number) => {
@@ -56,7 +53,26 @@ export default function ProductDetailPage({
     );
   };
 
-  if (!mounted) return null;
+  if (!mounted || isLoading) {
+    return (
+      <div className="flex flex-col gap-8 p-6">
+        <Skeleton className="aspect-square w-full rounded-lg" />
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-3/4" />
+          <Skeleton className="h-6 w-1/2" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !product) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center p-6 text-center text-text-secondary">
+        Product not found or failed to load.
+      </div>
+    );
+  }
 
   if (!isMobile) {
     return (
@@ -69,17 +85,19 @@ export default function ProductDetailPage({
       {/* Hero Section */}
       <section className="relative aspect-square w-full">
         <img
-          src={product.image}
+          src={product.thumbnail || "/placeholder-product.jpg"}
           alt={product.name}
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-end p-6 gap-2">
-          <div className="flex h-6 w-fit items-center rounded-full bg-orange-500 px-3">
-            <span className="text-[10px] font-bold text-white uppercase">
-              BEST SELLER
-            </span>
-          </div>
+          {product.isActive && (
+            <div className="flex h-6 w-fit items-center rounded-full bg-orange-500 px-3">
+              <span className="text-[10px] font-bold text-white uppercase">
+                AVAILABLE
+              </span>
+            </div>
+          )}
           <h1 className="text-3xl font-bold text-white leading-tight">
             {product.name}
           </h1>
@@ -92,21 +110,26 @@ export default function ProductDetailPage({
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-lg font-bold text-text-secondary">
-              Product Origin
+              Category
             </h2>
             <span className="text-sm text-text-secondary font-semibold">
-              {product.origin}
+              {product.category.name}
             </span>
           </div>
           <div className="text-right">
             <span className="text-xl font-bold text-orange-600 block">
-              {product.basePrice}
+              {formatToVND(product.basePrice)}
             </span>
             <span className="text-[10px] font-bold text-text-secondary uppercase">
               BASE PRICE
             </span>
           </div>
         </div>
+
+        {/* Description */}
+        <p className="text-body-md-reg text-text-muted">
+          {product.description}
+        </p>
 
         {/* Size Selection */}
         <section className="flex flex-col gap-4">
@@ -117,7 +140,7 @@ export default function ProductDetailPage({
             </span>
           </div>
           <div className="flex gap-4 w-full">
-            {product.sizes.map((size) => (
+            {MOCK_SIZES.map((size) => (
               <SizeSelector
                 key={size.id}
                 label={size.label}
@@ -140,7 +163,7 @@ export default function ProductDetailPage({
           </div>
 
           <div className="flex items-center justify-between overflow-x-auto no-scrollbar">
-            {product.sweetness.map((level) => (
+            {MOCK_SWEETNESS.map((level) => (
               <OptionButton
                 key={level}
                 label={level}

@@ -32,7 +32,7 @@ export default function MenuPage() {
     }
   }, [entry?.isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const allProducts = data?.pages.flatMap((page) => page.data) || [];
+  const allProducts = data?.pages.flatMap((page) => page.data.items) || [];
 
   return (
     <div className="flex flex-col gap-8 bg-surface-accent px-6 py-12 pb-24 min-h-full">
@@ -83,13 +83,13 @@ export default function MenuPage() {
               <ProductCardDetailed
                 key={product.id}
                 name={product.name}
-                price={formatToVND(product.price)}
+                price={formatToVND(product.basePrice)}
                 description={product.description}
-                calories={product.calories || "0"}
-                size={product.size || "0"}
+                calories={"0"}
+                size={"Medium"}
                 slug={product.slug || product.id}
                 imageUrl={product.thumbnail || undefined}
-                badge={product.badge}
+                badge={undefined}
               />
             ))}
           </>
