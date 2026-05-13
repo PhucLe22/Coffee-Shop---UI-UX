@@ -5,8 +5,9 @@ import {
   SizeSelector,
   OptionButton,
   OptionCard,
-} from "@/components/Mobile/product/detail/size-selector";
-import { useIsMobile } from "@/hooks/use-mobile";
+} from "@/entities/product";
+import { useIsMobile } from "@/shared/lib";
+import { DesktopProductDetail } from "@/widgets/product-detail";
 
 export default function ProductDetailPage({
   params,
@@ -24,22 +25,22 @@ export default function ProductDetailPage({
   // Mock data
   const product = {
     name: "Iced Salted Latte",
+    category: "SEASONAL COLD BREW",
     origin: "Single Estate Ethiopian Beans",
-    basePrice: "$6.50",
+    basePrice: 6.50,
     description:
-      "Experience the perfect equilibrium of flavors. Our signature espresso is combined with velvety milk, artisanal sea salt, and a hint of organic caramel, all served over crystal-clear artisan ice.",
+      "Our signature double-shot espresso, velvet-soft milk, and a delicate touch of hand-harvested Maldon sea salt. Finished with a burnt-sugar drizzle.",
     image:
       "https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=1974&auto=format&fit=crop",
     sizes: [
-      { id: "s", label: "Small", volume: "250ml" },
-      { id: "m", label: "Medium", volume: "350ml" },
-      { id: "l", label: "Large", volume: "450ml" },
+      { id: "s", label: "Standard", volume: "12oz", price: 0 },
+      { id: "m", label: "Medium", volume: "16oz", price: 1.50 },
+      { id: "l", label: "Large", volume: "20oz", price: 2.50 },
     ],
-    sweetness: ["0%", "25%", "50%", "100%"],
+    sweetness: ["None", "25%", "50%", "75%", "100%"],
     toppings: [
-      { id: 1, name: "Extra Ice", price: "Free", selected: true },
-      { id: 2, name: "Oat Milk", price: "$0.75", selected: false },
-      { id: 3, name: "Caramel Drizzle", price: "$0.50", selected: false },
+      { id: 1, name: "Cold Foam Head", description: "Signature silky texture", price: 0.85, selected: true },
+      { id: 2, name: "Extra Maldon Salt", description: "For the bold palate", price: 0.25, selected: false },
     ],
   };
 
@@ -59,18 +60,7 @@ export default function ProductDetailPage({
 
   if (!isMobile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface-main">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-text-primary uppercase tracking-tighter">
-            Desktop View
-          </h1>
-          <p className="text-text-secondary mt-4 font-medium">
-            Product details for{" "}
-            <span className="text-brand-primary">{slug}</span> are currently
-            optimized for mobile.
-          </p>
-        </div>
-      </div>
+      <DesktopProductDetail product={product} />
     );
   }
 
@@ -171,6 +161,7 @@ export default function ProductDetailPage({
                 name={topping.name}
                 price={topping.price}
                 isSelected={topping.selected}
+
                 onToggle={() => toggleTopping(topping.id)}
               />
             ))}

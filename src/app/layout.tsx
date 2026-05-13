@@ -7,8 +7,8 @@ import {
   Pacifico,
 } from "next/font/google";
 import "./globals.css";
-import ResponsiveLayout from "@/components/layout/main-layout";
-import QueryProvider from "@/components/providers/query-provider";
+import ResponsiveLayout from "@/app/layouts/main-layout";
+import QueryProvider from "@/app/providers/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
