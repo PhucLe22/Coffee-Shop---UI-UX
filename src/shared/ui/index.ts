@@ -8,3 +8,6 @@ export * from "./skeleton";
 export * from "./input";
 export * from "./label";
 export * from "./checkbox";
+export * from "./sidebar";
+export * from "./sheet";
+export * from "./tooltip";

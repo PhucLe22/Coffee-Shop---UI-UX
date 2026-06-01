@@ -1,4 +1,37 @@
-export type OrderStatus = 'placed' | 'preparing' | 'on_the_way' | 'delivered' | 'cancelled' | 'in_process';
+import { OrderOutput, GetOrdersQuery } from "@/shared/api";
+
+export type { GetOrdersQuery };
+
+export interface PaginatedData<T> {
+  items: T[];
+  meta: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
+}
+
+export interface OrderResponse {
+  success: boolean;
+  message: string;
+  data: PaginatedData<OrderOutput>;
+}
+
+export type OrderStatus = 
+  | 'NEW' 
+  | 'CONFIRMED' 
+  | 'PREPARING' 
+  | 'READY' 
+  | 'COMPLETED' 
+  | 'CANCELLED' 
+  | 'REFUNDED'
+  | 'placed' 
+  | 'preparing' 
+  | 'on_the_way' 
+  | 'delivered' 
+  | 'cancelled' 
+  | 'in_process';
 
 export interface OrderItem {
   id: string;
@@ -8,20 +41,37 @@ export interface OrderItem {
   options?: string[];
 }
 
-export interface Order {
-  id: string;
-  orderNumber: string;
+export interface Order extends Partial<OrderOutput> {
+  id?: string;
   status: OrderStatus;
-  estimatedArrival: string;
-  estimatedArrivalText: string;
+  createdAt: string;
+  
+  // New API fields (aligning with API reality)
+  total: number;
+  store: {
+    id?: string;
+    name: string;
+    address: string;
+  };
+  customer: {
+    id?: string;
+    name: string;
+    phone: string;
+    address?: string;
+    tier?: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
+  };
+
+  // Compatibility fields for old UI
+  orderNumber?: string;
+  totalPrice?: number;
+  items?: OrderItem[];
+  estimatedArrival?: string;
+  estimatedArrivalText?: string;
   driver?: {
     name: string;
     avatarUrl?: string;
     phoneNumber?: string;
   };
-  items: OrderItem[];
-  totalPrice: number;
-  createdAt: string;
 }
 
 export interface OrderStep {

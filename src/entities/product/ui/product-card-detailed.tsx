@@ -69,12 +69,13 @@ export const ProductCardDetailed = ({
                     {calories} KCAL • {size} OZ
                 </span>
             </div>
-            <button
+            <Link
+                href={`/products/${slug}`}
                 className="flex size-10 items-center justify-center rounded-md bg-brand-primary text-inverse-text shadow-sm transition-all hover:bg-brand-accent active:scale-90"
                 aria-label="Add to cart"
             >
                 <Plus className="size-6" />
-            </button>
+            </Link>
         </div>
       </div>
     </div>

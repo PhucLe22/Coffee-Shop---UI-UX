@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, use, useEffect } from "react";
+import { Plus, Minus } from "lucide-react";
 import {
   SizeSelector,
   OptionButton,
@@ -10,20 +11,8 @@ import {
 import { useIsMobile, formatToVND } from "@/shared/lib";
 import { DesktopProductDetail } from "@/widgets/product-detail";
 import { Skeleton } from "@/shared/ui/skeleton";
-
-// UI-only defaults until backend supports these
-const MOCK_SIZES = [
-  { id: "s", label: "Standard", volume: "12oz", price: 0 },
-  { id: "m", label: "Medium", volume: "16oz", price: 15000 },
-  { id: "l", label: "Large", volume: "20oz", price: 25000 },
-];
-
-const MOCK_SWEETNESS = ["None", "25%", "50%", "75%", "100%"];
-
-const MOCK_TOPPINGS = [
-  { id: 1, name: "Cold Foam Head", description: "Signature silky texture", price: 5000, selected: false },
-  { id: 2, name: "Extra Maldon Salt", description: "For the bold palate", price: 2000, selected: false },
-];
+import { useCartStore } from "@/entities/cart";
+import { toast } from "sonner";
 
 export default function ProductDetailPage({
   params,
@@ -33,25 +22,101 @@ export default function ProductDetailPage({
   const { slug } = use(params);
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
 
   const { data: response, isLoading, isError } = useProduct(slug);
   const product = response?.data;
 
   // State quản lý lựa chọn
-  const [selectedSize, setSelectedSize] = useState("m");
-  const [selectedSweetness, setSelectedSweetness] = useState("25%");
-  const [toppings, setToppings] = useState(MOCK_TOPPINGS);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Hàm toggle topping
-  const toggleTopping = (id: number) => {
-    setToppings((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, selected: !t.selected } : t)),
-    );
+  // Initialize selectedOptions when product is loaded
+  useEffect(() => {
+    if (product?.optionGroups) {
+      const initial: Record<string, string[]> = {};
+      product.optionGroups.forEach(group => {
+        if (group.isRequired && group.options.length > 0) {
+          initial[group.id] = [group.options[0].id];
+        } else {
+          initial[group.id] = [];
+        }
+      });
+      setSelectedOptions(initial);
+    }
+  }, [product]);
+
+  const toggleOption = (groupId: string, optionId: string, isMultiple: boolean) => {
+    setSelectedOptions((prev) => {
+      const current = prev[groupId] || [];
+      if (isMultiple) {
+        return {
+          ...prev,
+          [groupId]: current.includes(optionId)
+            ? current.filter((id) => id !== optionId)
+            : [...current, optionId],
+        };
+      } else {
+        return {
+          ...prev,
+          [groupId]: [optionId],
+        };
+      }
+    });
   };
+
+  const getSelectedOptionsFormatted = () => {
+    const formatted: { optionId: string; name: string; price: number }[] = [];
+    Object.entries(selectedOptions).forEach(([groupId, optionIds]) => {
+      const group = product?.optionGroups?.find((g) => g.id === groupId);
+      if (group) {
+        optionIds.forEach((optionId) => {
+          const option = group.options.find((o) => o.id === optionId);
+          if (option) {
+            formatted.push({
+              optionId: option.id,
+              name: option.name,
+              price: option.price || 0,
+            });
+          }
+        });
+      }
+    });
+    return formatted;
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    const formattedOptions = getSelectedOptionsFormatted();
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    const itemPrice = product.basePrice + extraPrice;
+    
+    const cartId = `${product.id}-${formattedOptions.map(o => o.optionId).sort().join('-')}`;
+    
+    addItem({
+      id: cartId,
+      productId: product.id,
+      name: product.name,
+      price: itemPrice,
+      quantity,
+      imageUrl: product.thumbnail || undefined,
+      options: formattedOptions,
+    });
+    
+    toast.success("Đã thêm vào giỏ hàng");
+  };
+
+  const calculateTotalPrice = () => {
+    const formattedOptions = getSelectedOptionsFormatted();
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    return ((product?.basePrice || 0) + extraPrice) * quantity;
+  };
+
+  const totalPrice = calculateTotalPrice();
 
   if (!mounted || isLoading) {
     return (
@@ -81,7 +146,7 @@ export default function ProductDetailPage({
   }
 
   return (
-    <div className="flex flex-col bg-surface-accent ">
+    <div className="flex flex-col bg-surface-accent pb-32">
       {/* Hero Section */}
       <section className="relative aspect-square w-full">
         <img
@@ -131,66 +196,86 @@ export default function ProductDetailPage({
           {product.description}
         </p>
 
-        {/* Size Selection */}
-        <section className="flex flex-col gap-4">
-          <div className="flex w-full items-center justify-between">
-            <h5 className="text-h5-bold">Select Size</h5>
-            <span className="text-label-badge text-text-secondary uppercase">
-              REQUIRED
-            </span>
-          </div>
-          <div className="flex gap-4 w-full">
-            {MOCK_SIZES.map((size) => (
-              <SizeSelector
-                key={size.id}
-                label={size.label}
-                volume={size.volume}
-                isActive={selectedSize === size.id}
-                onClick={() => setSelectedSize(size.id)}
-                className="flex-1"
-              />
-            ))}
-          </div>
-        </section>
+        {/* Dynamic Option Groups */}
+        {product.optionGroups?.sort((a, b) => a.sortOrder - b.sortOrder).map((group) => (
+          <section key={group.id} className="flex flex-col gap-4">
+            <div className="flex w-full items-center justify-between">
+              <h5 className="text-h5-bold">{group.name}</h5>
+              <span className="text-label-badge text-text-secondary uppercase">
+                {group.isRequired ? "REQUIRED" : "OPTIONAL"}
+              </span>
+            </div>
 
-        {/* Sweetness */}
-        <section className="flex flex-col gap-4">
-          <div className="flex w-full justify-between items-center">
-            <h5 className="text-h5-bold">Sweetness Level</h5>
-            <span className="text-label-badge  text-text-secondary uppercase">
-              optional
-            </span>
-          </div>
+            {group.isMultiple ? (
+              <div className="flex flex-col gap-3">
+                {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => (
+                  <OptionCard
+                    key={option.id}
+                    name={option.name}
+                    price={option.price || 0}
+                    isSelected={selectedOptions[group.id]?.includes(option.id)}
+                    onToggle={() => toggleOption(group.id, option.id, true)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
+                {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => {
+                  const isSizeGroup = group.name.toLowerCase().includes('size');
+                  
+                  if (isSizeGroup) {
+                    return (
+                      <SizeSelector
+                        key={option.id}
+                        label={option.name}
+                        volume=""
+                        isActive={selectedOptions[group.id]?.includes(option.id)}
+                        onClick={() => toggleOption(group.id, option.id, false)}
+                        className="flex-1"
+                      />
+                    );
+                  }
 
-          <div className="flex items-center justify-between overflow-x-auto no-scrollbar">
-            {MOCK_SWEETNESS.map((level) => (
-              <OptionButton
-                key={level}
-                label={level}
-                isSelected={selectedSweetness === level}
-                onClick={() => setSelectedSweetness(level)}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* Toppings */}
-        <section className="flex flex-col gap-4">
-          <h3 className="font-bold">Extra Toppings</h3>
-          <div className="flex flex-col gap-3">
-            {toppings.map((topping) => (
-              <OptionCard
-                key={topping.id}
-                name={topping.name}
-                price={topping.price}
-                isSelected={topping.selected}
-
-                onToggle={() => toggleTopping(topping.id)}
-              />
-            ))}
-          </div>
-        </section>
+                  return (
+                    <OptionButton
+                      key={option.id}
+                      label={option.name}
+                      isSelected={selectedOptions[group.id]?.includes(option.id)}
+                      onClick={() => toggleOption(group.id, option.id, false)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        ))}
       </main>
+
+      {/* Sticky Footer */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 p-6 flex items-center gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center gap-4 bg-gray-100 rounded-full px-4 py-3">
+          <button 
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="text-gray-600 active:scale-95 transition-transform"
+          >
+            <Minus className="size-4" />
+          </button>
+          <span className="font-bold min-w-[20px] text-center">{quantity}</span>
+          <button 
+            onClick={() => setQuantity(quantity + 1)}
+            className="text-gray-600 active:scale-95 transition-transform"
+          >
+            <Plus className="size-4" />
+          </button>
+        </div>
+        <button 
+          onClick={handleAddToCart}
+          className="flex-1 bg-[#D15139] text-white rounded-full py-4 px-6 flex items-center justify-between shadow-lg shadow-orange-900/20 active:scale-[0.98] transition-all"
+        >
+          <span className="font-bold">Add to cart</span>
+          <span className="font-bold">{formatToVND(totalPrice)}</span>
+        </button>
+      </div>
     </div>
   );
 }

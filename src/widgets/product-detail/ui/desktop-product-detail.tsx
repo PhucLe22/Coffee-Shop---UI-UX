@@ -5,44 +5,94 @@ import { Leaf, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { cn, formatToVND } from '@/shared/lib';
 import { AppButton } from '@/shared/ui';
 import { SizeSelector, OptionButton, OptionCard, Product } from '@/entities/product';
+import { useCartStore } from '@/entities/cart';
+import { toast } from 'sonner';
 
 interface DesktopProductDetailProps {
   product: Product;
 }
 
-// UI-only defaults until backend supports these
-const MOCK_SIZES = [
-  { id: "s", label: "Standard", volume: "12oz", price: 0 },
-  { id: "m", label: "Medium", volume: "16oz", price: 15000 },
-  { id: "l", label: "Large", volume: "20oz", price: 25000 },
-];
-
-const MOCK_SWEETNESS = ["None", "25%", "50%", "75%", "100%"];
-
-const MOCK_TOPPINGS = [
-  { id: 1, name: "Cold Foam Head", description: "Signature silky texture", price: 5000, selected: false },
-  { id: 2, name: "Extra Maldon Salt", description: "For the bold palate", price: 2000, selected: false },
-];
-
 export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
-  const [selectedSize, setSelectedSize] = useState(MOCK_SIZES[1].id);
-  const [selectedSweetness, setSelectedSweetness] = useState(MOCK_SWEETNESS[1]);
-  const [toppings, setToppings] = useState(MOCK_TOPPINGS);
+  const addItem = useCartStore((state) => state.addItem);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>(() => {
+    const initial: Record<string, string[]> = {};
+    product.optionGroups?.forEach(group => {
+      if (group.isRequired && group.options.length > 0) {
+        initial[group.id] = [group.options[0].id];
+      } else {
+        initial[group.id] = [];
+      }
+    });
+    return initial;
+  });
   const [quantity, setQuantity] = useState(1);
 
-  const toggleTopping = (id: number) => {
-    setToppings((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, selected: !t.selected } : t))
-    );
+  const toggleOption = (groupId: string, optionId: string, isMultiple: boolean) => {
+    setSelectedOptions((prev) => {
+      const current = prev[groupId] || [];
+      if (isMultiple) {
+        return {
+          ...prev,
+          [groupId]: current.includes(optionId)
+            ? current.filter((id) => id !== optionId)
+            : [...current, optionId],
+        };
+      } else {
+        return {
+          ...prev,
+          [groupId]: [optionId],
+        };
+      }
+    });
   };
 
-  const selectedSizeData = MOCK_SIZES.find(s => s.id === selectedSize);
-  
-  const totalPrice = (
-    product.basePrice + 
-    (selectedSizeData?.price || 0) +
-    toppings.filter(t => t.selected).reduce((acc, t) => acc + t.price, 0)
-  ) * quantity;
+  const getSelectedOptionsFormatted = () => {
+    const formatted: { optionId: string; name: string; price: number }[] = [];
+    Object.entries(selectedOptions).forEach(([groupId, optionIds]) => {
+      const group = product.optionGroups?.find((g) => g.id === groupId);
+      if (group) {
+        optionIds.forEach((optionId) => {
+          const option = group.options.find((o) => o.id === optionId);
+          if (option) {
+            formatted.push({
+              optionId: option.id,
+              name: option.name,
+              price: option.price || 0,
+            });
+          }
+        });
+      }
+    });
+    return formatted;
+  };
+
+  const handleAddToCart = () => {
+    const formattedOptions = getSelectedOptionsFormatted();
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    const itemPrice = product.basePrice + extraPrice;
+    
+    const cartId = `${product.id}-${formattedOptions.map(o => o.optionId).sort().join('-')}`;
+    
+    addItem({
+      id: cartId,
+      productId: product.id,
+      name: product.name,
+      price: itemPrice,
+      quantity,
+      imageUrl: product.thumbnail || undefined,
+      options: formattedOptions,
+    });
+    
+    toast.success("Đã thêm vào giỏ hàng");
+  };
+
+  const calculateTotalPrice = () => {
+    const formattedOptions = getSelectedOptionsFormatted();
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    return (product.basePrice + extraPrice) * quantity;
+  };
+
+  const totalPrice = calculateTotalPrice();
 
   return (
     <div className="flex min-h-[calc(100vh-102px)] bg-surface-main">
@@ -72,66 +122,66 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
             </p>
           </div>
 
-          {/* Size Selection */}
-          <div className="flex flex-col gap-md">
-            <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-              CHOOSE SIZE
-            </h3>
-            <div className="flex gap-md">
-              {MOCK_SIZES.map((size) => (
-                <SizeSelector
-                  key={size.id}
-                  label={size.label}
-                  volume={size.volume}
-                  isActive={selectedSize === size.id}
-                  onClick={() => setSelectedSize(size.id)}
-                  className="h-[83px] rounded-md"
-                />
-              ))}
-            </div>
-          </div>
+          {/* Dynamic Option Groups */}
+          {product.optionGroups?.sort((a, b) => a.sortOrder - b.sortOrder).map((group) => (
+            <div key={group.id} className="flex flex-col gap-md">
+              <div className="flex justify-between items-center">
+                <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
+                  {group.name}
+                </h3>
+                {group.isRequired && (
+                  <span className="text-body-sm-semibold text-text-secondary">
+                    REQUIRED
+                  </span>
+                )}
+              </div>
 
-          {/* Sweetness */}
-          <div className="flex flex-col gap-md">
-            <div className="flex justify-between items-center">
-              <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-                SWEETNESS LEVEL
-              </h3>
-              <span className="text-body-sm-semibold text-text-secondary">
-                {selectedSweetness} Sugar Level
-              </span>
-            </div>
-            <div className="flex gap-sm overflow-x-auto no-scrollbar">
-              {MOCK_SWEETNESS.map((level) => (
-                <OptionButton
-                  key={level}
-                  label={level}
-                  isSelected={selectedSweetness === level}
-                  onClick={() => setSelectedSweetness(level)}
-                  className="rounded-md h-[52px] min-w-[120px]"
-                />
-              ))}
-            </div>
-          </div>
+              {group.isMultiple ? (
+                <div className="flex flex-col gap-sm">
+                  {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => (
+                    <OptionCard
+                      key={option.id}
+                      name={option.name}
+                      price={option.price || 0}
+                      isSelected={selectedOptions[group.id]?.includes(option.id)}
+                      onToggle={() => toggleOption(group.id, option.id, true)}
+                      className="rounded-md border-border-primary-50"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex gap-sm overflow-x-auto no-scrollbar">
+                  {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => {
+                    // Check if it's a size group by name (heuristic)
+                    const isSizeGroup = group.name.toLowerCase().includes('size');
+                    
+                    if (isSizeGroup) {
+                      return (
+                        <SizeSelector
+                          key={option.id}
+                          label={option.name}
+                          volume="" // volume not available in backend yet
+                          isActive={selectedOptions[group.id]?.includes(option.id)}
+                          onClick={() => toggleOption(group.id, option.id, false)}
+                          className="h-[83px] rounded-md"
+                        />
+                      );
+                    }
 
-          {/* Toppings */}
-          <div className="flex flex-col gap-md">
-            <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-              ELEVATE YOUR BREW
-            </h3>
-            <div className="flex flex-col gap-sm">
-              {toppings.map((topping) => (
-                <OptionCard
-                  key={topping.id}
-                  name={topping.name}
-                  price={topping.price}
-                  isSelected={topping.selected}
-                  onToggle={() => toggleTopping(topping.id)}
-                  className="rounded-md border-border-primary-50"
-                />
-              ))}
+                    return (
+                      <OptionButton
+                        key={option.id}
+                        label={option.name}
+                        isSelected={selectedOptions[group.id]?.includes(option.id)}
+                        onClick={() => toggleOption(group.id, option.id, false)}
+                        className="rounded-md h-[52px] min-w-[120px]"
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </div>
+          ))}
 
           {/* Summary & CTA */}
           <div className="flex flex-col gap-lg pt-xl border-t border-border-primary-50">
@@ -163,7 +213,11 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
               </div>
             </div>
 
-            <AppButton variant="primary" className="w-full h-14 gap-md">
+            <AppButton 
+              variant="primary" 
+              className="w-full h-14 gap-md"
+              onClick={handleAddToCart}
+            >
               <ShoppingCart className="size-6" />
               ADD TO CART
             </AppButton>

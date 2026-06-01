@@ -1,0 +1,136 @@
+"use client";
+
+import * as React from "react";
+import {
+  LayoutDashboard,
+  UsersRound,
+  Store,
+  ChartNoAxesCombined,
+  Megaphone,
+  Boxes,
+  LogOut,
+  ChevronRight,
+  Truck,
+  ClipboardList,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+} from "@/shared/ui/sidebar";
+import { Button } from "@/shared/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { cn } from "@/shared/lib/utils";
+
+const items = [
+  {
+    title: "Orders",
+    url: "/internal/orders",
+    icon: ClipboardList,
+  },
+  {
+    title: "Dashboard",
+    url: "/internal/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Delivery",
+    url: "/internal/delivery",
+    icon: Truck,
+  },
+  {
+    title: "Staff Management",
+    url: "/internal/staff",
+    icon: UsersRound,
+  },
+  {
+    title: "Store Locations",
+    url: "/internal/locations",
+    icon: Store,
+  },
+  {
+    title: "Analytics",
+    url: "/internal/analytics",
+    icon: ChartNoAxesCombined,
+  },
+  {
+    title: "Inventory",
+    url: "/internal/inventory",
+    icon: Boxes,
+  },
+  {
+    title: "Promotion",
+    url: "/internal/promotion",
+    icon: Megaphone,
+  },
+];
+
+export function InternalSidebar() {
+  const pathname = usePathname();
+
+  return (
+    <Sidebar className="bg-surface-accent border-r-0 rounded-md overflow-hidden m-md h-[calc(100vh-2rem)] shadow-sm">
+      <SidebarHeader className="p-lg pt-xl">
+        <div className="flex flex-col gap-xs">
+          <h1 className="text-h4-bold text-text-primary">The Collective</h1>
+          <p className="text-body-sm-semibold text-text-primary opacity-80 font-inter">Admin Console</p>
+        </div>
+      </SidebarHeader>
+      <SidebarContent className="p-lg">
+        <SidebarMenu className="gap-xs">
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === item.url}
+                className={cn(
+                  "h-10 rounded-md px-md transition-all duration-200",
+                  pathname === item.url 
+                    ? "bg-white text-brand-primary border border-brand-primary shadow-sm" 
+                    : "text-text-muted hover:bg-surface-muted hover:text-text-primary"
+                )}
+              >
+                <Link href={item.url} className="flex items-center gap-md">
+                  <item.icon className="size-6 shrink-0" />
+                  <span className="text-body-sm-semibold whitespace-nowrap">{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+      <SidebarFooter className="p-lg pb-xl gap-lg">
+        <Button className="w-full bg-brand-primary hover:bg-brand-accent text-white rounded-md h-12 gap-sm shadow-sm transition-transform active:scale-95">
+          <Boxes className="size-6" />
+          <span className="label-button-md">Add New Branch</span>
+        </Button>
+
+        <div className="flex items-center justify-between p-sm rounded-md bg-white/50 border border-border-primary-50 backdrop-blur-sm">
+          <div className="flex items-center gap-sm">
+            <Avatar className="size-10 border border-border-primary-50">
+              <AvatarImage src="/avatars/admin.png" alt="Admin Thorne" />
+              <AvatarFallback>AT</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-body-sm-semibold text-text-primary">Admin Thorne</span>
+              <span className="text-[10px] text-text-muted uppercase tracking-wider font-bold">Super Admin</span>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" className="size-8 text-text-muted hover:text-error hover:bg-error/10 transition-colors">
+            <LogOut className="size-5" />
+          </Button>
+        </div>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  );
+}

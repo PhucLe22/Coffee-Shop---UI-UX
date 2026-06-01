@@ -49,7 +49,7 @@ export function DesktopCartItem({
                 {item.name}
               </h3>
               <p className="text-[14px] font-normal font-inter text-text-primary leading-[16.94px]">
-                {item.options}
+                {item.options.map((opt) => opt.name).join(", ")}
               </p>
             </div>
             <span className="text-[18px] font-bold font-plus-jakarta text-brand-primary leading-[22.68px]">

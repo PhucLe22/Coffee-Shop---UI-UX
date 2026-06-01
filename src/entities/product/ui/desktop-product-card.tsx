@@ -33,14 +33,16 @@ export const DesktopProductCard = ({
           )}
           {!imageUrl && <div className="h-full w-full bg-surface-muted" />}
         </Link>
-        <AppButton
-          variant="primary"
-          size="icon"
-          className="absolute right-md bottom-md size-14 shadow-lg"
-          aria-label="Add to cart"
-        >
-          <Plus className="size-8" />
-        </AppButton>
+        <Link href={`/products/${slug}`} className="absolute right-md bottom-md">
+          <AppButton
+            variant="primary"
+            size="icon"
+            className="size-14 shadow-lg"
+            aria-label="Add to cart"
+          >
+            <Plus className="size-8" />
+          </AppButton>
+        </Link>
       </div>
 
       <div className="flex justify-between items-start">

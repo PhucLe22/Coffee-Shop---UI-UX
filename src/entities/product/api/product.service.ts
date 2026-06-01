@@ -13,4 +13,9 @@ export const ProductService = {
     const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.BY_SLUG(slug));
     return response.data;
   },
+
+  getProductById: async (id: string): Promise<ApiResponse<Product>> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.BY_ID(id));
+    return response.data;
+  },
 };

@@ -1,16 +1,25 @@
+'use client';
+
 import { MapPin, Play } from "lucide-react";
 import { AppButton } from "@/shared/ui";
+import { useStoreStore } from "@/entities/store";
+import Link from "next/link";
 
 export function HomeHero() {
+  const { selectedStore } = useStoreStore();
+
   return (
     <section className="px-2xl py-2xl flex items-center justify-between min-h-[900px] gap-2xl">
       <div className="flex-1 flex flex-col gap-xl max-w-[608px]">
-        <div className="flex items-center gap-sm">
+        <Link 
+          href="/locations" 
+          className="flex items-center gap-sm hover:opacity-80 transition-opacity w-fit"
+        >
           <MapPin className="size-6 text-text-secondary" />
           <span className="text-body-md-bold text-text-secondary uppercase">
-            GREENWICH VILLAGE, NY
+            {selectedStore ? `${selectedStore.name}, ${selectedStore.address}` : "CHỌN CỬA HÀNG PHỤC VỤ"}
           </span>
-        </div>
+        </Link>
 
         <h1 className="text-display-lg text-text-primary leading-[1.1]">
           The Honey-Oak

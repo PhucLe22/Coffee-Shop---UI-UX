@@ -7,7 +7,6 @@ import { Header } from "@/widgets/header";
 import { Footer } from "@/widgets/footer";
 import { MobileHeader } from "@/widgets/mobile-header";
 import { MobileNavBar } from "@/widgets/mobile-nav-bar";
-import { AddToCart } from "@/features/add-to-cart";
 
 export default function ResponsiveLayout({
   children,
@@ -35,6 +34,7 @@ export default function ResponsiveLayout({
   };
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isInternalPage = pathname?.startsWith("/internal");
 
   // Prevent hydration mismatch by returning a skeleton or null until mounted
   if (!mounted) {
@@ -43,7 +43,7 @@ export default function ResponsiveLayout({
     );
   }
 
-  if (isAuthPage) {
+  if (isAuthPage || isInternalPage) {
     return (
       <main className="flex min-h-screen flex-col">
         {children}
@@ -62,16 +62,6 @@ export default function ResponsiveLayout({
       {isMobile ? (
         <>
           {!isProductDetailPage && <MobileNavBar activeTab={getActiveTab()} />}
-          {isProductDetailPage && (
-            <AddToCart
-              product={{
-                id: "placeholder",
-                name: "Placeholder",
-                price: 50,
-                options: "",
-              }}
-            />
-          )}
         </>
       ) : (
         <Footer />

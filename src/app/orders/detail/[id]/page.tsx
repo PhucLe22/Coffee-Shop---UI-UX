@@ -23,6 +23,7 @@ import {
 } from '@/widgets/order-driver-card';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { useIsMobile } from '@/shared/lib';
+import { LiveTrackingMap } from './live-tracking-map';
 
 interface OrderDetailPageProps {
   params: Promise<{ id: string }>;
@@ -64,9 +65,10 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
           <div className="grid grid-cols-12 gap-xl mt-lg">
             {/* Left Column: Map, Driver, and Status */}
             <div className="col-span-7 flex flex-col gap-lg">
-              <div className="h-[500px] bg-surface-muted rounded-lg relative overflow-hidden flex items-center justify-center border border-border-primary-50 shadow-smeffect">
-                <div className="text-h3-bold text-text-muted">Live Tracking Map</div>
-              </div>
+              <LiveTrackingMap 
+                order={order} 
+                className="h-[500px] rounded-lg overflow-hidden border border-border-primary-50 shadow-smeffect" 
+              />
               
               <DesktopOrderDriverCard order={order} />
 
@@ -95,8 +97,11 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
 
       <section className="flex flex-col gap-lg -mt-md">
         {/* Map Placeholder */}
-        <div className="mx-md h-[450px] bg-surface-muted rounded-md relative overflow-hidden flex items-center justify-center">
-          <div className="text-body-md-bold text-text-muted">Map goes here</div>
+        <div className="mx-md h-[450px] relative">
+          <LiveTrackingMap 
+            order={order} 
+            className="w-full h-full rounded-md overflow-hidden" 
+          />
           
           {/* Driver Card Overlay */}
           <div className="absolute bottom-md left-0 right-0 z-20">

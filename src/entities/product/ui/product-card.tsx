@@ -32,11 +32,13 @@ export const ProductCard = ({
             />
           )}
         </Link>
-        <button
+        <Link
+          href={`/products/${slug}`}
           className="absolute right-2 bottom-2 flex size-10 items-center justify-center rounded-md bg-brand-primary text-inverse-text shadow-smeffect transition-all hover:bg-brand-accent active:scale-90"
-          aria-label="Add to cart">
+          aria-label="Add to cart"
+        >
           <Plus className="size-6" />
-        </button>
+        </Link>
       </div>
 
       {/* Product Info */}

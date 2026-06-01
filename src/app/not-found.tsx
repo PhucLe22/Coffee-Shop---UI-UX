@@ -23,7 +23,7 @@ export default function NotFound() {
             Oops! This cup is empty.
           </h2>
           <p className="text-body-lg-reg text-text-muted">
-            The coffee you're looking for has already been roasted and gone, or the page has moved to a new blend.
+            The coffee you&apos;re looking for has already been roasted and gone, or the page has moved to a new blend.
           </p>
         </div>
 

@@ -11,6 +11,23 @@ export interface CategorySummary {
   slug?: string;
 }
 
+export interface ProductOption {
+  id: string;
+  name: string;
+  basePrice: number;
+  price: number | null;
+  sortOrder: number;
+}
+
+export interface ProductOptionGroup {
+  id: string;
+  name: string;
+  isRequired: boolean;
+  isMultiple: boolean;
+  sortOrder: number;
+  options: ProductOption[];
+}
+
 export interface Product {
   id: string;
   sku: string;
@@ -30,6 +47,7 @@ export interface Product {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  optionGroups?: ProductOptionGroup[];
 }
 
 export interface GetProductsQuery {

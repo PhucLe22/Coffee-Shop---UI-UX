@@ -151,6 +151,7 @@ export interface GuestOutput {
 export interface CreateOrderBody {
   storeId: string;
   type: OrderType;
+  tableNumber?: string;
   note?: string;
   voucherCode?: string;
   items: Array<{
@@ -158,8 +159,7 @@ export interface CreateOrderBody {
     quantity: number;
     note?: string;
     options?: Array<{
-      name: string;
-      price: number;
+      optionId: string;
     }>;
   }>;
   deliveryInfo?: {
@@ -169,15 +169,55 @@ export interface CreateOrderBody {
   };
 }
 
-export interface GetOrderHistoryQuery {
-  status?:
-    | "NEW"
-    | "CONFIRMED"
-    | "PREPARING"
-    | "READY"
-    | "COMPLETED"
-    | "CANCELLED"
-    | "REFUNDED";
+export interface OrderOutput {
+  id?: string;
+  orderCode: string | null;
+  status: OrderStatus;
+  type: OrderType;
+  subtotal: number;
+  discount: number;
+  tax: number;
+  serviceFee: number;
+  total: number;
+  note: string | null;
+  address?: string | null;
+  tableNumber: string | null;
+  createdAt: string;
+  updatedAt?: string;
+  store: {
+    id?: string;
+    name: string;
+    address: string;
+  };
+  customer: {
+    id?: string;
+    name: string;
+    phone: string;
+    address?: string;
+    tier?: CustomerTier;
+  };
+  createdBy: {
+    staff_id: string;
+  } | null;
+  orderItems?: Array<{
+    name: string;
+    price: number;
+    quantity: number;
+    discount: number;
+    tax: number;
+    note: string | null;
+    options?: string[];
+  }>;
+}
+
+export interface GetOrdersQuery {
+  status?: OrderStatus;
+  startDate?: string;
+  endDate?: string;
+  minTotal?: number;
+  maxTotal?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface GetOrderDetailParams {
@@ -266,8 +306,7 @@ export interface StaffCreateOrderBody {
     productId: string;
     quantity: number;
     options?: Array<{
-      name: string;
-      price: number;
+      optionId: string;
     }>;
   }>;
   paymentMethod?: string;
@@ -287,6 +326,18 @@ export interface UpdateOrderStatusBody {
 }
 
 // --- STORE (store.output.schema.js) ---
+
+export interface StoreOutput {
+  id: string;
+  name: string;
+  address: string;
+  lat: number | null;
+  lng: number | null;
+  code: string;
+  hotline: string;
+  isActive: boolean;
+  isDeleted: boolean;
+}
 
 export interface GetStoresQuery {
   lat?: number;

@@ -4,6 +4,9 @@ import React from "react";
 import { User, ClipboardList, MapPin, CreditCard, LogOut } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { AppButton } from "@/shared/ui";
+import { useRouter } from "next/navigation";
+import { useAuthStore, AuthService } from "@/shared/auth";
+import { toast } from "sonner";
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -28,13 +31,29 @@ const NavItem = ({ icon: Icon, label, isActive, onClick }: NavItemProps) => (
 );
 
 export function DesktopProfileSidebar() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = React.useState("Thông tin cá nhân");
+  const { logout, accessToken, refreshToken } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      if (accessToken && refreshToken) {
+        await AuthService.logout(accessToken, refreshToken);
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      logout();
+      toast.success('Đã đăng xuất');
+      router.push('/');
+    }
+  };
 
   const navItems = [
-    { icon: User, label: "Thông tin cá nhân" },
-    { icon: ClipboardList, label: "Lịch sử đơn hàng" },
-    { icon: MapPin, label: "Địa chỉ đã lưu" },
-    { icon: CreditCard, label: "Phương thức thanh toán" },
+    { icon: User, label: "Thông tin cá nhân", onClick: () => setActiveTab("Thông tin cá nhân") },
+    { icon: ClipboardList, label: "Lịch sử đơn hàng", onClick: () => router.push("/orders") },
+    { icon: MapPin, label: "Địa chỉ đã lưu", onClick: () => setActiveTab("Địa chỉ đã lưu") },
+    { icon: CreditCard, label: "Phương thức thanh toán", onClick: () => setActiveTab("Phương thức thanh toán") },
   ];
 
   return (
@@ -77,7 +96,7 @@ export function DesktopProfileSidebar() {
       </nav>
 
       {/* Logout Button */}
-      <AppButton variant="danger" className="mt-auto w-full font-bold">
+      <AppButton variant="danger" className="mt-auto w-full font-bold" onClick={handleLogout}>
         <LogOut className="mr-2 size-5" />
         Đăng xuất
       </AppButton>

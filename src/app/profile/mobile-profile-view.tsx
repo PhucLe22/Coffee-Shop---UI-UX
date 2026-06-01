@@ -10,8 +10,12 @@ import {
   ShieldCheck,
   ChevronRight,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 import { AppButton } from "@/shared/ui";
+import { useRouter } from "next/navigation";
+import { useAuthStore, AuthService } from "@/shared/auth";
+import { toast } from "sonner";
 
 const CustomerCard = () => {
   return (
@@ -105,8 +109,26 @@ const SettingsGroup = ({
 );
 
 export function MobileProfileView() {
+  const router = useRouter();
+  const { logout, accessToken, refreshToken } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      if (accessToken && refreshToken) {
+        await AuthService.logout(accessToken, refreshToken);
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      logout();
+      toast.success('Đã đăng xuất');
+      router.push('/');
+    }
+  };
+
   const accountOptions = [
     { icon: User, label: "Thông tin cá nhân" },
+    { icon: ClipboardList, label: "Lịch sử đơn hàng", onClick: () => router.push("/orders") },
     { icon: MapPin, label: "Địa chỉ đã lưu" },
     { icon: CreditCard, label: "Phương thức thanh toán" },
     { icon: Bell, label: "Cài đặt thông báo" },
@@ -130,7 +152,7 @@ export function MobileProfileView() {
 
       {/* Logout Button */}
       <div className="mt-8">
-        <AppButton variant="danger" className="w-full font-bold">
+        <AppButton variant="danger" className="w-full font-bold" onClick={handleLogout}>
           <LogOut className="size-5" />
           Đăng xuất
         </AppButton>

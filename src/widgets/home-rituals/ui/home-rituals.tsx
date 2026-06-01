@@ -48,7 +48,7 @@ export function HomeRituals() {
               Sustainable Grounds
             </h3>
             <p className="text-body-sm-reg text-text-secondary max-w-[308px]">
-              Bring your own vessel and receive a complimentary 'Greenwich' mini
+              Bring your own vessel and receive a complimentary &apos;Greenwich&apos; mini
               croissant.
             </p>
             <div className="flex items-center gap-sm text-brand-primary font-bold cursor-pointer group/link">
