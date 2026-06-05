@@ -8,6 +8,7 @@ import {
   Truck,
   PackageSearch,
   ClipboardList,
+  Settings,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/shared/lib/utils";
@@ -20,9 +21,9 @@ const items = [
     icon: ClipboardList,
   },
   {
-    title: "Dashboard",
-    url: "/internal/dashboard",
-    icon: LayoutDashboard,
+    title: "Products",
+    url: "/internal/inventory",
+    icon: PackageSearch,
   },
   {
     title: "Delivery",
@@ -30,24 +31,9 @@ const items = [
     icon: Truck,
   },
   {
-    title: "Staff",
-    url: "/internal/staff",
-    icon: UsersRound,
-  },
-  {
-    title: "Promos",
-    url: "/internal/promotion",
-    icon: Megaphone,
-  },
-  {
-    title: "Inventory",
-    url: "/internal/inventory",
-    icon: PackageSearch,
-  },
-  {
-    title: "Stores",
-    url: "/internal/locations",
-    icon: Store,
+    title: "Settings",
+    url: "/internal/settings",
+    icon: Settings,
   },
 ];
 

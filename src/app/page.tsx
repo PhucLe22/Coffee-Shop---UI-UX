@@ -5,19 +5,19 @@ import { ChevronDown, Search } from "lucide-react";
 import { AppButton } from "@/shared/ui";
 import { ProductCard } from "@/entities/product";
 import { useIsMobile } from "@/shared/lib";
-import { useRouter } from "next/navigation";
 
 import { HomeHero } from "@/widgets/home-hero";
 import { HomeRituals } from "@/widgets/home-rituals";
 import { HomePopularChoices } from "@/widgets/home-popular-choices";
 import { useStoreStore } from "@/entities/store";
+import { AIChatButton } from "@/widgets/ai-chat-button";
 import Link from "next/link";
 
 export default function HomePage() {
   const isMobile = useIsMobile();
-  const router = useRouter();
   const { selectedStore } = useStoreStore();
   const [mounted, setMounted] = useState(false);
+
 
   useEffect(() => {
     setMounted(true);
@@ -27,19 +27,16 @@ export default function HomePage() {
     return null;
   }
 
-  if (!isMobile) {
-    return (
-      <div className="flex flex-col bg-surface-main">
-        <HomeHero />
-        <HomePopularChoices />
-        <HomeRituals />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col bg-surface-main">
-      <main className="flex flex-col gap-xl px-md py-md">
+    <div className="flex flex-col bg-surface-main min-h-screen relative">
+      {!isMobile ? (
+        <div className="flex flex-col">
+          <HomeHero />
+          <HomePopularChoices />
+          <HomeRituals />
+        </div>
+      ) : (
+        <main className="flex flex-col gap-xl px-md py-md">
         {/* Branch Selector & Search */}
         <section className="flex flex-col gap-lg">
           <div className="flex flex-col gap-1">
@@ -152,6 +149,8 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+      )}
+      <AIChatButton />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Truck,
   ClipboardList,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -71,6 +72,11 @@ const items = [
     title: "Promotion",
     url: "/internal/promotion",
     icon: Megaphone,
+  },
+  {
+    title: "Settings",
+    url: "/internal/settings",
+    icon: Settings,
   },
 ];
 
