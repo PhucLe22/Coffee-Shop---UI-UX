@@ -1,1 +1,1 @@
-export { default as InternalStaffPage } from "./ui/internal-staff-page";
+export { default } from './ui/internal-staff-page';

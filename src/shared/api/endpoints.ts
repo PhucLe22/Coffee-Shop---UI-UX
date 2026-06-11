@@ -16,13 +16,21 @@ export const API_ENDPOINTS = {
   },
   ORDERS: {
     BASE: "/orders",
+    INTERNAL: "/internal/orders",
     BY_ID: (id: string) => `/orders/${id}`,
     BY_CODE: (code: string) => `/orders/code/${code}`,
+    STATUS: (id: string) => `/internal/orders/${id}/status`,
   },
   CART: {
     BASE: '/cart',
   },
   STORES: {
     BASE: '/stores',
+  },
+  AI: {
+    CHAT: '/ai/chat',
+  },
+  DELIVERY: {
+    SCHEDULE: '/internal/kitchen/delivery-schedule',
   },
 } as const;

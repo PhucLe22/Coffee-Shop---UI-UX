@@ -4,58 +4,30 @@ import {
   BaseResponse,
   CreateOrderBody,
   OrderOutput,
+  StaffCreateOrderBody,
+  DeliveryScheduleOutput,
 } from '@/shared/api';
-import { Order, GetOrdersQuery, PaginatedData } from '../model/types';
-
-export const orderMock: Order = {
-  id: '8829-AC',
-  orderNumber: '8829-AC',
-  status: 'on_the_way',
-  estimatedArrival: '12:45',
-  estimatedArrivalText: 'Expected in 14 mins',
-  driver: {
-    name: 'Marco S.',
-    phoneNumber: '+1 234 567 890',
-  },
-  items: [
-    {
-      id: '1',
-      name: 'Single-Origin Espresso',
-      quantity: 1,
-      price: 4.50,
-      options: ['OAT MILK', 'REGULAR'],
-    },
-    {
-      id: '2',
-      name: 'Artisan Sourdough Croissant',
-      quantity: 1,
-      price: 11.00,
-      options: ['WARM', 'SALTED BUTTER'],
-    },
-  ],
-  totalPrice: 15.50,
-  total: 15.50,
-  createdAt: '2026-04-09T12:10:00Z',
-  store: {
-    id: 'store-1',
-    name: 'Main Store',
-    address: '123 Main Street',
-  },
-  customer: {
-    id: 'cust-1',
-    name: 'John Doe',
-    phone: '0123456789',
-    tier: 'BRONZE',
-  },
-};
+import { Order, GetOrdersQuery } from '../model/types';
+import { OrderResponse } from '../model/types';
 
 export const OrderService = {
   getOrders: async (
     query?: GetOrdersQuery
-  ): Promise<BaseResponse<PaginatedData<OrderOutput>>> => {
+  ): Promise<OrderResponse> => {
     const response = await axiosInstance.get<
-      BaseResponse<PaginatedData<OrderOutput>>
+      OrderResponse
     >(API_ENDPOINTS.ORDERS.BASE, {
+      params: query,
+    });
+    return response.data;
+  },
+
+  getInternalOrders: async (
+    query?: GetOrdersQuery
+  ): Promise<OrderResponse> => {
+    const response = await axiosInstance.get<
+      OrderResponse
+    >(API_ENDPOINTS.ORDERS.INTERNAL, {
       params: query,
     });
     return response.data;
@@ -79,15 +51,39 @@ export const OrderService = {
     );
     return response.data;
   },
+
+  createStaffOrder: async (
+    body: StaffCreateOrderBody
+  ): Promise<BaseResponse<OrderOutput>> => {
+    const response = await axiosInstance.post<BaseResponse<OrderOutput>>(
+      API_ENDPOINTS.ORDERS.INTERNAL,
+      body
+    );
+    return response.data;
+  },
+
+  updateOrderStatus: async (
+    id: string,
+    status: string
+  ): Promise<BaseResponse<OrderOutput>> => {
+    const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
+      API_ENDPOINTS.ORDERS.STATUS(id),
+      { status }
+    );
+    return response.data;
+  },
+
+  getDeliverySchedule: async (): Promise<BaseResponse<DeliveryScheduleOutput>> => {
+    const response = await axiosInstance.get<BaseResponse<DeliveryScheduleOutput>>(
+      API_ENDPOINTS.DELIVERY.SCHEDULE
+    );
+    return response.data;
+  },
 };
 
-export const fetchOrderById = async (id: string): Promise<Order> => {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ ...orderMock, id });
-    }, 500);
-  });
+export const fetchOrderById = async (code: string): Promise<Order> => {
+  const response = await OrderService.getOrderByCode(code);
+  return response.data as Order;
 };
 
 export const createOrder = OrderService.createOrder;

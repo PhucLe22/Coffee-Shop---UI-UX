@@ -1,10 +1,12 @@
-import { OrderOutput, GetOrdersQuery } from "@/shared/api";
+import { OrderOutput, GetOrdersQuery, OrderStatus as SharedOrderStatus, CustomerTier } from "@/shared/api";
 
 export type { GetOrdersQuery };
 
-export interface PaginatedData<T> {
-  items: T[];
-  meta: {
+export interface OrderResponse {
+  success: boolean;
+  message: string;
+  data: OrderOutput[];
+  meta?: {
     totalItems: number;
     currentPage: number;
     totalPages: number;
@@ -12,20 +14,8 @@ export interface PaginatedData<T> {
   };
 }
 
-export interface OrderResponse {
-  success: boolean;
-  message: string;
-  data: PaginatedData<OrderOutput>;
-}
-
 export type OrderStatus = 
-  | 'NEW' 
-  | 'CONFIRMED' 
-  | 'PREPARING' 
-  | 'READY' 
-  | 'COMPLETED' 
-  | 'CANCELLED' 
-  | 'REFUNDED'
+  | SharedOrderStatus
   | 'placed' 
   | 'preparing' 
   | 'on_the_way' 
@@ -41,27 +31,12 @@ export interface OrderItem {
   options?: string[];
 }
 
-export interface Order extends Partial<OrderOutput> {
+export interface Order extends Omit<Partial<OrderOutput>, 'status'> {
   id?: string;
   status: OrderStatus;
   createdAt: string;
   
-  // New API fields (aligning with API reality)
-  total: number;
-  store: {
-    id?: string;
-    name: string;
-    address: string;
-  };
-  customer: {
-    id?: string;
-    name: string;
-    phone: string;
-    address?: string;
-    tier?: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
-  };
-
-  // Compatibility fields for old UI
+  // Compatibility fields for old UI and internal logic
   orderNumber?: string;
   totalPrice?: number;
   items?: OrderItem[];

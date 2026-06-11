@@ -12,8 +12,10 @@ interface DesktopOrderSummaryProps {
 }
 
 export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
-  const subtotal = order.totalPrice - 2.0; // Mock delivery fee subtraction
+  const total = typeof order.total === 'string' ? parseFloat(order.total) : (order.total || 0);
+  const subtotal = total - 2.0; // Mock delivery fee subtraction
   const deliveryFee = 2.0;
+  const items = order.orderItems || [];
 
   return (
     <Card className="bg-surface-accent border border-border-primary-50 shadow-none rounded-md">
@@ -23,8 +25,8 @@ export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-xl pt-0 flex flex-col gap-lg">
-        {order.items.map((item) => (
-          <div key={item.id} className="flex justify-between items-center">
+        {items.map((item, index) => (
+          <div key={`${item.name}-${index}`} className="flex justify-between items-center">
             <div className="flex gap-md items-center">
               <div className="size-16 rounded-md bg-surface-muted overflow-hidden shrink-0 border border-border-primary-50 flex items-center justify-center">
                 {/* Fallback image style */}
@@ -64,7 +66,7 @@ export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
       <CardFooter className="p-xl flex justify-between items-center">
         <span className="text-h3-bold text-text-primary">Total</span>
         <span className="text-h3-bold text-brand-primary">
-          ${order.totalPrice.toFixed(2)}
+          ${total.toFixed(2)}
         </span>
       </CardFooter>
     </Card>

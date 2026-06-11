@@ -61,14 +61,12 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
-}
-
-export interface PaginatedData<T> {
-  items: T[];
-  meta: {
+  meta?: {
     totalItems: number;
     currentPage: number;
     totalPages: number;
     hasNext: boolean;
   };
 }
+
+export type PaginatedResponse<T> = ApiResponse<T[]>;

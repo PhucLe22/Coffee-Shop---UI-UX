@@ -1,1 +1,1 @@
-export { default as InternalAnalyticsPage } from './ui/internal-analytics-page';
+export { default } from './ui/internal-analytics-page';

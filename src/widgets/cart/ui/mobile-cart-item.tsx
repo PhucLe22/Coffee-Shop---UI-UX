@@ -1,7 +1,7 @@
 'use client';
 
 import { Minus, Plus } from 'lucide-react';
-import { cn } from '@/shared/lib';
+import { cn, formatToVND } from '@/shared/lib';
 import { CartItem } from '@/entities/cart';
 
 interface MobileCartItemProps {
@@ -50,7 +50,7 @@ export function MobileCartItem({
 
         <div className="flex items-center justify-between">
           <span className="text-body-md-bold font-plus-jakarta text-brand-primary">
-            {(item.price * item.quantity).toLocaleString('vi-VN')}đ
+            {formatToVND(item.price * item.quantity)}
           </span>
 
           {/* Quantity Controls */}

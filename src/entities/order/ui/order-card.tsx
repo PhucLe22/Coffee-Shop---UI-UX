@@ -82,10 +82,10 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
           <p className="font-inter text-sm font-semibold text-text-primary line-clamp-1">
             {items.length > 0
               ? items.map((item: any) => `${item.quantity}x ${item.name}`).join(", ")
-              : `Order from ${order.store.name}`}
+              : `Order from ${order.store?.name}`}
           </p>
           <p className="font-plus-jakarta text-[11px] text-text-muted line-clamp-1">
-            {order.address || order.store.address}
+            {order.address || order.store?.address}
           </p>
         </div>
       </div>
@@ -97,7 +97,7 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
             TOTAL
           </span>
           <span className="font-plus-jakarta text-[18px] font-bold text-brand-primary">
-            {formatToVND(order.total)}đ
+            {formatToVND(order.total)}
           </span>
         </div>
 

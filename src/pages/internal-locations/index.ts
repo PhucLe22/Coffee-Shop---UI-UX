@@ -1,1 +1,1 @@
-export { default as InternalLocationsPage } from './ui/internal-locations-page';
+export { default } from './ui/internal-locations-page';

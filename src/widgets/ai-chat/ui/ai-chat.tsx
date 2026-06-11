@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { SendHorizontal, Bot, Info, PackageSearch, PackagePlus, ShoppingCart, Tag } from "lucide-react";
+import { SendHorizontal, Bot, Info, PackageSearch, PackagePlus, ShoppingCart, Tag, Loader2 } from "lucide-react";
 import { cn } from "@/shared/lib";
 import { ChatMessage } from "./chat-message";
-import { useChatStore } from "../model/chat-store";
+import { useChatStore, FALLBACK_PRODUCT_IMAGE } from "../model/chat-store";
+import { useAIChat } from "../api/use-ai-chat";
 
 interface AIChatProps {
   className?: string;
@@ -16,6 +17,8 @@ export function AIChat({ className, onClose }: AIChatProps) {
   const { messages, addMessage } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const { mutate: sendMessage, isPending } = useAIChat();
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -24,18 +27,85 @@ export function AIChat({ className, onClose }: AIChatProps) {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
-    addMessage({ role: "user", content: inputValue });
-    setInputValue("");
+  const handleSend = (content?: string) => {
+    const messageContent = content || inputValue;
+    if (!messageContent.trim() || isPending) return;
     
-    // Simulate AI response
-    setTimeout(() => {
-      addMessage({ 
-        role: "assistant", 
-        content: "I'm looking into that for you. Is there anything else you'd like to know about our roastery?" 
-      });
-    }, 1000);
+    const userMessage = { role: "user" as const, content: messageContent };
+    addMessage(userMessage);
+    if (!content) setInputValue("");
+    
+    // Prepare message history for API
+    const history = messages.map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+    
+    sendMessage({
+      messages: [...history, userMessage]
+    }, {
+      onSuccess: (data) => {
+        // Map tool results to attachments if possible
+        let attachment: any = undefined;
+        
+        if (data.toolResults && data.toolResults.length > 0) {
+          const firstTool = data.toolResults[0];
+          const skillName = firstTool.toolName === "executeSkill" ? firstTool.input?.skill : firstTool.toolName;
+          const output = firstTool.output;
+          
+          if (skillName === "getProduct" && output) {
+            attachment = {
+              type: "product",
+              data: {
+                name: output.name,
+                price: `${output.basePrice.toLocaleString()}đ`,
+                slug: output.slug,
+                description: output.description,
+                image: output.thumbnail || FALLBACK_PRODUCT_IMAGE
+              }
+            };
+          } else if (skillName === "searchProducts" && output?.items?.length > 0) {
+            const product = output.items[0];
+            attachment = {
+              type: "product",
+              data: {
+                name: product.name,
+                price: `${product.basePrice.toLocaleString()}đ`,
+                slug: product.slug,
+                description: product.description,
+                image: product.thumbnail || FALLBACK_PRODUCT_IMAGE
+              }
+            };
+          } else if (skillName === "getOrder" && output) {
+            attachment = {
+              type: "order",
+              data: {
+                id: output.orderCode || output.id,
+                status: output.status,
+                items: output.items?.map((item: any) => ({
+                  name: item.name,
+                  price: `${item.price.toLocaleString()}đ`,
+                  quantity: `${item.quantity}x`
+                })) || []
+              }
+            };
+          }
+        }
+        
+        addMessage({ 
+          role: "assistant", 
+          content: data.text,
+          attachment
+        });
+      },
+      onError: (error) => {
+        addMessage({ 
+          role: "assistant", 
+          content: "Sorry, I encountered an error. Please try again later." 
+        });
+        console.error("AI Chat Error:", error);
+      }
+    });
   };
 
   return (
@@ -65,6 +135,12 @@ export function AIChat({ className, onClose }: AIChatProps) {
         {messages.map((msg) => (
           <ChatMessage key={msg.id} message={msg} />
         ))}
+        {isPending && (
+          <div className="flex items-center gap-sm text-text-muted">
+            <Loader2 size={16} className="animate-spin" />
+            <span className="text-body-sm-reg italic">Amber is thinking...</span>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -74,87 +150,27 @@ export function AIChat({ className, onClose }: AIChatProps) {
           <QuickActionButton 
             icon={<Tag size={16} />} 
             label="Special Offers" 
-            onClick={() => {
-              addMessage({ role: "user", content: "Show me special offers" });
-              setTimeout(() => {
-                addMessage({ 
-                  role: "assistant", 
-                  content: "I've found a special blend just for you! It's one of our seasonal favorites.",
-                  attachment: {
-                    type: "product",
-                    data: {
-                      name: "Honey-Oak Flat White",
-                      price: "$9.00",
-                      slug: "honey-oak-flat-white",
-                      description: "Sourced from the highlands of Ethiopia, infused with sustainable forest honey and a hint of oak.",
-                      image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1000&auto=format&fit=crop"
-                    }
-                  }
-                });
-              }, 1000);
-            }}
+            onClick={() => handleSend("Show me special offers")}
           />
           <QuickActionButton 
             icon={<PackageSearch size={16} />} 
             label="Order Status" 
-            onClick={() => {
-              addMessage({ role: "user", content: "Check my order status" });
-              setTimeout(() => {
-                addMessage({ 
-                  role: "assistant", 
-                  content: "Your order #ORD-7294 is currently out for delivery!",
-                  attachment: {
-                    type: "order",
-                    data: {
-                      id: "#ORD-7294",
-                      status: "ĐANG GIAO",
-                      items: [{ name: "Ethiopian Heirloom", price: "$24.00", quantity: "1x" }]
-                    }
-                  }
-                });
-              }, 1000);
-            }}
+            onClick={() => handleSend("Check my order status")}
           />
           <QuickActionButton 
             icon={<Info size={16} />} 
             label="Business Info" 
-            onClick={() => {
-              addMessage({ role: "user", content: "Tell me about Verdant Roastery" });
-              setTimeout(() => {
-                addMessage({ 
-                  role: "assistant", 
-                  content: "Verdant Roastery was founded in 2024 with a mission to bring sustainable, master-roasted coffee to our community. We source only from ethical farms." 
-                });
-              }, 1000);
-            }}
+            onClick={() => handleSend("Tell me about Verdant Roastery")}
           />
           <QuickActionButton 
             icon={<PackagePlus size={16} />} 
             label="New Order" 
-            onClick={() => addMessage({ role: "user", content: "I want to start a new order" })}
+            onClick={() => handleSend("I want to start a new order")}
           />
           <QuickActionButton 
             icon={<ShoppingCart size={16} />} 
             label="My Cart" 
-            onClick={() => {
-              addMessage({ role: "user", content: "Show my cart" });
-              setTimeout(() => {
-                addMessage({ 
-                  role: "assistant", 
-                  content: "Here's what you've added to your cart so far:",
-                  attachment: {
-                    type: "cart",
-                    data: {
-                      total: "$33.00",
-                      items: [
-                        { name: "Cold Brew Nitro", price: "$5.50" },
-                        { name: "Caramel Macchiato", price: "$5.50" }
-                      ]
-                    }
-                  }
-                });
-              }, 1000);
-            }}
+            onClick={() => handleSend("Show my cart")}
           />
         </div>
       </div>
@@ -169,13 +185,14 @@ export function AIChat({ className, onClose }: AIChatProps) {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            disabled={isPending}
           />
           <button 
-            onClick={handleSend}
-            disabled={!inputValue.trim()}
+            onClick={() => handleSend()}
+            disabled={!inputValue.trim() || isPending}
             className="flex size-10 items-center justify-center rounded-full bg-text-primary text-inverse-text disabled:opacity-30 disabled:cursor-not-allowed hover:bg-text-primary/90 transition-colors"
           >
-            <SendHorizontal size={20} />
+            {isPending ? <Loader2 size={20} className="animate-spin" /> : <SendHorizontal size={20} />}
           </button>
         </div>
       </div>

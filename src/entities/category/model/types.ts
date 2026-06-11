@@ -7,18 +7,14 @@ export interface Category {
   updatedAt: string;
 }
 
-export interface PaginatedData<T> {
-  items: T[];
-  meta: {
+export interface CategoryResponse {
+  success: boolean;
+  message: string;
+  data: Category[];
+  meta?: {
     totalItems: number;
     currentPage: number;
     totalPages: number;
     hasNext: boolean;
   };
-}
-
-export interface CategoryResponse {
-  success: boolean;
-  message: string;
-  data: PaginatedData<Category>;
 }

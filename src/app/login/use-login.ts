@@ -1,19 +1,23 @@
 import { useMutation } from "@tanstack/react-query";
 import { LoginService } from "./login.service";
-import { useAuthStore } from "@/shared/auth";
-import { setAccessToken } from "@/shared/api";
+import { useCustomerAuthStore, useStaffAuthStore } from "@/shared/auth";
 import { useRouter } from "next/navigation";
 
 export const useLogin = () => {
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const setCustomerAuth = useCustomerAuthStore((state) => state.setAuth);
+  const setStaffAuth = useStaffAuthStore((state) => state.setAuth);
   const router = useRouter();
 
   return useMutation({
     mutationFn: LoginService.login,
     onSuccess: (data) => {
-      setAuth(data);
-      setAccessToken(data.accessToken);
-      router.push("/");
+      if (data.type === "STAFF") {
+        setStaffAuth(data);
+        router.push("/internal/dashboard");
+      } else {
+        setCustomerAuth(data);
+        router.push("/");
+      }
     },
   });
 };

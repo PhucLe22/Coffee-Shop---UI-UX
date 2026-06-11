@@ -32,7 +32,7 @@ export default function MenuPage() {
     }
   }, [entry?.isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const allProducts = data?.pages.flatMap((page) => page.data.items) || [];
+  const allProducts = data?.pages.flatMap((page) => page.data) || [];
 
   return (
     <div className="flex flex-col gap-8 bg-surface-accent px-6 py-12 pb-24 min-h-full">

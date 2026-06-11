@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/shared/lib";
+import { cn, formatToVND } from "@/shared/lib";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -44,7 +44,7 @@ export function SuggestionCard({
           {name}
         </h4>
         <span className="text-body-md-bold text-brand-primary">
-          ${price.toFixed(2)}
+          {formatToVND(price)}
         </span>
       </div>
     </div>

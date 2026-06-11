@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { AppButton } from "@/shared/ui";
 import { useRouter } from "next/navigation";
-import { useAuthStore, AuthService } from "@/shared/auth";
+import { useCustomerAuthStore, AuthService } from "@/shared/auth";
 import { toast } from "sonner";
 
 const CustomerCard = () => {
@@ -110,7 +110,7 @@ const SettingsGroup = ({
 
 export function MobileProfileView() {
   const router = useRouter();
-  const { logout, accessToken, refreshToken } = useAuthStore();
+  const { logout, accessToken, refreshToken } = useCustomerAuthStore();
 
   const handleLogout = async () => {
     try {

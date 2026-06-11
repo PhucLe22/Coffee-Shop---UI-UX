@@ -2,7 +2,7 @@
 
 import { Minus, Plus } from "lucide-react";
 import { AppButton } from "@/shared/ui";
-import { cn } from "@/shared/lib";
+import { cn, formatToVND } from "@/shared/lib";
 import { CartItem } from "@/entities/cart";
 
 interface DesktopCartItemProps {
@@ -53,7 +53,7 @@ export function DesktopCartItem({
               </p>
             </div>
             <span className="text-[18px] font-bold font-plus-jakarta text-brand-primary leading-[22.68px]">
-              ${item.price.toFixed(2)}
+              {formatToVND(item.price)}
             </span>
           </div>
 

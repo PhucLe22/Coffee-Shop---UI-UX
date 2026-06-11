@@ -1,18 +1,33 @@
+"use client";
+
 import { LoginForm } from "./login-form";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-
-export const metadata: Metadata = {
-  title: "Login | Amber Roast",
-  description: "Log in to your artisan account",
-};
+import { useCustomerAuthStore, useStaffAuthStore } from "@/shared/auth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
+  const customerAuth = useCustomerAuthStore();
+  const staffAuth = useStaffAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (staffAuth._hasHydrated && staffAuth.user) {
+      router.replace("/internal/dashboard");
+      return;
+    }
+    
+    if (customerAuth._hasHydrated && customerAuth.user) {
+      router.replace("/");
+      return;
+    }
+  }, [customerAuth.user, customerAuth._hasHydrated, staffAuth.user, staffAuth._hasHydrated, router]);
+
   return (
     <div className="flex min-h-screen w-full flex-col lg:flex-row">
-      {/* Background Section */}
+...
       <div className="relative flex h-[350px] w-full flex-col justify-end px-md pb-xl pt-2xl lg:h-auto lg:w-1/2 lg:justify-center lg:px-2xl lg:py-0 bg-[#330f00]">
         <Link 
           href="/" 

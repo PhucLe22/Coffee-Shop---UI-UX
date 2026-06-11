@@ -1,1 +1,1 @@
-export { default as InternalDashboardPage } from "./ui/internal-dashboard-page";
+export { default } from './ui/internal-dashboard-page';

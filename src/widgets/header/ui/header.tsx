@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart, User, MoveRight } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { AppButton } from "@/shared/ui";
-import { useAuthStore } from "@/shared/auth";
+import { useCustomerAuthStore } from "@/shared/auth";
 import { useCartStore } from "@/entities/cart";
 
 const NAV_LINKS = [
@@ -18,7 +18,7 @@ const NAV_LINKS = [
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, refreshToken } = useAuthStore();
+  const { user, refreshToken } = useCustomerAuthStore();
   const { items, _hasHydrated } = useCartStore();
 
   const totalItems = _hasHydrated

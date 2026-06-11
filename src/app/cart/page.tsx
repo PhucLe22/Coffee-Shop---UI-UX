@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useIsMobile, cn } from "@/shared/lib";
+import { useIsMobile, cn, formatToVND } from "@/shared/lib";
 import {
   DesktopCartItem,
   MobileCartItem,
@@ -10,7 +10,7 @@ import {
 } from "@/widgets/cart";
 import { AuthModal } from "@/widgets/auth";
 import { useCartStore } from "@/entities/cart";
-import { useAuthStore } from "@/shared/auth";
+import { useCustomerAuthStore } from "@/shared/auth";
 import { useStoreStore } from "@/entities/store";
 import { useRouter } from "next/navigation";
 import { Minus, Plus } from "lucide-react";
@@ -26,14 +26,14 @@ export default function CartPage() {
   const router = useRouter();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { items, updateQuantity, removeItem, clearCart } = useCartStore();
-  const { user } = useAuthStore();
+  const { user } = useCustomerAuthStore();
   const { data: storesResponse } = useStores();
   const { selectedStore, setSelectedStore } = useStoreStore();
   const { mutate: createOrder, isPending } = useCreateOrder();
 
   const stores = storesResponse?.data || [];
 
-  const [orderType, setOrderType] = useState<OrderType>(OrderType.DINE_IN);
+  const [orderType, setOrderType] = useState<OrderType>(OrderType.TAKEAWAY);
   const [tableNumber, setTableNumber] = useState("");
   const [deliveryInfo, setDeliveryInfo] = useState({
     receiverName: "",
@@ -70,11 +70,6 @@ export default function CartPage() {
       return;
     }
 
-    if (orderType === OrderType.DINE_IN && !tableNumber) {
-      toast.error("Vui lòng nhập số bàn");
-      return;
-    }
-
     if (orderType === OrderType.DELIVERY) {
       if (
         !deliveryInfo.receiverName ||
@@ -95,7 +90,6 @@ export default function CartPage() {
     const orderData = {
       storeId: selectedStore.id,
       type: orderType,
-      tableNumber: orderType === OrderType.DINE_IN ? tableNumber : undefined,
       deliveryInfo:
         orderType === OrderType.DELIVERY ? deliveryInfo : undefined,
       note: "Customer order from web cart",
@@ -113,7 +107,12 @@ export default function CartPage() {
       onSuccess: (response) => {
         toast.success("Đặt hàng thành công!");
         clearCart();
-        router.push("/orders"); // Redirect to orders history
+        // Redirect to order detail page using the order code
+        if (response.data.orderCode) {
+          router.push(`/orders/detail/${response.data.orderCode}`);
+        } else {
+          router.push("/orders");
+        }
       },
       onError: (error) => {
         toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
@@ -218,15 +217,15 @@ export default function CartPage() {
                   </h3>
                   <div className="flex gap-md">
                     <button
-                      onClick={() => setOrderType(OrderType.DINE_IN)}
+                      onClick={() => setOrderType(OrderType.TAKEAWAY)}
                       className={cn(
                         "flex-1 py-md rounded-lg font-bold transition-all",
-                        orderType === OrderType.DINE_IN
+                        orderType === OrderType.TAKEAWAY
                           ? "bg-brand-primary text-inverse-text shadow-md"
                           : "bg-[#faf2eb] text-text-muted hover:text-text-primary"
                       )}
                     >
-                      ĂN TẠI CHỖ
+                      MANG ĐI
                     </button>
                     <button
                       onClick={() => setOrderType(OrderType.DELIVERY)}
@@ -241,18 +240,7 @@ export default function CartPage() {
                     </button>
                   </div>
 
-                  {orderType === OrderType.DINE_IN ? (
-                    <div className="flex flex-col gap-sm">
-                      <Label htmlFor="tableNumber">Số bàn</Label>
-                      <Input
-                        id="tableNumber"
-                        placeholder="VD: A10, B5..."
-                        value={tableNumber}
-                        onChange={(e) => setTableNumber(e.target.value)}
-                        className="bg-[#faf2eb]"
-                      />
-                    </div>
-                  ) : (
+                  {orderType === OrderType.DELIVERY && (
                     <div className="flex flex-col gap-md">
                       <div className="flex flex-col gap-sm">
                         <Label>Sử dụng thông tin đã lưu</Label>
@@ -364,15 +352,15 @@ export default function CartPage() {
             </h3>
             <div className="flex gap-md">
               <button
-                onClick={() => setOrderType(OrderType.DINE_IN)}
+                onClick={() => setOrderType(OrderType.TAKEAWAY)}
                 className={cn(
                   "flex-1 py-md rounded-lg font-bold transition-all",
-                  orderType === OrderType.DINE_IN
+                  orderType === OrderType.TAKEAWAY
                     ? "bg-brand-primary text-inverse-text shadow-md"
                     : "bg-[#faf2eb] text-text-muted hover:text-text-primary"
                 )}
               >
-                ĂN TẠI CHỖ
+                MANG ĐI
               </button>
               <button
                 onClick={() => setOrderType(OrderType.DELIVERY)}
@@ -387,18 +375,7 @@ export default function CartPage() {
               </button>
             </div>
 
-            {orderType === OrderType.DINE_IN ? (
-              <div className="flex flex-col gap-sm">
-                <Label htmlFor="tableNumber">Số bàn</Label>
-                <Input
-                  id="tableNumber"
-                  placeholder="VD: A10, B5..."
-                  value={tableNumber}
-                  onChange={(e) => setTableNumber(e.target.value)}
-                  className="bg-[#faf2eb]"
-                />
-              </div>
-            ) : (
+            {orderType === OrderType.DELIVERY && (
               <div className="flex flex-col gap-md">
                 <div className="flex flex-col gap-sm">
                   <Label>Sử dụng thông tin đã lưu</Label>
@@ -496,7 +473,7 @@ export default function CartPage() {
                 <div className="flex flex-col">
                   <span className="text-overline text-text-muted">TỔNG CỘNG</span>
                   <span className="text-h3-bold text-brand-primary">
-                    {total.toLocaleString('vi-VN')}đ
+                    {formatToVND(total)}
                   </span>
                 </div>
                 <div className="text-right">

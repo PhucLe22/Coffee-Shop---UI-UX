@@ -6,6 +6,9 @@ import { InternalSidebar } from "./internal-sidebar";
 import { InternalMobileNav } from "./internal-mobile-nav";
 import { useIsMobile } from "@/shared/lib";
 import { cn } from "@/shared/lib/utils";
+import { useStaffAuthStore } from "@/shared/auth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function InternalLayout({
   children,
@@ -13,6 +16,24 @@ export default function InternalLayout({
   children: React.ReactNode;
 }) {
   const isMobile = useIsMobile();
+  const { user, _hasHydrated } = useStaffAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (_hasHydrated && !user) {
+      router.push("/login");
+    }
+  }, [_hasHydrated, user, router]);
+
+  if (!_hasHydrated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface-main">
+        <div className="size-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>

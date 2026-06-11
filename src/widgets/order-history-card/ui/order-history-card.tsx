@@ -82,7 +82,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
               TOTAL
             </span>
             <span className="text-[20px] font-extrabold font-plus-jakarta text-text-primary">
-              {formatToVND(order.total)}đ
+              {formatToVND(order.total)}
             </span>
           </div>
         </div>
@@ -120,7 +120,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
               <div className="flex items-center gap-3 text-text-muted">
                 <MapPin className="size-5 shrink-0" />
                 <p className="text-[15px] font-medium font-inter">
-                  {order.address || order.store.address}
+                  {order.address || order.store?.address}
                 </p>
               </div>
             </div>
@@ -129,7 +129,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
             <div className="flex gap-10">
               <div className="size-[180px] shrink-0 overflow-hidden rounded-2xl border border-text-primary/10 bg-white/10 shadow-md">
                 <div className="flex h-full w-full items-center justify-center bg-brand-primary/10 text-brand-primary font-bold text-4xl">
-                  {order.store.name.charAt(0)}
+                  {order.store?.name?.charAt(0) || 'O'}
                 </div>
               </div>
               <div className="flex flex-1 flex-col justify-between py-2">
@@ -151,7 +151,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
                           </span>
                         </div>
                         <span className="text-[18px] font-bold font-plus-jakarta text-text-primary">
-                          {formatToVND(item.price * item.quantity)}đ
+                          {formatToVND(item.price * item.quantity)}
                         </span>
                       </div>
                     ))
@@ -165,7 +165,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
                 <div className="flex items-center justify-between mt-auto pt-6 border-t border-text-primary/5">
                   <div className="flex items-center gap-3">
                     <span className="text-[18px] font-bold font-plus-jakarta text-text-primary">Total:</span>
-                    <span className="text-[32px] font-extrabold font-plus-jakarta text-[#f0660a]">{formatToVND(order.total)}đ</span>
+                    <span className="text-[32px] font-extrabold font-plus-jakarta text-[#f0660a]">{formatToVND(order.total)}</span>
                   </div>
                   <AppButton 
                     variant="primary" 

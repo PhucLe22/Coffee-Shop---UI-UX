@@ -46,6 +46,7 @@ export const StaffRole = {
   CASHIER: "CASHIER",
   KITCHEN: "KITCHEN",
   OWNER: "OWNER",
+  SHIPPER: "SHIPPER",
 } as const;
 export type StaffRole = (typeof StaffRole)[keyof typeof StaffRole];
 
@@ -130,11 +131,14 @@ export interface LoginOutput {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   type: UserType;
   tier?: CustomerTier;
   points?: number;
   role?: StaffRole;
   storeName?: string;
+  lat?: number;
+  lng?: number;
   accessToken: string;
   refreshToken: string;
 }
@@ -174,28 +178,41 @@ export interface OrderOutput {
   orderCode: string | null;
   status: OrderStatus;
   type: OrderType;
-  subtotal: number;
-  discount: number;
-  tax: number;
-  serviceFee: number;
-  total: number;
+  subtotal: string | number;
+  discount: string | number;
+  tax: string | number;
+  serviceFee: string | number;
+  total: string | number;
   note: string | null;
   address?: string | null;
   tableNumber: string | null;
   createdAt: string;
   updatedAt?: string;
+  expectedReadyAt?: string | null;
   store: {
-    id?: string;
-    name: string;
-    address: string;
+    id: string;
+    name?: string;
+    address?: string;
   };
   customer: {
-    id?: string;
-    name: string;
-    phone: string;
+    id: string;
+    name?: string | null;
+    phone?: string;
     address?: string;
     tier?: CustomerTier;
   };
+  assignedChef?: {
+    id: string;
+    user: any;
+  } | null;
+  delivery?: {
+    id: string;
+    status: string;
+    assignedShipper?: {
+      id: string;
+      user: any;
+    } | null;
+  } | null;
   createdBy: {
     staff_id: string;
   } | null;
@@ -300,7 +317,9 @@ export interface UpdateDeliveryLocationBody {
 
 export interface StaffCreateOrderBody {
   customerId?: string;
+  phone?: string;
   type: OrderType;
+  tableNumber?: string;
   note?: string;
   items: Array<{
     productId: string;
@@ -395,3 +414,66 @@ export interface AdminTopProductsQuery {
   limit?: number;
   storeId?: string;
 }
+
+// --- AI (ai.output.schema.js) ---
+
+export interface AIChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface AIChatInput {
+  messages: AIChatMessage[];
+}
+
+export interface ToolResult {
+  type: string;
+  toolCallId: string;
+  toolName: string;
+  input: any;
+  output: any;
+  dynamic: boolean;
+}
+
+export interface AIChatOutput {
+  text: string;
+  toolResults?: ToolResult[];
+}
+
+// --- DELIVERY (delivery.output.schema.js) ---
+
+export interface DeliveryScheduleNode {
+  shipper_id: number;
+  shipperId: string;
+  shipperName: string;
+  type: "STORE" | "PICKUP" | "DELIVERY";
+  node?: number;
+  orderId?: string;
+  orderCode?: string;
+  lat: number;
+  lng: number;
+  arrival_datetime: string | null;
+}
+
+export interface FormattedOrder {
+  id: string;
+  customer: string;
+  status: string;
+  address: string;
+  items: string;
+  location: {
+    lng: number;
+    lat: number;
+  };
+  isFocused: boolean;
+}
+
+export interface DeliveryScheduleOutput {
+  storeId: string;
+  numShippers: number;
+  numOrders: number;
+  schedule: DeliveryScheduleNode[];
+  formattedOrders: FormattedOrder[];
+}
+
+

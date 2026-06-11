@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { ActiveProcessingOrder } from "@/widgets/active-processing-order";
 import { ReadyToPickUpOrder } from "@/widgets/ready-to-pickup-order";
 import { AppButton, Input, Label } from "@/shared/ui";
-import { OrderStatus } from "@/shared/api";
+import { OrderOutput, OrderStatus } from "@/shared/api";
 
 export default function OrdersPage() {
   const isMobile = useIsMobile();
@@ -174,11 +174,11 @@ export default function OrdersPage() {
   );
 
   // Filter orders for specialized widgets
-  const processingOrder = orders.find((o) =>
+  const processingOrder = orders.find((o: OrderOutput) =>
     ["NEW", "CONFIRMED", "PREPARING"].includes(o.status),
   );
-  const readyOrder = orders.find((o) => o.status === "READY");
-  const completedOrders = orders.filter((o) =>
+  const readyOrder = orders.find((o: OrderOutput) => o.status === "READY");
+  const completedOrders = orders.filter((o: OrderOutput) =>
     ["COMPLETED", "CANCELLED", "REFUNDED"].includes(o.status),
   );
 

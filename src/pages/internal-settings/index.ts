@@ -1,1 +1,1 @@
-export * from "./ui/internal-settings-page";
+export { default } from './ui/internal-settings-page';

@@ -121,28 +121,28 @@ export default function HomePage() {
             <ProductCard
               name="Cold Brew Nitro"
               size="350ml"
-              price="$5.50"
+              price={55000}
               slug="cold-brew-nitro"
               imageUrl="https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=1974&auto=format&fit=crop"
             />
             <ProductCard
               name="Double Espresso"
               size="350ml"
-              price="$5.50"
+              price={55000}
               slug="double-espresso"
               imageUrl="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=1970&auto=format&fit=crop"
             />
             <ProductCard
               name="Caramel Macchiato"
               size="350ml"
-              price="$5.50"
+              price={55000}
               slug="caramel-macchiato"
               imageUrl="https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=1974&auto=format&fit=crop"
             />
             <ProductCard
               name="Oatmilk Latte"
               size="350ml"
-              price="$5.50"
+              price={55000}
               slug="oatmilk-latte"
               imageUrl="https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=1974&auto=format&fit=crop"
             />

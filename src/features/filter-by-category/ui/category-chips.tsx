@@ -29,7 +29,7 @@ export const CategoryChips = ({
     );
   }
 
-  const categories = data?.data.items || [];
+  const categories = data?.data || [];
   const allCategories = [{ id: "all", name: "ALL" }, ...categories];
 
   return (

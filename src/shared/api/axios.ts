@@ -1,12 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { API_ENDPOINTS } from "./endpoints";
-
-// This should ideally come from an auth store/hook
-let accessToken: string | null = null;
-
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
-};
+import { useCustomerAuthStore, useStaffAuthStore } from "../auth/auth.store";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -19,8 +13,14 @@ const axiosInstance = axios.create({
 // Request interceptor: Attach Access Token as Bearer
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (accessToken && config.headers) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    // Determine which token to use based on the URL
+    const isInternal = config.url?.startsWith('/internal') || config.url?.includes('/internal/');
+    const token = isInternal 
+      ? useStaffAuthStore.getState().accessToken 
+      : useCustomerAuthStore.getState().accessToken;
+
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -38,8 +38,6 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Call refresh endpoint - Refresh token is automatically sent via cookie
-        // The backend should return the new access token in the body
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
           {},
@@ -47,7 +45,20 @@ axiosInstance.interceptors.response.use(
         );
 
         const newAccessToken = response.data.accessToken;
-        setAccessToken(newAccessToken);
+        
+        // Update the correct store
+        const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
+        if (isInternal) {
+          const { user, refreshToken, setAuth } = useStaffAuthStore.getState();
+          if (user && refreshToken) {
+             setAuth({ ...user, accessToken: newAccessToken, refreshToken } as any);
+          }
+        } else {
+          const { user, refreshToken, setAuth } = useCustomerAuthStore.getState();
+          if (user && refreshToken) {
+             setAuth({ ...user, accessToken: newAccessToken, refreshToken } as any);
+          }
+        }
 
         // Update header and retry original request
         if (originalRequest.headers) {
@@ -55,8 +66,14 @@ axiosInstance.interceptors.response.use(
         }
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        // If refresh fails, clear token and redirect to login
-        setAccessToken(null);
+        // If refresh fails, clear tokens and redirect to login
+        const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
+        if (isInternal) {
+          useStaffAuthStore.getState().logout();
+        } else {
+          useCustomerAuthStore.getState().logout();
+        }
+        
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
@@ -67,5 +84,9 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Exporting dummy setAccessToken for backward compatibility during migration
+export const setAccessToken = (_token: string | null) => {};
+
 
 export default axiosInstance;

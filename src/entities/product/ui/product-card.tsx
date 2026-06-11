@@ -1,11 +1,11 @@
 import { Plus } from "lucide-react";
-import { cn } from "@/shared/lib";
+import { cn, formatToVND } from "@/shared/lib";
 import Link from "next/link";
 
 interface ProductCardProps {
   name: string;
   size: string;
-  price: string;
+  price: number;
   slug: string;
   imageUrl?: string;
   className?: string;
@@ -48,7 +48,7 @@ export const ProductCard = ({
         </h4>
         <div className="flex items-center justify-between text-body-md-bold">
           <span className="text-text-secondary">{size}</span>
-          <span className="text-brand-primary">{price}</span>
+          <span className="text-brand-primary">{formatToVND(price)}</span>
         </div>
       </Link>
     </div>

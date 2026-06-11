@@ -3,7 +3,7 @@
 import { Menu, ShoppingCart, User } from "lucide-react";
 import { Button } from "@/shared/ui";
 import { cn } from "@/shared/lib";
-import { useAuthStore } from "@/shared/auth";
+import { useCustomerAuthStore } from "@/shared/auth";
 import { useCartStore } from "@/entities/cart";
 import Link from "next/link";
 
@@ -14,7 +14,7 @@ export interface MobileHeaderProps {
 const MobileHeader = ({
   className,
 }: MobileHeaderProps) => {
-  const { user } = useAuthStore();
+  const { user } = useCustomerAuthStore();
   const { items, _hasHydrated } = useCartStore();
 
   const totalItems = _hasHydrated ? items.reduce((sum, item) => sum + item.quantity, 0) : 0;

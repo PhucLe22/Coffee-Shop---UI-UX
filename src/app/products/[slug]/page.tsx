@@ -80,7 +80,7 @@ export default function ProductDetailPage({
             formatted.push({
               optionId: option.id,
               name: option.name,
-              price: option.price || 0,
+              price: Number(option.price || 0),
             });
           }
         });
@@ -93,7 +93,7 @@ export default function ProductDetailPage({
     if (!product) return;
     const formattedOptions = getSelectedOptionsFormatted();
     const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
-    const itemPrice = product.basePrice + extraPrice;
+    const itemPrice = Number(product.basePrice) + extraPrice;
     
     const cartId = `${product.id}-${formattedOptions.map(o => o.optionId).sort().join('-')}`;
     
@@ -113,7 +113,7 @@ export default function ProductDetailPage({
   const calculateTotalPrice = () => {
     const formattedOptions = getSelectedOptionsFormatted();
     const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
-    return ((product?.basePrice || 0) + extraPrice) * quantity;
+    return (Number(product?.basePrice || 0) + extraPrice) * quantity;
   };
 
   const totalPrice = calculateTotalPrice();
@@ -212,7 +212,7 @@ export default function ProductDetailPage({
                   <OptionCard
                     key={option.id}
                     name={option.name}
-                    price={option.price || 0}
+                    price={Number(option.price || 0)}
                     isSelected={selectedOptions[group.id]?.includes(option.id)}
                     onToggle={() => toggleOption(group.id, option.id, true)}
                   />

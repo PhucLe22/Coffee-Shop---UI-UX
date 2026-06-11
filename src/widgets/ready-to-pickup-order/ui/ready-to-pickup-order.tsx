@@ -56,7 +56,7 @@ export const ReadyToPickUpOrder = ({ order }: ReadyToPickUpOrderProps) => {
             ) : (
               <>
                 <span className="text-[16px] font-bold font-plus-jakarta text-text-primary group-hover:text-brand-primary transition-colors truncate max-w-[200px]">
-                  {displayItems[0]?.name || `Order from ${order.store.name}`}
+                  {displayItems[0]?.name || `Order from ${order.store?.name}`}
                 </span>
                 <span className="text-[12px] font-bold font-plus-jakarta text-text-muted uppercase tracking-wider opacity-70">
                   {displayItems[0]?.options?.join(", ") || "Regular Pack"}
@@ -71,7 +71,7 @@ export const ReadyToPickUpOrder = ({ order }: ReadyToPickUpOrderProps) => {
             Total
           </span>
           <span className="text-[20px] font-extrabold font-plus-jakarta text-[#f0660a] leading-none">
-            {formatToVND(order.total)}đ
+            {formatToVND(order.total)}
           </span>
         </div>
       </div>

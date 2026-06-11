@@ -51,7 +51,7 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
       <div className="flex gap-10 mb-10 items-start">
         <div className="size-[200px] shrink-0 overflow-hidden rounded-2xl border border-text-primary/10 bg-white/10 shadow-md">
           <div className="flex h-full w-full items-center justify-center bg-brand-primary/10 text-brand-primary font-bold text-6xl">
-            {order.store.name.charAt(0)}
+            {order.store?.name?.charAt(0) || 'O'}
           </div>
         </div>
         <div className="flex flex-1 flex-col gap-8">
@@ -73,7 +73,7 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
                     </p>
                   </div>
                   <span className="text-[18px] font-bold font-plus-jakarta text-text-primary">
-                    {formatToVND(item.price)}đ
+                    {formatToVND(item.price)}
                   </span>
                 </div>
               ))
@@ -89,7 +89,7 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
               Total:
             </span>
             <span className="text-[48px] font-extrabold font-plus-jakarta text-[#f0660a] leading-none tracking-tighter">
-              {formatToVND(order.total)}đ
+              {formatToVND(order.total)}
             </span>
           </div>
         </div>

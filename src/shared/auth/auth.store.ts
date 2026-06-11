@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { LoginOutput } from '../api/contracts'
-import { setAccessToken } from '../api/axios'
 
 interface AuthState {
   user: Omit<LoginOutput, 'accessToken' | 'refreshToken'> | null
@@ -16,7 +15,7 @@ interface AuthActions {
   setHasHydrated: (hydrated: boolean) => void
 }
 
-type AuthStore = AuthState & AuthActions
+export type AuthStore = AuthState & AuthActions
 
 const initialState: AuthState = {
   user: null,
@@ -25,42 +24,58 @@ const initialState: AuthState = {
   _hasHydrated: false,
 }
 
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    (set) => ({
-      ...initialState,
-      setAuth: (authData: LoginOutput) => {
-        const { accessToken, refreshToken, ...user } = authData
-        set({
-          user,
-          accessToken,
-          refreshToken,
-        })
-      },
-      logout: () => {
-        set({
-          user: null,
-          accessToken: null,
-          refreshToken: null,
-        })
-      },
-      setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
-    }),
-    {
-      name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage),
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true)
-        if (state?.accessToken) {
-          setAccessToken(state.accessToken)
-        }
-      },
-      // Optionally partialize what to persist
-      partialize: (state) => ({
-        user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
+const createAuthStore = (storageName: string) => 
+  create<AuthStore>()(
+    persist(
+      (set) => ({
+        ...initialState,
+        setAuth: (authData: LoginOutput) => {
+          const { accessToken, refreshToken, ...user } = authData
+          
+          // Decode JWT to get extra claims like lat, lng
+          let lat: number | undefined = user.lat
+          let lng: number | undefined = user.lng
+          
+          try {
+            const payload = JSON.parse(atob(accessToken.split('.')[1]))
+            if (payload.lat) lat = payload.lat
+            if (payload.lng) lng = payload.lng
+          } catch (e) {
+            console.error('Failed to decode JWT', e)
+          }
+
+          set({
+            user: { ...user, lat, lng },
+            accessToken,
+            refreshToken,
+          })
+        },
+        logout: () => {
+          set({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+          })
+        },
+        setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
       }),
-    }
+      {
+        name: storageName,
+        storage: createJSONStorage(() => localStorage),
+        onRehydrateStorage: () => (state) => {
+          state?.setHasHydrated(true)
+        },
+        partialize: (state) => ({
+          user: state.user,
+          accessToken: state.accessToken,
+          refreshToken: state.refreshToken,
+        }),
+      }
+    )
   )
-)
+
+export const useCustomerAuthStore = createAuthStore('customer-auth-storage')
+export const useStaffAuthStore = createAuthStore('staff-auth-storage')
+
+// For backward compatibility during migration
+export const useAuthStore = useCustomerAuthStore

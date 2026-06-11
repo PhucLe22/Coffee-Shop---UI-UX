@@ -1,1 +1,1 @@
-export { default as InternalInventoryPage } from "./ui/internal-inventory-page";
+export { default } from './ui/internal-inventory-page';

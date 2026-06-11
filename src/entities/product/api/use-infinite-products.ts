@@ -12,8 +12,8 @@ export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "lim
         limit: 6 
       }),
     getNextPageParam: (lastPage) => {
-      const { meta } = lastPage.data;
-      if (meta.hasNext) {
+      const meta = lastPage.meta;
+      if (meta && meta.hasNext) {
         return meta.currentPage + 1;
       }
       return undefined;

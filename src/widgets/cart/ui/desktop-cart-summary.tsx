@@ -1,7 +1,7 @@
 "use client";
 
 import { AppButton } from "@/shared/ui";
-import { cn } from "@/shared/lib";
+import { cn, formatToVND } from "@/shared/lib";
 
 interface DesktopCartSummaryProps {
   subtotal: number;
@@ -24,10 +24,6 @@ export function DesktopCartSummary({
   onApplyPromo,
   isLoading,
 }: DesktopCartSummaryProps) {
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString('vi-VN') + 'đ';
-  };
-
   return (
     <aside
       className={cn(
@@ -42,15 +38,15 @@ export function DesktopCartSummary({
       <div className="flex flex-col gap-lg">
         <div className="flex justify-between items-center text-[16px] font-normal font-inter text-text-primary leading-[19.36px]">
           <span>Tạm tính</span>
-          <span className="text-text-muted">{formatCurrency(subtotal)}</span>
+          <span className="text-text-muted">{formatToVND(subtotal)}</span>
         </div>
         <div className="flex justify-between items-center text-[16px] font-normal font-inter text-text-primary leading-[19.36px]">
           <span>Phí giao hàng</span>
-          <span className="text-text-muted">{formatCurrency(shipping)}</span>
+          <span className="text-text-muted">{formatToVND(shipping)}</span>
         </div>
         <div className="flex justify-between items-center text-[16px] font-normal font-inter text-text-primary leading-[19.36px]">
           <span>Thuế (8% VAT)</span>
-          <span className="text-text-muted">{formatCurrency(tax)}</span>
+          <span className="text-text-muted">{formatToVND(tax)}</span>
         </div>
         <div className="h-[1px] bg-text-primary/50 my-md" />
         <div className="flex justify-between items-center">
@@ -58,7 +54,7 @@ export function DesktopCartSummary({
             Tổng cộng
           </span>
           <span className="text-[24px] font-bold font-plus-jakarta text-text-primary leading-[30.24px]">
-            {formatCurrency(total)}
+            {formatToVND(total)}
           </span>
         </div>
       </div>

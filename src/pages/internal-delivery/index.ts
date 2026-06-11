@@ -1,1 +1,1 @@
-export { default as InternalDeliveryPage } from "./ui/internal-delivery-page";
+export { default } from './ui/internal-delivery-page';

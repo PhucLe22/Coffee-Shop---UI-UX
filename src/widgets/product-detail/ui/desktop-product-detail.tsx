@@ -57,7 +57,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
             formatted.push({
               optionId: option.id,
               name: option.name,
-              price: option.price || 0,
+              price: Number(option.price || 0),
             });
           }
         });
@@ -69,7 +69,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
   const handleAddToCart = () => {
     const formattedOptions = getSelectedOptionsFormatted();
     const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
-    const itemPrice = product.basePrice + extraPrice;
+    const itemPrice = Number(product.basePrice) + extraPrice;
     
     const cartId = `${product.id}-${formattedOptions.map(o => o.optionId).sort().join('-')}`;
     
@@ -89,7 +89,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
   const calculateTotalPrice = () => {
     const formattedOptions = getSelectedOptionsFormatted();
     const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
-    return (product.basePrice + extraPrice) * quantity;
+    return (Number(product.basePrice) + extraPrice) * quantity;
   };
 
   const totalPrice = calculateTotalPrice();
@@ -142,7 +142,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                     <OptionCard
                       key={option.id}
                       name={option.name}
-                      price={option.price || 0}
+                      price={Number(option.price || 0)}
                       isSelected={selectedOptions[group.id]?.includes(option.id)}
                       onToggle={() => toggleOption(group.id, option.id, true)}
                       className="rounded-md border-border-primary-50"

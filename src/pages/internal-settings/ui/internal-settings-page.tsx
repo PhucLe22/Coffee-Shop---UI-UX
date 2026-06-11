@@ -21,7 +21,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { cn } from "@/shared/lib/utils";
 
-export function InternalSettingsPage() {
+export default function InternalSettingsPage() {
   return (
     <div className="flex flex-col h-full bg-surface-main overflow-y-auto no-scrollbar pb-xl">
       {/* Profile Header */}

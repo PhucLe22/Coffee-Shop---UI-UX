@@ -5,7 +5,7 @@ import { User, ClipboardList, MapPin, CreditCard, LogOut } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { AppButton } from "@/shared/ui";
 import { useRouter } from "next/navigation";
-import { useAuthStore, AuthService } from "@/shared/auth";
+import { useCustomerAuthStore, AuthService } from "@/shared/auth";
 import { toast } from "sonner";
 
 interface NavItemProps {
@@ -33,7 +33,7 @@ const NavItem = ({ icon: Icon, label, isActive, onClick }: NavItemProps) => (
 export function DesktopProfileSidebar() {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState("Thông tin cá nhân");
-  const { logout, accessToken, refreshToken } = useAuthStore();
+  const { logout, accessToken, refreshToken } = useCustomerAuthStore();
 
   const handleLogout = async () => {
     try {

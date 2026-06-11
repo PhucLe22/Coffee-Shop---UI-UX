@@ -1,1 +1,1 @@
-export { default as InternalPromotionPage } from "./ui/internal-promotion-page";
+export { default } from './ui/internal-promotion-page';
