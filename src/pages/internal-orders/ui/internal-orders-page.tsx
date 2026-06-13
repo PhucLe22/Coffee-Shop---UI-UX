@@ -13,6 +13,8 @@ import { Card, CardContent } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { cn, formatToVND } from "@/shared/lib/utils";
 import { useInternalOrders, OrderStatus, useUpdateOrderStatus } from "@/entities/order";
+import { useStaffAuthStore } from "@/shared/auth";
+import { StaffRole } from "@/shared/api/contracts";
 
 const statusConfig: Record<string, { label: string; className: string; btnText: string; btnColor: string }> = {
   NEW: { 
@@ -54,6 +56,7 @@ const statusConfig: Record<string, { label: string; className: string; btnText: 
 };
 
 export default function InternalOrdersPage() {
+  const { user } = useStaffAuthStore();
   const [activeTab, setActiveTab] = useState<string>("ALL");
   const { 
     data, 
@@ -69,9 +72,19 @@ export default function InternalOrdersPage() {
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
+  const canCompleteOrder = user?.role === StaffRole.ADMIN || 
+                           user?.role === StaffRole.MANAGER || 
+                           user?.role === StaffRole.SHIPPER;
+
   const handleStatusUpdate = (orderId: string | undefined, currentStatus: string) => {
     if (!orderId) return;
     
+    // Check permissions if completing order
+    if (currentStatus === "READY" && !canCompleteOrder) {
+      alert("You do not have permission to complete this order.");
+      return;
+    }
+
     let nextStatus = "";
     switch (currentStatus) {
       case "NEW": nextStatus = "CONFIRMED"; break;

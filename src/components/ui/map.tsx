@@ -512,9 +512,9 @@ function MarkerContent({ children, className }: MarkerContentProps) {
   );
 }
 
-function DefaultMarkerIcon() {
+function DefaultMarkerIcon({ color = "bg-blue-500" }: { color?: string }) {
   return (
-    <div className="relative h-4 w-4 rounded-full border-2 border-white bg-blue-500 shadow-lg" />
+    <div className={cn("relative h-4 w-4 rounded-full border-2 border-white shadow-lg", color)} />
   );
 }
 

@@ -443,16 +443,22 @@ export interface AIChatOutput {
 // --- DELIVERY (delivery.output.schema.js) ---
 
 export interface DeliveryScheduleNode {
-  shipper_id: number;
   shipperId: string;
   shipperName: string;
   type: "STORE" | "PICKUP" | "DELIVERY";
-  node?: number;
-  orderId?: string;
-  orderCode?: string;
+  node: number;
+  orderId?: string | null;
+  orderCode?: string | null;
   lat: number;
   lng: number;
   arrival_datetime: string | null;
+  storeId?: string;
+  storeName?: string;
+  storeAddress?: string;
+  load_after_action?: string;
+  action_amount?: number;
+  travel_time_minutes?: number;
+  lateness?: string;
 }
 
 export interface FormattedOrder {
@@ -469,7 +475,7 @@ export interface FormattedOrder {
 }
 
 export interface DeliveryScheduleOutput {
-  storeId: string;
+  storeIds: string[];
   numShippers: number;
   numOrders: number;
   schedule: DeliveryScheduleNode[];

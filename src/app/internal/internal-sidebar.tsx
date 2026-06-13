@@ -38,46 +38,55 @@ const items = [
     title: "Orders",
     url: "/internal/orders",
     icon: ClipboardList,
+    roles: ["ADMIN", "MANAGER", "STAFF"],
   },
   {
     title: "Dashboard",
     url: "/internal/dashboard",
     icon: LayoutDashboard,
+    roles: ["ADMIN", "MANAGER"],
   },
   {
     title: "Delivery",
     url: "/internal/delivery",
     icon: Truck,
+    roles: ["ADMIN", "SHIPPER"],
   },
   {
     title: "Staff Management",
     url: "/internal/staff",
     icon: UsersRound,
+    roles: ["ADMIN", "MANAGER"],
   },
   {
     title: "Store Locations",
     url: "/internal/locations",
     icon: Store,
+    roles: ["ADMIN", "MANAGER"],
   },
   {
     title: "Analytics",
     url: "/internal/analytics",
     icon: ChartNoAxesCombined,
+    roles: ["ADMIN"],
   },
   {
     title: "Inventory",
     url: "/internal/inventory",
     icon: Boxes,
+    roles: ["ADMIN", "MANAGER", "STAFF"],
   },
   {
     title: "Promotion",
     url: "/internal/promotion",
     icon: Megaphone,
+    roles: ["ADMIN"],
   },
   {
     title: "Settings",
     url: "/internal/settings",
     icon: Settings,
+    roles: ["ADMIN", "MANAGER", "STAFF", "SHIPPER"],
   },
 ];
 
@@ -85,6 +94,12 @@ export function InternalSidebar() {
   const pathname = usePathname();
   const { user, logout, accessToken, refreshToken } = useStaffAuthStore();
   const router = useRouter();
+
+  const filteredItems = React.useMemo(() => {
+    if (!user?.role) return [];
+    const userRole = user.role.toUpperCase();
+    return items.filter((item) => item.roles.includes(userRole));
+  }, [user?.role]);
 
   const handleLogout = async () => {
     try {
@@ -109,7 +124,7 @@ export function InternalSidebar() {
       </SidebarHeader>
       <SidebarContent className="p-lg">
         <SidebarMenu className="gap-xs">
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
@@ -131,15 +146,17 @@ export function InternalSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-lg pb-xl gap-lg">
-        <Button 
-          asChild
-          className="w-full bg-brand-primary hover:bg-brand-accent text-white rounded-md h-12 gap-sm shadow-sm transition-transform active:scale-95 cursor-pointer"
-        >
-          <Link href="/internal/orders/create">
-            <ClipboardList className="size-6" />
-            <span className="label-button-md">Create New Order</span>
-          </Link>
-        </Button>
+        {user?.role?.toUpperCase() !== "SHIPPER" && (
+          <Button 
+            asChild
+            className="w-full bg-brand-primary hover:bg-brand-accent text-white rounded-md h-12 gap-sm shadow-sm transition-transform active:scale-95 cursor-pointer"
+          >
+            <Link href="/internal/orders/create">
+              <ClipboardList className="size-6" />
+              <span className="label-button-md">Create New Order</span>
+            </Link>
+          </Button>
+        )}
 
         <div className="flex items-center justify-between p-sm rounded-md bg-white/50 border border-border-primary-50 backdrop-blur-sm overflow-hidden">
           <div className="flex items-center gap-sm min-w-0 flex-1 mr-2">

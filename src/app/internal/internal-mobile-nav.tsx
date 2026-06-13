@@ -13,37 +13,50 @@ import {
 import { usePathname } from "next/navigation";
 import { cn } from "@/shared/lib/utils";
 import Link from "next/link";
+import { useStaffAuthStore } from "@/shared/auth";
+import * as React from "react";
 
 const items = [
   {
     title: "Orders",
     url: "/internal/orders",
     icon: ClipboardList,
+    roles: ["ADMIN", "MANAGER", "STAFF"],
   },
   {
     title: "Products",
     url: "/internal/inventory",
     icon: PackageSearch,
+    roles: ["ADMIN", "MANAGER", "STAFF"],
   },
   {
     title: "Delivery",
     url: "/internal/delivery",
     icon: Truck,
+    roles: ["ADMIN", "SHIPPER"],
   },
   {
     title: "Settings",
     url: "/internal/settings",
     icon: Settings,
+    roles: ["ADMIN", "MANAGER", "STAFF", "SHIPPER"],
   },
 ];
 
 export function InternalMobileNav() {
   const pathname = usePathname();
+  const { user } = useStaffAuthStore();
+
+  const filteredItems = React.useMemo(() => {
+    if (!user?.role) return [];
+    const userRole = user.role.toUpperCase();
+    return items.filter((item) => item.roles.includes(userRole));
+  }, [user?.role]);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[100] h-[87px] bg-[#faf2eb] border-t border-border-primary-50/10 flex items-center px-sm safe-area-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-around w-full gap-xs overflow-x-auto no-scrollbar">
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const isActive = pathname === item.url;
           return (
             <Link

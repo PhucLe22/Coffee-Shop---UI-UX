@@ -5,6 +5,7 @@ import { SendHorizontal, Bot, Info, PackageSearch, PackagePlus, ShoppingCart, Ta
 import { cn } from "@/shared/lib";
 import { ChatMessage } from "./chat-message";
 import { useChatStore, FALLBACK_PRODUCT_IMAGE } from "../model/chat-store";
+import { useCartStore } from "@/entities/cart";
 import { useAIChat } from "../api/use-ai-chat";
 
 interface AIChatProps {
@@ -89,6 +90,34 @@ export function AIChat({ className, onClose }: AIChatProps) {
                 })) || []
               }
             };
+          } else if (skillName === "findAllStores" || firstTool.toolName === "findAllStores") {
+            attachment = {
+              type: "stores",
+              data: output
+            };
+          } else if (skillName === "findClosestStore" || firstTool.toolName === "findClosestStore") {
+            attachment = {
+              type: "closestStore",
+              data: {
+                ...output,
+                distance: `${output.distance.toFixed(1)} km`
+              }
+            };
+          } else if (skillName === "getCartItems" && output) {
+            // New logic to handle cart attachment
+            const total = output.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+            attachment = {
+              type: "cart",
+              data: {
+                items: output.map((item: any) => ({
+                  name: item.name,
+                  price: `${(item.price * item.quantity).toLocaleString()}đ`,
+                  image: item.image,
+                  quantity: item.quantity
+                })),
+                total: `${total.toLocaleString()}đ`
+              }
+            };
           }
         }
         
@@ -163,14 +192,56 @@ export function AIChat({ className, onClose }: AIChatProps) {
             onClick={() => handleSend("Tell me about Verdant Roastery")}
           />
           <QuickActionButton 
-            icon={<PackagePlus size={16} />} 
-            label="New Order" 
-            onClick={() => handleSend("I want to start a new order")}
-          />
-          <QuickActionButton 
             icon={<ShoppingCart size={16} />} 
-            label="My Cart" 
-            onClick={() => handleSend("Show my cart")}
+            label="Share Cart" 
+            onClick={() => {
+              const items = useCartStore.getState().items;
+              const cartJson = JSON.stringify(items);
+              
+              // 1. Add user-friendly message to UI
+              const userMessageText = "What are in my cart?";
+              addMessage({ role: "user" as const, content: userMessageText });
+
+              // 2. Prepare history
+              const history = messages.map(msg => ({
+                role: msg.role,
+                content: msg.content
+              }));
+              
+              sendMessage({
+                messages: [...history, { role: "user" as const, content: `${userMessageText} Context: ${cartJson}` }]
+              }, {
+                onSuccess: (data) => {
+                  // Manually construct the cart attachment from store items
+                  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                  const attachment = {
+                    type: "cart",
+                    data: {
+                      items: items.map(item => ({
+                        name: item.name,
+                        price: `${(item.price * item.quantity).toLocaleString()}đ`,
+                        image: item.image,
+                        quantity: item.quantity
+                      })),
+                      total: `${total.toLocaleString()}đ`
+                    }
+                  };
+                  
+                  addMessage({ 
+                    role: "assistant", 
+                    content: data.text,
+                    attachment
+                  });
+                },
+                onError: (error) => {
+                  addMessage({ 
+                    role: "assistant", 
+                    content: "Sorry, I encountered an error. Please try again later." 
+                  });
+                  console.error("AI Chat Error:", error);
+                }
+              });
+            }}
           />
         </div>
       </div>

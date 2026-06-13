@@ -32,7 +32,9 @@ export default function InternalDeliveryPage() {
   const { data: scheduleResponse, isLoading, error } = useDeliverySchedule();
 
   const deliveryData = scheduleResponse?.data;
-  const schedule = deliveryData?.schedule || [];
+  // Adjust to new data structure: shippers array with nested routes
+  const shipper = deliveryData?.shippers?.[0];
+  const schedule = shipper?.routes || [];
   const orders = deliveryData?.formattedOrders || [];
 
   const shipperLocation = useMemo(() => {
@@ -42,37 +44,66 @@ export default function InternalDeliveryPage() {
     return null;
   }, [user]);
 
-  // Calculate order sequence for labels
-  const getOrderSequence = (nodeIdx: number) => {
-    let sequence = 0;
-    for (let i = 0; i <= nodeIdx; i++) {
-      if (schedule[i].type !== "STORE") {
-        sequence++;
-      }
-    }
-    return sequence;
-  };
+  const sortedSchedule = useMemo(() => {
+    return [...schedule].sort((a, b) => a.node - b.node);
+  }, [schedule]);
 
   const routeCoordinates = useMemo(() => {
-    // Filter to only include the store (first node) and DELIVERY nodes
-    return schedule
-      .filter((node) => node.type === "STORE" || node.type === "DELIVERY")
-      .map((node) => [node.lng, node.lat] as [number, number]);
-  }, [schedule]);
+    const coords = sortedSchedule.map(
+      (node) => [node.lng, node.lat] as [number, number],
+    );
+    if (shipperLocation && coords.length > 0) {
+      return [
+        [shipperLocation.lng, shipperLocation.lat],
+        ...coords,
+      ] as [number, number][];
+    }
+    return coords;
+  }, [sortedSchedule, shipperLocation]);
+
+  const routeSteps = useMemo(() => {
+    // Note: The new structure doesn't have a direct 'tasks' array, 
+    // so I need to adapt the grouping logic if I still want to group by location.
+    // For now, I will treat each route node as a step.
+    return sortedSchedule.map(node => ({
+      ...node,
+      tasks: [node] // Adapting to existing UI structure expecting 'tasks'
+    }));
+  }, [sortedSchedule]);
+
+  const pendingSteps = useMemo(() => {
+    // Treat a node as pending if arrival_datetime is null
+    return routeSteps.filter(step => !step.arrival_datetime);
+  }, [routeSteps]);
+
+  const currentStep = pendingSteps.length > 0 ? pendingSteps[0] : null;
+
+  const upcomingRouteSteps = useMemo(() => {
+    return pendingSteps.slice(1);
+  }, [pendingSteps]);
 
   const nextDestination = useMemo(() => {
-    return schedule.find(
-      (node) => node.type !== "STORE" && !node.arrival_datetime,
-    );
-  }, [schedule]);
+    return currentStep || null;
+  }, [currentStep]);
 
   const mapCenter = useMemo(() => {
     if (nextDestination)
       return { lat: nextDestination.lat, lng: nextDestination.lng };
-    if (schedule.length > 0)
-      return { lat: schedule[0].lat, lng: schedule[0].lng };
+    if (sortedSchedule.length > 0)
+      return { lat: sortedSchedule[0].lat, lng: sortedSchedule[0].lng };
     return { lat: 10.7757, lng: 106.7009 }; // Default HCM
-  }, [nextDestination, schedule]);
+  }, [nextDestination, sortedSchedule]);
+
+  const getOrderSeq = (orderCode?: string) => {
+    if (!orderCode) return 0;
+    const index = orders.findIndex((o) => o.id === orderCode);
+    return index !== -1 ? index + 1 : 0;
+  };
+
+  const nextStopTasks = useMemo(() => {
+    if (!currentStep) return [];
+    return [currentStep];
+  }, [currentStep]);
 
   const scrollToOrder = (orderId: string) => {
     const element = document.getElementById(`order-${orderId}`);
@@ -80,6 +111,7 @@ export default function InternalDeliveryPage() {
       element.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
+
 
   if (isLoading) {
     return (
@@ -107,13 +139,13 @@ export default function InternalDeliveryPage() {
       {/* Page Header */}
       <div className="p-md lg:p-xl space-y-xs lg:space-y-sm">
         <p className="text-brand-primary text-body-sm-semibold uppercase tracking-[0.2em]">
-          Active Shifts
+          Active Shift
         </p>
-        <h1 className="text-h1-bold text-text-primary leading-none">
-          LIVE DELIVERY TRACKING
+        <h1 className="text-h1-bold text-text-primary leading-none uppercase">
+          {user?.name || "Shipper"} Tracking
         </h1>
         <p className="text-text-secondary text-body-md-reg">
-          Currently navigating {orders.length} artisanal deliveries.
+          Navigating {mySchedule.filter(n => n.type === "DELIVERY").length} artisanal deliveries in this shift.
         </p>
       </div>
 
@@ -136,13 +168,18 @@ export default function InternalDeliveryPage() {
                 />
               )}
 
-              {schedule.map((node, idx) => {
-                const isStore = node.type === "STORE";
-                const orderSeq = !isStore ? getOrderSequence(idx) : 0;
+              {sortedSchedule.map((node, idx) => {
+                const isStore = node.type === "STORE" || node.type === "PICKUP";
+                const orderSeq = !isStore ? getOrderSeq(node.orderCode || undefined) : 0;
+                // isNext logic relative to the user's current step (from mySchedule/pendingSteps)
+                const isNext =
+                  currentStep &&
+                  node.lat === currentStep.lat &&
+                  node.lng === currentStep.lng;
 
                 return (
                   <MapMarker
-                    key={idx}
+                    key={`${idx}-${node.lat}-${node.lng}`}
                     longitude={node.lng}
                     latitude={node.lat}
                     onClick={() =>
@@ -150,39 +187,55 @@ export default function InternalDeliveryPage() {
                     }>
                     <MarkerContent>
                       {isStore ? (
-                        <div className="bg-brand-primary p-1.5 rounded-full border-2 border-white shadow-xl transform transition-transform hover:scale-110 cursor-pointer">
+                        <div
+                          className={cn(
+                            "p-1.5 rounded-full border-2 border-white shadow-xl transform transition-transform hover:scale-110 cursor-pointer",
+                            "bg-blue-500", // Store is blue
+                            isNext && "animate-bounce scale-110 ring-4 ring-info/20",
+                          )}>
                           <Store className="size-5 text-white" />
                         </div>
                       ) : (
                         <div
                           className={cn(
                             "size-7 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-[11px] font-extrabold text-white transition-transform hover:scale-110 cursor-pointer",
-                            node.arrival_datetime
-                              ? "bg-success"
-                              : "bg-brand-primary animate-pulse",
+                            "bg-orange-500", // Delivery is orange
+                            isNext && "animate-bounce scale-110 ring-4 ring-info/20",
                           )}>
                           {orderSeq}
                         </div>
                       )}
                       <MarkerLabel
                         position="bottom"
-                        className="text-[10px] font-bold uppercase tracking-wider text-text-primary bg-surface-main/80 px-1 rounded">
-                        {isStore ? "Pickup Point" : `Order ${orderSeq}`}
+                        className={cn(
+                          "text-[10px] font-bold uppercase tracking-wider bg-surface-main/80 px-1 rounded",
+                          isNext ? "text-info font-extrabold" : "text-text-primary",
+                        )}>
+                        {isStore
+                          ? node.storeName || "Store"
+                          : `Delivery ${orderSeq}`}
                       </MarkerLabel>
                     </MarkerContent>
                     <MarkerTooltip>
                       <div className="p-1">
                         <p className="font-bold">
-                          {isStore ? "Store Location" : `Delivery #${orderSeq}`}
+                          {isStore
+                            ? node.storeName || "Store Location"
+                            : `Delivery #${orderSeq}`}
                         </p>
-                        {!isStore && (
+                        {node.orderCode && (
                           <p className="text-xs text-text-secondary">
                             {node.orderCode}
                           </p>
                         )}
+                        {isStore && node.storeAddress && (
+                          <p className="text-[10px] text-text-secondary mt-1 max-w-[150px]">
+                            {node.storeAddress}
+                          </p>
+                        )}
                         {node.arrival_datetime && (
                           <p className="text-[10px] text-success font-bold uppercase mt-1">
-                            Delivered
+                            Completed
                           </p>
                         )}
                       </div>
@@ -196,7 +249,7 @@ export default function InternalDeliveryPage() {
             {nextDestination && (
               <div className="absolute bottom-md left-md right-md bg-surface-main/95 border border-text-muted/20 rounded-[16px] p-md flex items-center justify-between backdrop-blur-md shadow-lg">
                 <div className="flex items-center gap-md">
-                  <div className="size-10 rounded-[12px] bg-brand-primary flex items-center justify-center shadow-md">
+                  <div className="size-10 rounded-[12px] bg-info flex items-center justify-center shadow-md">
                     <MapPin className="text-white size-5" />
                   </div>
                   <div className="flex flex-col">
@@ -204,16 +257,18 @@ export default function InternalDeliveryPage() {
                       Next Destination
                     </p>
                     <p className="text-text-primary text-body-sm-semibold leading-tight line-clamp-2">
-                      {nextDestination.type} for {nextDestination.orderCode}
+                      {nextDestination.type === "STORE" || nextDestination.type === "PICKUP"
+                        ? nextDestination.storeName || "Store Pickup"
+                        : `Delivery #${nextDestination.orderCode}`}
                     </p>
                   </div>
                 </div>
                 <div className="text-right border-l border-text-muted/20 pl-md">
-                  <p className="text-brand-primary text-[10px] font-extrabold uppercase tracking-widest leading-none mb-1">
+                  <p className="text-info text-[10px] font-extrabold uppercase tracking-widest leading-none mb-1">
                     Type
                   </p>
-                  <p className="text-text-primary text-h4-bold leading-none">
-                    {nextDestination.type}
+                  <p className="text-text-primary text-h4-bold leading-none uppercase">
+                    {nextDestination.type === "STORE" || nextDestination.type === "PICKUP" ? "Pickup" : "Delivery"}
                   </p>
                 </div>
               </div>
@@ -248,85 +303,149 @@ export default function InternalDeliveryPage() {
         <div className="space-y-md lg:space-y-lg">
           <div className="flex items-center justify-between px-xs">
             <h2 className="text-h4-bold text-text-primary">
-              Scheduled Deliveries
+              Upcoming Route
             </h2>
             <Badge
               variant="outline"
               className="rounded-full border-text-muted/20 text-text-secondary text-[10px] font-bold px-3">
-              {orders.length} ORDERS
+              {pendingSteps.length} STOPS REMAINING
             </Badge>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-md lg:gap-lg">
-            {orders.map((order, idx) => (
-              <Card
-                key={idx}
-                id={`order-${order.id}`}
-                className={cn(
-                  "rounded-[24px] border-none shadow-sm transition-all duration-300 overflow-hidden group hover:shadow-md scroll-mt-24",
-                  order.isFocused
-                    ? "bg-surface-accent ring-1 ring-brand-primary/30"
-                    : "bg-surface-accent/60",
-                )}>
-                <CardContent className="p-lg lg:p-xl space-y-lg">
-                  {/* Card Top: Customer & Status */}
-                  <div className="flex items-start justify-between gap-md">
-                    <div className="space-y-0.5">
-                      <h3 className="text-h3-bold text-text-primary group-hover:text-brand-primary transition-colors">
-                        {order.customer}
-                      </h3>
-                      <p className="text-text-secondary text-body-sm-reg">
-                        Order #{order.id}
-                      </p>
-                    </div>
-                    <Badge className="bg-info text-white hover:bg-info/90 text-[10px] font-extrabold tracking-widest px-3 py-1 rounded-full shrink-0">
-                      {order.status}
-                    </Badge>
-                  </div>
+          <div className="relative space-y-md lg:space-y-lg">
+            {/* Visual Route Line */}
+            {upcomingRouteSteps.length > 0 && (
+              <div className="absolute left-[26px] top-12 bottom-12 w-0.5 border-l-2 border-dashed border-info/20 z-0 hidden lg:block" />
+            )}
 
-                  {/* Card Middle: Address & Items */}
-                  <div className="space-y-md">
-                    <div className="flex items-start gap-sm">
-                      <MapPin className="size-5 text-brand-primary shrink-0 mt-0.5" />
-                      <p className="text-text-secondary text-body-sm-reg leading-snug">
-                        {order.address}
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-sm">
-                      <Package className="size-5 text-text-muted shrink-0 mt-0.5" />
-                      <p className="text-text-secondary text-body-sm-reg leading-snug">
-                        {order.items}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Card Bottom: Action Button */}
-                  <div className="pt-md border-t border-text-muted/10 flex items-center justify-between gap-lg">
-                    {order.isFocused ? (
-                      <Button className="w-full h-14 rounded-full bg-brand-primary hover:bg-brand-accent text-white gap-md label-button-md shadow-lg shadow-brand-primary/20 active:scale-95 transition-all">
-                        <Navigation className="size-6" /> Navigate to
-                        Destination
-                      </Button>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-xs text-text-muted group-hover:text-text-secondary transition-colors">
-                          <Timer className="size-4" />
-                          <span className="text-[10px] font-bold uppercase tracking-widest">
-                            Sequence order: {idx + 1}
-                          </span>
+            {/* Heading To Card */}
+            {currentStep && (
+              <div className="relative z-10">
+                <Card className="rounded-[24px] border-none shadow-sm overflow-hidden bg-info/5 border border-info/20 ring-1 ring-info/20">
+                  <CardContent className="p-lg lg:p-xl space-y-lg">
+                    <div className="flex items-start justify-between gap-md">
+                      <div className="flex items-center gap-md">
+                        <div className="size-12 rounded-[16px] bg-info flex items-center justify-center shadow-lg shadow-info/20 relative">
+                          {currentStep.type === "STORE" || currentStep.type === "PICKUP" ? <Store className="text-white size-6" /> : <Navigation className="text-white size-6" />}
+                          <div className="absolute -right-1 -top-1 size-4 bg-white rounded-full flex items-center justify-center border-2 border-info">
+                            <div className="size-1.5 bg-info rounded-full animate-ping" />
+                          </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="rounded-full hover:bg-brand-primary hover:text-white transition-colors">
-                          <ChevronRight className="size-6" />
-                        </Button>
-                      </>
-                    )}
+                        <div>
+                          <p className="text-info text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
+                            Currently Heading To
+                          </p>
+                          <h3 className="text-h3-bold text-text-primary">
+                            {currentStep.type === "STORE" || currentStep.type === "PICKUP"
+                              ? currentStep.storeName || "Store Pickup"
+                              : currentStep.customerName || `Order ${currentStep.orderCode}`}
+                          </h3>
+                        </div>
+                      </div>
+                      <Badge className="bg-info text-white hover:bg-info/90 text-[10px] font-extrabold tracking-widest px-3 py-1 rounded-full shrink-0 uppercase">
+                        On My Way
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-md">
+                      <div className="flex items-start gap-sm">
+                        <MapPin className="size-5 text-info shrink-0 mt-0.5" />
+                        <p className="text-text-secondary text-body-sm-reg leading-snug">
+                          {currentStep.type === "STORE" || currentStep.type === "PICKUP"
+                            ? currentStep.storeAddress || "Store Address"
+                            : currentStep.address || "Delivery Address"}
+                        </p>
+                      </div>
+                      
+                      {/* Tasks at this stop */}
+                      <div className="space-y-sm pt-xs">
+                        {nextStopTasks.map((task, tidx) => {
+                          const isTaskStore = task.type === "STORE" || task.type === "PICKUP";
+                          return (
+                            <div key={tidx} className="flex items-start gap-sm">
+                              <Package className="size-5 text-info/60 shrink-0 mt-0.5" />
+                              <p className="text-text-secondary text-body-sm-reg leading-snug">
+                                {isTaskStore 
+                                  ? (task.orderCode ? `Pickup Order #${task.orderCode}` : "Pick up artisanal batches")
+                                  : `Deliver Order #${task.orderCode}`}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="pt-md border-t border-info/10">
+                      <Button className="w-full h-14 rounded-full bg-info hover:bg-info/90 text-white gap-md label-button-md shadow-lg shadow-info/20 active:scale-95 transition-all">
+                        <Navigation className="size-6" /> Start Navigation
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-md lg:gap-lg relative z-10">
+              {upcomingRouteSteps.map((stop, idx) => {
+                const isStore = stop.type === "STORE" || stop.type === "PICKUP";
+                
+                return (
+                  <div key={idx} className="relative">
+                    {/* Connection dot for timeline (Desktop only) */}
+                    <div className={cn(
+                      "absolute -left-[32px] top-8 size-4 rounded-full border-2 border-white shadow-sm z-20 hidden lg:block",
+                      isStore ? "bg-success" : "bg-brand-primary"
+                    )} />
+
+                    <Card
+                      id={stop.orderCode ? `order-${stop.orderCode}` : `task-${idx}`}
+                      className="rounded-[24px] bg-surface-accent/60 border-none shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300"
+                    >
+                      <CardContent className="p-lg lg:p-xl space-y-lg">
+                        <div className="flex items-start justify-between gap-md">
+                          <div className="flex items-center gap-md">
+                            <div className={cn(
+                              "size-10 rounded-[12px] flex items-center justify-center shadow-md",
+                              isStore ? "bg-success/10 text-success" : "bg-brand-primary/10 text-brand-primary"
+                            )}>
+                              {isStore ? <Store className="size-5" /> : <Package className="size-5" />}
+                            </div>
+                            <div>
+                              <p className={cn(
+                                "text-[10px] font-bold uppercase tracking-widest leading-none mb-1",
+                                isStore ? "text-success" : "text-brand-primary"
+                              )}>
+                                {isStore ? "Upcoming Pickup" : "Upcoming Delivery"}
+                              </p>
+                              <h3 className="text-body-md-semibold text-text-primary">
+                                {isStore ? stop.storeName || "Store Pickup" : stop.customerName || `Order #${stop.orderCode}`}
+                              </h3>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-sm">
+                          <div className="flex items-start gap-sm">
+                            <MapPin className="size-4 text-text-muted shrink-0 mt-0.5" />
+                            <p className="text-text-secondary text-[12px] leading-snug line-clamp-1">
+                              {isStore ? stop.storeAddress || "Store Address" : stop.address}
+                            </p>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-sm">
+                                <Timer className="size-4 text-text-muted shrink-0" />
+                                <p className="text-text-secondary text-[12px]">
+                                  {stop.type === "DELIVERY" ? "Deliver" : "Pickup"}: #{stop.orderCode || "Batch"}
+                                </p>
+                              </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                );
+              })}
+            </div>
           </div>
 
           {/* Quick Support / Support Button */}
