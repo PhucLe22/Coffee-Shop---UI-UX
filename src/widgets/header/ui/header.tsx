@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ShoppingCart, User, MoveRight } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { AppButton } from "@/shared/ui";
@@ -17,8 +17,7 @@ const NAV_LINKS = [
 
 export function Header() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, refreshToken } = useCustomerAuthStore();
+  const { user } = useCustomerAuthStore();
   const { items, _hasHydrated } = useCartStore();
 
   const totalItems = _hasHydrated
@@ -82,9 +81,9 @@ export function Header() {
           )}
         </div>
 
-        <Link href="/menu">
+        <Link href={!user && pathname === "/" ? "/login" : "/menu"}>
           <AppButton variant="primary" className="gap-sm rounded-full px-xl">
-            ĐẶT NGAY
+            {!user && pathname === "/" ? "Đăng nhập" : "ĐẶT NGAY"}
             <MoveRight className="size-5" />
           </AppButton>
         </Link>

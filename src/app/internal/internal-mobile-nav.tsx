@@ -21,7 +21,7 @@ const items = [
     title: "Orders",
     url: "/internal/orders",
     icon: ClipboardList,
-    roles: ["ADMIN", "MANAGER", "STAFF"],
+    roles: ["ADMIN", "MANAGER", "STAFF", "KITCHEN", "CASHIER"],
   },
   {
     title: "Products",

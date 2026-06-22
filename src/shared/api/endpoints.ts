@@ -8,8 +8,11 @@ export const API_ENDPOINTS = {
   },
   PRODUCTS: {
     BASE: '/products',
+    INTERNAL: '/internal/products',
     BY_SLUG: (slug: string) => `/products/${slug}`,
     BY_ID: (id: string) => `/products/id/${id}`,
+    INTERNAL_BY_ID: (id: string) => `/internal/products/${id}`,
+    OPTION_GROUPS: (productId: string, optionGroupId: string) => `/internal/products/${productId}/option-groups/${optionGroupId}`,
   },
   CATEGORIES: {
     BASE: '/categories',
@@ -19,7 +22,7 @@ export const API_ENDPOINTS = {
     INTERNAL: "/internal/orders",
     BY_ID: (id: string) => `/orders/${id}`,
     BY_CODE: (code: string) => `/orders/code/${code}`,
-    STATUS: (id: string) => `/internal/orders/${id}/status`,
+    STATUS: (id: string) => `/internal/staff/orders/${id}/status`,
   },
   CART: {
     BASE: '/cart',
@@ -32,5 +35,16 @@ export const API_ENDPOINTS = {
   },
   DELIVERY: {
     SCHEDULE: '/internal/kitchen/delivery-schedule',
+  },
+  ADDRESSES: {
+    BASE: '/addresses',
+    BY_ID: (id: string) => `/addresses/${id}`,
+  },
+  VOUCHERS: {
+    INTERNAL: '/internal/vouchers',
+    INTERNAL_BY_ID: (id: string) => `/internal/vouchers/${id}`,
+  },
+  PROMOTIONS: {
+    BASE: '/promotions',
   },
 } as const;

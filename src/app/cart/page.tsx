@@ -13,13 +13,15 @@ import { useCartStore } from "@/entities/cart";
 import { useCustomerAuthStore } from "@/shared/auth";
 import { useStoreStore } from "@/entities/store";
 import { useRouter } from "next/navigation";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, MapPin, ChevronRight } from "lucide-react";
 import { AppButton, Input, Label } from "@/shared/ui";
 import { useCreateOrder } from "@/entities/order";
 import { OrderType } from "@/shared/api";
 import { useStores } from "@/entities/store";
+import { useAddresses } from "@/entities/customer";
 import { toast } from "sonner";
 import Link from "next/link";
+import { CreateAddressDialog } from "../profile/create-address-dialog";
 
 export default function CartPage() {
   const isMobile = useIsMobile();
@@ -28,29 +30,44 @@ export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart } = useCartStore();
   const { user } = useCustomerAuthStore();
   const { data: storesResponse } = useStores();
+  const { data: addressesResponse } = useAddresses();
   const { selectedStore, setSelectedStore } = useStoreStore();
   const { mutate: createOrder, isPending } = useCreateOrder();
 
   const stores = storesResponse?.data || [];
+  const addresses = addressesResponse?.data || [];
 
-  const [orderType, setOrderType] = useState<OrderType>(OrderType.TAKEAWAY);
-  const [tableNumber, setTableNumber] = useState("");
+  const [orderType, setOrderType] = useState<OrderType>(OrderType.DELIVERY);
   const [deliveryInfo, setDeliveryInfo] = useState({
     receiverName: "",
     receiverPhone: "",
     addressLine: "",
   });
 
-  // Prefill user info
+  // Automatically select the first store if none selected
   useEffect(() => {
-    if (user) {
+    if (!selectedStore && stores.length > 0) {
+      setSelectedStore(stores[0]);
+    }
+  }, [stores, selectedStore, setSelectedStore]);
+
+  // Prefill default address
+  useEffect(() => {
+    if (user && addresses.length > 0) {
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+      setDeliveryInfo({
+        receiverName: defaultAddr.receiverName,
+        receiverPhone: defaultAddr.receiverPhone,
+        addressLine: defaultAddr.addressLine,
+      });
+    } else if (user) {
       setDeliveryInfo((prev) => ({
         ...prev,
         receiverName: prev.receiverName || user.name || "",
         receiverPhone: prev.receiverPhone || user.phone || "",
       }));
     }
-  }, [user]);
+  }, [user, addresses]);
 
   const handleUpdateQuantity = (id: string, delta: number) => {
     const item = items.find((i) => i.id === id);
@@ -83,7 +100,6 @@ export default function CartPage() {
 
     if (!selectedStore) {
       toast.error("Vui lòng chọn cửa hàng phục vụ");
-      router.push("/locations");
       return;
     }
 
@@ -107,7 +123,6 @@ export default function CartPage() {
       onSuccess: (response) => {
         toast.success("Đặt hàng thành công!");
         clearCart();
-        // Redirect to order detail page using the order code
         if (response.data.orderCode) {
           router.push(`/orders/detail/${response.data.orderCode}`);
         } else {
@@ -134,25 +149,8 @@ export default function CartPage() {
   const tax = subtotal * 0.08; // 8% VAT
   const total = subtotal + shipping + tax;
 
-  const MOCK_SAVED_INFO = [
-    {
-      id: "1",
-      label: "Nhà riêng",
-      receiverName: "Gia Bảo",
-      receiverPhone: "0917630445",
-      addressLine: "123 Đường Espresso, Quận 1, TP. HCM",
-    },
-    {
-      id: "2",
-      label: "Công ty",
-      receiverName: "Gia Bảo",
-      receiverPhone: "0917630445",
-      addressLine: "456 Đường Arabica, Quận 7, TP. HCM",
-    },
-  ];
-
-  const handleSelectSavedInfo = (infoId: string) => {
-    const selected = MOCK_SAVED_INFO.find((info) => info.id === infoId);
+  const handleSelectSavedInfo = (addressId: string) => {
+    const selected = addresses.find((addr) => addr.id === addressId);
     if (selected) {
       setDeliveryInfo({
         receiverName: selected.receiverName,
@@ -162,7 +160,7 @@ export default function CartPage() {
     }
   };
 
-  const StoreSelectionSection = () => (
+  const AddressSelectionSection = () => (
     <div className={cn(
       "p-xl rounded-md flex flex-col gap-md",
       !isMobile ? "bg-[#ebe0d9]" : "bg-surface-muted"
@@ -172,25 +170,64 @@ export default function CartPage() {
           "font-bold font-plus-jakarta",
           !isMobile ? "text-[20px]" : "text-body-lg-bold"
         )}>
-          Cửa hàng phục vụ
+          Địa chỉ giao hàng
         </h3>
-        <Link href="/locations" className="text-body-sm-bold text-brand-primary hover:underline">
-          Xem bản đồ
+        <Link href="/profile" className="text-body-sm-bold text-brand-primary hover:underline flex items-center gap-1">
+          Quản lý <ChevronRight className="size-3" />
         </Link>
       </div>
-      <select 
-        className="h-12 w-full rounded-md bg-[#faf2eb] px-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
-        value={selectedStore?.id || ""}
-        onChange={(e) => {
-          const store = stores.find(s => s.id === e.target.value);
-          if (store) setSelectedStore(store);
-        }}
-      >
-        <option value="" disabled>Chọn cửa hàng...</option>
-        {stores.map(store => (
-          <option key={store.id} value={store.id}>{store.name} - {store.address}</option>
-        ))}
-      </select>
+      
+      {user && addresses.length > 0 ? (
+        <div className="flex flex-col gap-sm">
+          <div className="flex items-center justify-between">
+            <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">CHỌN ĐỊA CHỈ ĐÃ LƯU</Label>
+            <CreateAddressDialog 
+              trigger={
+                <button className="text-[10px] font-bold text-brand-primary hover:underline flex items-center gap-1">
+                  <Plus className="size-3" /> THÊM ĐỊA CHỈ MỚI
+                </button>
+              }
+              onCreated={(newAddr) => {
+                setDeliveryInfo({
+                  receiverName: newAddr.receiverName,
+                  receiverPhone: newAddr.receiverPhone,
+                  addressLine: newAddr.addressLine,
+                });
+              }}
+            />
+          </div>
+          <div className="relative">
+            <MapPin className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-brand-primary" />
+            <select 
+              className="h-14 w-full rounded-md bg-[#faf2eb] pl-11 pr-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none appearance-none"
+              onChange={(e) => handleSelectSavedInfo(e.target.value)}
+              value={addresses.find(a => a.addressLine === deliveryInfo.addressLine)?.id || ""}
+            >
+              {addresses.map(addr => (
+                <option key={addr.id} value={addr.id}>
+                  [{addr.label.toUpperCase()}] {addr.addressLine}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-sm">
+           <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">ĐỊA CHỈ NHẬN HÀNG</Label>
+           <div className="relative">
+             <MapPin className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-brand-primary" />
+             <Input
+                placeholder="Nhập địa chỉ của bạn..."
+                value={deliveryInfo.addressLine}
+                onChange={(e) => setDeliveryInfo({ ...deliveryInfo, addressLine: e.target.value })}
+                className="h-14 pl-11 bg-[#faf2eb] border-none"
+              />
+           </div>
+           {!user && (
+             <p className="text-overline text-text-muted italic">Đăng nhập để chọn địa chỉ đã lưu</p>
+           )}
+        </div>
+      )}
     </div>
   );
 
@@ -207,101 +244,71 @@ export default function CartPage() {
           <div className="container mx-auto px-2xl py-xl">
             <div className="grid grid-cols-12 gap-xl">
               <div className="col-span-8 flex flex-col gap-lg">
-                <StoreSelectionSection />
+                <AddressSelectionSection />
 
                 <div className={cn(
                   "p-xl rounded-md flex flex-col gap-lg bg-[#ebe0d9]"
                 )}>
-                  <h3 className="font-bold font-plus-jakarta text-[20px]">
-                    Phương thức nhận hàng
-                  </h3>
-                  <div className="flex gap-md">
-                    <button
-                      onClick={() => setOrderType(OrderType.TAKEAWAY)}
-                      className={cn(
-                        "flex-1 py-md rounded-lg font-bold transition-all",
-                        orderType === OrderType.TAKEAWAY
-                          ? "bg-brand-primary text-inverse-text shadow-md"
-                          : "bg-[#faf2eb] text-text-muted hover:text-text-primary"
-                      )}
-                    >
-                      MANG ĐI
-                    </button>
-                    <button
-                      onClick={() => setOrderType(OrderType.DELIVERY)}
-                      className={cn(
-                        "flex-1 py-md rounded-lg font-bold transition-all",
-                        orderType === OrderType.DELIVERY
-                          ? "bg-brand-primary text-inverse-text shadow-md"
-                          : "bg-[#faf2eb] text-text-muted hover:text-text-primary"
-                      )}
-                    >
-                      GIAO HÀNG
-                    </button>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold font-plus-jakarta text-[20px]">
+                      Hình thức đơn hàng
+                    </h3>
+                    <div className="flex bg-[#faf2eb] p-1 rounded-full border border-black/5">
+                      <button
+                        onClick={() => setOrderType(OrderType.DELIVERY)}
+                        className={cn(
+                          "px-6 py-2 rounded-full font-bold transition-all text-[13px]",
+                          orderType === OrderType.DELIVERY
+                            ? "bg-brand-primary text-inverse-text shadow-sm"
+                            : "text-text-muted hover:text-text-primary"
+                        )}
+                      >
+                        GIAO HÀNG
+                      </button>
+                      <button
+                        onClick={() => setOrderType(OrderType.TAKEAWAY)}
+                        className={cn(
+                          "px-6 py-2 rounded-full font-bold transition-all text-[13px]",
+                          orderType === OrderType.TAKEAWAY
+                            ? "bg-brand-primary text-inverse-text shadow-sm"
+                            : "text-text-muted hover:text-text-primary"
+                        )}
+                      >
+                        MANG ĐI
+                      </button>
+                    </div>
                   </div>
 
-                  {orderType === OrderType.DELIVERY && (
-                    <div className="flex flex-col gap-md">
-                      <div className="flex flex-col gap-sm">
-                        <Label>Sử dụng thông tin đã lưu</Label>
-                        <select 
-                          className="h-12 w-full rounded-md bg-[#faf2eb] px-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
-                          onChange={(e) => handleSelectSavedInfo(e.target.value)}
-                          defaultValue=""
-                        >
-                          <option value="" disabled>Chọn thông tin giao hàng...</option>
-                          {MOCK_SAVED_INFO.map(info => (
-                            <option key={info.id} value={info.id}>{info.label} - {info.addressLine}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-md">
-                        <div className="flex flex-col gap-sm">
-                          <Label>Người nhận</Label>
-                          <Input
-                            placeholder="Tên người nhận"
-                            value={deliveryInfo.receiverName}
-                            onChange={(e) =>
-                              setDeliveryInfo({
-                                ...deliveryInfo,
-                                receiverName: e.target.value,
-                              })
-                            }
-                            className="bg-[#faf2eb]"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-sm">
-                          <Label>Số điện thoại</Label>
-                          <Input
-                            placeholder="Số điện thoại"
-                            value={deliveryInfo.receiverPhone}
-                            onChange={(e) =>
-                              setDeliveryInfo({
-                                ...deliveryInfo,
-                                receiverPhone: e.target.value,
-                              })
-                            }
-                            className="bg-[#faf2eb]"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-sm">
-                        <Label>Địa chỉ giao hàng</Label>
-                        <Input
-                          placeholder="Số nhà, tên đường, quận/huyện..."
-                          value={deliveryInfo.addressLine}
-                          onChange={(e) =>
-                            setDeliveryInfo({
-                              ...deliveryInfo,
-                              addressLine: e.target.value,
-                            })
-                          }
-                          className="bg-[#faf2eb]"
-                        />
-                      </div>
+                  <div className="grid grid-cols-2 gap-md">
+                    <div className="flex flex-col gap-sm">
+                      <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">TÊN NGƯỜI NHẬN</Label>
+                      <Input
+                        placeholder="Tên người nhận"
+                        value={deliveryInfo.receiverName}
+                        onChange={(e) =>
+                          setDeliveryInfo({
+                            ...deliveryInfo,
+                            receiverName: e.target.value,
+                          })
+                        }
+                        className="h-12 bg-[#faf2eb] border-none"
+                      />
                     </div>
-                  )}
+                    <div className="flex flex-col gap-sm">
+                      <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">SỐ ĐIỆN THOẠI</Label>
+                      <Input
+                        placeholder="Số điện thoại"
+                        value={deliveryInfo.receiverPhone}
+                        onChange={(e) =>
+                          setDeliveryInfo({
+                            ...deliveryInfo,
+                            receiverPhone: e.target.value,
+                          })
+                        }
+                        className="h-12 bg-[#faf2eb] border-none"
+                      />
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col gap-md">
@@ -342,101 +349,71 @@ export default function CartPage() {
         <main className="min-h-screen bg-surface-accent pb-40 px-md pt-md flex flex-col gap-lg">
           <h1 className="text-h2-bold text-text-primary px-1">Giỏ hàng</h1>
           
-          <StoreSelectionSection />
+          <AddressSelectionSection />
 
           <div className={cn(
             "p-xl rounded-md flex flex-col gap-lg bg-surface-muted"
           )}>
-            <h3 className="font-bold font-plus-jakarta text-body-lg-bold">
-              Phương thức nhận hàng
-            </h3>
-            <div className="flex gap-md">
-              <button
-                onClick={() => setOrderType(OrderType.TAKEAWAY)}
-                className={cn(
-                  "flex-1 py-md rounded-lg font-bold transition-all",
-                  orderType === OrderType.TAKEAWAY
-                    ? "bg-brand-primary text-inverse-text shadow-md"
-                    : "bg-[#faf2eb] text-text-muted hover:text-text-primary"
-                )}
-              >
-                MANG ĐI
-              </button>
-              <button
-                onClick={() => setOrderType(OrderType.DELIVERY)}
-                className={cn(
-                  "flex-1 py-md rounded-lg font-bold transition-all",
-                  orderType === OrderType.DELIVERY
-                    ? "bg-brand-primary text-inverse-text shadow-md"
-                    : "bg-[#faf2eb] text-text-muted hover:text-text-primary"
-                )}
-              >
-                GIAO HÀNG
-              </button>
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold font-plus-jakarta text-body-lg-bold">
+                Hình thức nhận
+              </h3>
+              <div className="flex bg-[#faf2eb] p-1 rounded-full border border-black/5">
+                <button
+                  onClick={() => setOrderType(OrderType.DELIVERY)}
+                  className={cn(
+                    "px-4 py-1.5 rounded-full font-bold transition-all text-[11px]",
+                    orderType === OrderType.DELIVERY
+                      ? "bg-brand-primary text-inverse-text shadow-sm"
+                      : "text-text-muted hover:text-text-primary"
+                  )}
+                >
+                  GIAO HÀNG
+                </button>
+                <button
+                  onClick={() => setOrderType(OrderType.TAKEAWAY)}
+                  className={cn(
+                    "px-4 py-1.5 rounded-full font-bold transition-all text-[11px]",
+                    orderType === OrderType.TAKEAWAY
+                      ? "bg-brand-primary text-inverse-text shadow-sm"
+                      : "text-text-muted hover:text-text-primary"
+                  )}
+                >
+                  MANG ĐI
+                </button>
+              </div>
             </div>
 
-            {orderType === OrderType.DELIVERY && (
-              <div className="flex flex-col gap-md">
-                <div className="flex flex-col gap-sm">
-                  <Label>Sử dụng thông tin đã lưu</Label>
-                  <select 
-                    className="h-12 w-full rounded-md bg-[#faf2eb] px-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
-                    onChange={(e) => handleSelectSavedInfo(e.target.value)}
-                    defaultValue=""
-                  >
-                    <option value="" disabled>Chọn thông tin giao hàng...</option>
-                    {MOCK_SAVED_INFO.map(info => (
-                      <option key={info.id} value={info.id}>{info.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-md">
-                  <div className="flex flex-col gap-sm">
-                    <Label>Người nhận</Label>
-                    <Input
-                      placeholder="Tên người nhận"
-                      value={deliveryInfo.receiverName}
-                      onChange={(e) =>
-                        setDeliveryInfo({
-                          ...deliveryInfo,
-                          receiverName: e.target.value,
-                        })
-                      }
-                      className="bg-[#faf2eb]"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-sm">
-                    <Label>Số điện thoại</Label>
-                    <Input
-                      placeholder="Số điện thoại"
-                      value={deliveryInfo.receiverPhone}
-                      onChange={(e) =>
-                        setDeliveryInfo({
-                          ...deliveryInfo,
-                          receiverPhone: e.target.value,
-                        })
-                      }
-                      className="bg-[#faf2eb]"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-sm">
-                  <Label>Địa chỉ giao hàng</Label>
-                  <Input
-                    placeholder="Số nhà, tên đường, quận/huyện..."
-                    value={deliveryInfo.addressLine}
-                    onChange={(e) =>
-                      setDeliveryInfo({
-                        ...deliveryInfo,
-                        addressLine: e.target.value,
-                      })
-                    }
-                    className="bg-[#faf2eb]"
-                  />
-                </div>
+            <div className="grid grid-cols-2 gap-md">
+              <div className="flex flex-col gap-sm">
+                <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">NGƯỜI NHẬN</Label>
+                <Input
+                  placeholder="Tên..."
+                  value={deliveryInfo.receiverName}
+                  onChange={(e) =>
+                    setDeliveryInfo({
+                      ...deliveryInfo,
+                      receiverName: e.target.value,
+                    })
+                  }
+                  className="h-12 bg-[#faf2eb] border-none"
+                />
               </div>
-            )}
+              <div className="flex flex-col gap-sm">
+                <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">SĐT</Label>
+                <Input
+                  placeholder="SĐT..."
+                  value={deliveryInfo.receiverPhone}
+                  onChange={(e) =>
+                    setDeliveryInfo({
+                      ...deliveryInfo,
+                      receiverPhone: e.target.value,
+                    })
+                  }
+                  className="h-12 bg-[#faf2eb] border-none"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col gap-md">

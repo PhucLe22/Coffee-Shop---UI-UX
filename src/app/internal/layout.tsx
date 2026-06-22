@@ -16,14 +16,26 @@ export default function InternalLayout({
   children: React.ReactNode;
 }) {
   const isMobile = useIsMobile();
-  const { user, _hasHydrated } = useStaffAuthStore();
+  const { user, _hasHydrated, setAuth, accessToken, refreshToken } = useStaffAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (_hasHydrated && !user) {
-      router.push("/login");
-    }
-  }, [_hasHydrated, user, router]);
+    const fetchUser = async () => {
+      if (_hasHydrated && !user && accessToken) {
+        try {
+          const { data } = await AuthService.getMe();
+          setAuth({ ...data, accessToken, refreshToken });
+        } catch (error) {
+          console.error("Failed to fetch user profile", error);
+          router.push("/login");
+        }
+      } else if (_hasHydrated && !user) {
+        console.log("InternalLayout: Redirecting to login due to missing user");
+        router.push("/login");
+      }
+    };
+    fetchUser();
+  }, [_hasHydrated, user, router, accessToken, refreshToken, setAuth]);
 
   if (!_hasHydrated) {
     return (

@@ -10,11 +10,15 @@ import {
   Product
 } from "@/entities/product";
 import { formatToVND, useIsMobile } from "@/shared/lib";
-import { Button } from "@/shared/ui/button";
-import { Badge } from "@/shared/ui/badge";
+import { 
+  Button, 
+  Badge, 
+  Skeleton,
+  Dialog,
+  DialogContent
+} from "@/shared/ui";
 import { useInternalCartStore } from "@/entities/order";
 import { toast } from "sonner";
-import { Skeleton } from "@/shared/ui/skeleton";
 
 interface InternalOrderOptionModalProps {
   productSlug: string | null;
@@ -78,7 +82,7 @@ export const InternalOrderOptionModal = ({
             formatted.push({
               optionId: option.id,
               name: option.name,
-              price: option.price || 0,
+              price: Number(option.price || 0),
             });
           }
         });
@@ -89,15 +93,15 @@ export const InternalOrderOptionModal = ({
 
   const calculateTotalPrice = () => {
     const formattedOptions = getSelectedOptionsFormatted();
-    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
-    return ((product?.basePrice || 0) + extraPrice) * quantity;
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + Number(opt.price || 0), 0);
+    return (Number(product?.basePrice || 0) + extraPrice) * quantity;
   };
 
   const handleAddToOrder = () => {
     if (!product) return;
     const formattedOptions = getSelectedOptionsFormatted();
-    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
-    const itemPrice = product.basePrice + extraPrice;
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + Number(opt.price || 0), 0);
+    const itemPrice = Number(product.basePrice) + extraPrice;
     
     // Create a readable summary of options
     const size = formattedOptions.find(o => product.optionGroups?.find(g => g.id === product.optionGroups?.find(pg => pg.options.some(po => po.id === o.optionId))?.id)?.name.toLowerCase().includes('size'))?.name || "Standard";
@@ -123,11 +127,9 @@ export const InternalOrderOptionModal = ({
     onClose();
   };
 
-  if (!productSlug) return null;
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-md md:p-lg bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-[#fff8f3] w-full max-w-6xl h-full max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
+    <Dialog open={!!productSlug} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="bg-[#fff8f3] w-full max-w-6xl h-full max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row p-0 border-none">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 z-10 size-10 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-text-primary shadow-md transition-all active:scale-90"
@@ -144,7 +146,7 @@ export const InternalOrderOptionModal = ({
               <img 
                 src={product?.thumbnail || "/placeholder-product.jpg"} 
                 alt={product?.name} 
-                className="size-full object-cover animate-in zoom-in-95 duration-500"
+                className="size-full object-cover"
               />
             )}
             <div className="absolute inset-0 bg-linear-to-t from-[#330f00]/40 to-transparent" />
@@ -153,7 +155,7 @@ export const InternalOrderOptionModal = ({
 
         {/* Customization Area - Right side */}
         <div className="flex-1 flex flex-col h-full overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-lg md:p-xl flex flex-col gap-lg">
+          <div className="flex-1 overflow-y-auto p-lg md:p-xl flex flex-col gap-lg no-scrollbar">
             {isLoading ? (
               <div className="flex flex-col gap-4">
                 <Skeleton className="h-10 w-3/4" />
@@ -260,7 +262,7 @@ export const InternalOrderOptionModal = ({
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

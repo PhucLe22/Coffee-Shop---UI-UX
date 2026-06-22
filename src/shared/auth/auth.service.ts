@@ -15,4 +15,10 @@ export const AuthService = {
     );
     return response.data;
   },
+  getMe: async (): Promise<BaseResponse<any>> => {
+    const response = await axiosInstance.get<BaseResponse<any>>(
+      API_ENDPOINTS.AUTH.ME
+    );
+    return response.data;
+  },
 };

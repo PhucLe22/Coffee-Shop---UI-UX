@@ -74,7 +74,9 @@ export default function InternalOrdersPage() {
 
   const canCompleteOrder = user?.role === StaffRole.ADMIN || 
                            user?.role === StaffRole.MANAGER || 
-                           user?.role === StaffRole.SHIPPER;
+                           user?.role === StaffRole.CASHIER ||
+                           user?.role === StaffRole.SHIPPER ||
+                           user?.role === "STAFF";
 
   const handleStatusUpdate = (orderId: string | undefined, currentStatus: string) => {
     if (!orderId) return;

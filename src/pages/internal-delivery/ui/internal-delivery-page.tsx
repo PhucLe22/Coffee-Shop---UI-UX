@@ -1,15 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   MapPin,
   Package,
   Navigation,
-  ChevronRight,
   Timer,
   DollarSign,
   Loader2,
-  Bike,
   Store,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
@@ -31,10 +29,11 @@ export default function InternalDeliveryPage() {
   const { user } = useStaffAuthStore();
   const { data: scheduleResponse, isLoading, error } = useDeliverySchedule();
 
+  const [roadCoordinates, setRoadCoordinates] = useState<[number, number][]>([]);
+
   const deliveryData = scheduleResponse?.data;
   // Adjust to new data structure: shippers array with nested routes
   const shipper = deliveryData?.shippers?.[0];
-  const schedule = shipper?.routes || [];
   const orders = deliveryData?.formattedOrders || [];
 
   const shipperLocation = useMemo(() => {
@@ -45,21 +44,9 @@ export default function InternalDeliveryPage() {
   }, [user]);
 
   const sortedSchedule = useMemo(() => {
+    const schedule = shipper?.routes || [];
     return [...schedule].sort((a, b) => a.node - b.node);
-  }, [schedule]);
-
-  const routeCoordinates = useMemo(() => {
-    const coords = sortedSchedule.map(
-      (node) => [node.lng, node.lat] as [number, number],
-    );
-    if (shipperLocation && coords.length > 0) {
-      return [
-        [shipperLocation.lng, shipperLocation.lat],
-        ...coords,
-      ] as [number, number][];
-    }
-    return coords;
-  }, [sortedSchedule, shipperLocation]);
+  }, [shipper]);
 
   const routeSteps = useMemo(() => {
     // Note: The new structure doesn't have a direct 'tasks' array, 
@@ -72,9 +59,54 @@ export default function InternalDeliveryPage() {
   }, [sortedSchedule]);
 
   const pendingSteps = useMemo(() => {
-    // Treat a node as pending if arrival_datetime is null
-    return routeSteps.filter(step => !step.arrival_datetime);
+    // Treat a node as pending if status is 'PENDING'
+    return routeSteps.filter(step => step.status === 'PENDING');
   }, [routeSteps]);
+
+  const mapNodes = useMemo(() => {
+    return pendingSteps.slice(0, 5);
+  }, [pendingSteps]);
+
+  const waypointCoordinates = useMemo(() => {
+    const coords = mapNodes.map(
+      (node) => [node.lng, node.lat] as [number, number],
+    );
+    if (shipperLocation && coords.length > 0) {
+      return [
+        [shipperLocation.lng, shipperLocation.lat],
+        ...coords,
+      ] as [number, number][];
+    }
+    return coords;
+  }, [mapNodes, shipperLocation]);
+
+  useEffect(() => {
+    if (waypointCoordinates.length < 2) {
+      return;
+    }
+
+    const fetchRoute = async () => {
+      try {
+        const coordsStr = waypointCoordinates.map(c => `${c[0]},${c[1]}`).join(';');
+        const response = await fetch(
+          `https://router.project-osrm.org/route/v1/driving/${coordsStr}?overview=full&geometries=geojson`
+        );
+        const data = await response.json();
+        if (data.routes && data.routes.length > 0) {
+          setRoadCoordinates(data.routes[0].geometry.coordinates);
+        }
+      } catch (error) {
+        console.error("Failed to fetch OSRM route:", error);
+      }
+    };
+
+    fetchRoute();
+  }, [waypointCoordinates]);
+
+  const displayCoordinates = useMemo(() => {
+    if (waypointCoordinates.length < 2) return [];
+    return roadCoordinates.length > 0 ? roadCoordinates : waypointCoordinates;
+  }, [roadCoordinates, waypointCoordinates]);
 
   const currentStep = pendingSteps.length > 0 ? pendingSteps[0] : null;
 
@@ -99,11 +131,6 @@ export default function InternalDeliveryPage() {
     const index = orders.findIndex((o) => o.id === orderCode);
     return index !== -1 ? index + 1 : 0;
   };
-
-  const nextStopTasks = useMemo(() => {
-    if (!currentStep) return [];
-    return [currentStep];
-  }, [currentStep]);
 
   const scrollToOrder = (orderId: string) => {
     const element = document.getElementById(`order-${orderId}`);
@@ -145,7 +172,7 @@ export default function InternalDeliveryPage() {
           {user?.name || "Shipper"} Tracking
         </h1>
         <p className="text-text-secondary text-body-md-reg">
-          Navigating {mySchedule.filter(n => n.type === "DELIVERY").length} artisanal deliveries in this shift.
+          Navigating {sortedSchedule.filter(n => n.type === "DELIVERY").length} artisanal deliveries in this shift.
         </p>
       </div>
 
@@ -159,19 +186,19 @@ export default function InternalDeliveryPage() {
               center={mapCenter}
               zoom={18}
               className="w-full h-full grayscale-[0.3] contrast-[1.1]">
-              {routeCoordinates.length > 1 && (
+              {displayCoordinates.length > 1 && (
                 <MapRoute
-                  coordinates={routeCoordinates}
+                  coordinates={displayCoordinates}
                   color="#F0660A"
                   width={5}
                   opacity={0.8}
                 />
               )}
 
-              {sortedSchedule.map((node, idx) => {
+              {mapNodes.map((node, idx) => {
                 const isStore = node.type === "STORE" || node.type === "PICKUP";
                 const orderSeq = !isStore ? getOrderSeq(node.orderCode || undefined) : 0;
-                // isNext logic relative to the user's current step (from mySchedule/pendingSteps)
+                // isNext logic relative to the user's current step (from sortedSchedule/pendingSteps)
                 const isNext =
                   currentStep &&
                   node.lat === currentStep.lat &&
@@ -314,7 +341,7 @@ export default function InternalDeliveryPage() {
 
           <div className="relative space-y-md lg:space-y-lg">
             {/* Visual Route Line */}
-            {upcomingRouteSteps.length > 0 && (
+            {pendingSteps.length > 0 && (
               <div className="absolute left-[26px] top-12 bottom-12 w-0.5 border-l-2 border-dashed border-info/20 z-0 hidden lg:block" />
             )}
 
@@ -356,22 +383,20 @@ export default function InternalDeliveryPage() {
                             : currentStep.address || "Delivery Address"}
                         </p>
                       </div>
-                      
-                      {/* Tasks at this stop */}
-                      <div className="space-y-sm pt-xs">
-                        {nextStopTasks.map((task, tidx) => {
-                          const isTaskStore = task.type === "STORE" || task.type === "PICKUP";
-                          return (
-                            <div key={tidx} className="flex items-start gap-sm">
-                              <Package className="size-5 text-info/60 shrink-0 mt-0.5" />
-                              <p className="text-text-secondary text-body-sm-reg leading-snug">
-                                {isTaskStore 
-                                  ? (task.orderCode ? `Pickup Order #${task.orderCode}` : "Pick up artisanal batches")
-                                  : `Deliver Order #${task.orderCode}`}
-                              </p>
-                            </div>
-                          );
-                        })}
+
+                      {/* Detailed info at this stop */}
+                      <div className="space-y-sm pt-xs text-text-secondary text-body-sm-reg">
+                        {currentStep.orderCode && <p><span className="font-bold">Order:</span> #{currentStep.orderCode}</p>}
+                        {currentStep.items && currentStep.items.length > 0 && (
+                          <div className="space-y-xs">
+                            <p className="font-bold">Items:</p>
+                            {currentStep.items.map((item, i) => (
+                              <p key={i}>• {item.quantity}x {item.name}</p>
+                            ))}
+                          </div>
+                        )}
+                        {currentStep.total && <p><span className="font-bold">Total:</span> {parseInt(currentStep.total).toLocaleString()} VND</p>}
+                        {currentStep.customerName && <p><span className="font-bold">Customer:</span> {currentStep.customerName} ({currentStep.customerPhone})</p>}
                       </div>
                     </div>
 
@@ -385,67 +410,68 @@ export default function InternalDeliveryPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-md lg:gap-lg relative z-10">
-              {upcomingRouteSteps.map((stop, idx) => {
-                const isStore = stop.type === "STORE" || stop.type === "PICKUP";
-                
-                return (
-                  <div key={idx} className="relative">
-                    {/* Connection dot for timeline (Desktop only) */}
-                    <div className={cn(
-                      "absolute -left-[32px] top-8 size-4 rounded-full border-2 border-white shadow-sm z-20 hidden lg:block",
-                      isStore ? "bg-success" : "bg-brand-primary"
-                    )} />
+            {/* Upcoming Steps */}
+            {upcomingRouteSteps.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-md lg:gap-lg relative z-10">
+                {upcomingRouteSteps.map((stop, idx) => {
+                  const isStore = stop.type === "STORE" || stop.type === "PICKUP";
 
-                    <Card
-                      id={stop.orderCode ? `order-${stop.orderCode}` : `task-${idx}`}
-                      className="rounded-[24px] bg-surface-accent/60 border-none shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300"
-                    >
-                      <CardContent className="p-lg lg:p-xl space-y-lg">
-                        <div className="flex items-start justify-between gap-md">
-                          <div className="flex items-center gap-md">
-                            <div className={cn(
-                              "size-10 rounded-[12px] flex items-center justify-center shadow-md",
-                              isStore ? "bg-success/10 text-success" : "bg-brand-primary/10 text-brand-primary"
-                            )}>
-                              {isStore ? <Store className="size-5" /> : <Package className="size-5" />}
-                            </div>
-                            <div>
-                              <p className={cn(
-                                "text-[10px] font-bold uppercase tracking-widest leading-none mb-1",
-                                isStore ? "text-success" : "text-brand-primary"
+                  return (
+                    <div key={idx} className="relative">
+                      {/* Connection dot for timeline (Desktop only) */}
+                      <div className={cn(
+                        "absolute -left-[32px] top-8 size-4 rounded-full border-2 border-white shadow-sm z-20 hidden lg:block",
+                        isStore ? "bg-success" : "bg-brand-primary"
+                      )} />
+
+                      <Card
+                        id={stop.orderCode ? `order-${stop.orderCode}` : `task-${idx}`}
+                        className="rounded-[24px] bg-surface-accent/60 border-none shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300"
+                      >
+                        <CardContent className="p-lg lg:p-xl space-y-lg">
+                          <div className="flex items-start justify-between gap-md">
+                            <div className="flex items-center gap-md">
+                              <div className={cn(
+                                "size-10 rounded-[12px] flex items-center justify-center shadow-md",
+                                isStore ? "bg-success/10 text-success" : "bg-brand-primary/10 text-brand-primary"
                               )}>
-                                {isStore ? "Upcoming Pickup" : "Upcoming Delivery"}
-                              </p>
-                              <h3 className="text-body-md-semibold text-text-primary">
-                                {isStore ? stop.storeName || "Store Pickup" : stop.customerName || `Order #${stop.orderCode}`}
-                              </h3>
+                                {isStore ? <Store className="size-5" /> : <Package className="size-5" />}
+                              </div>
+                              <div>
+                                <p className={cn(
+                                  "text-[10px] font-bold uppercase tracking-widest leading-none mb-1",
+                                  isStore ? "text-success" : "text-brand-primary"
+                                )}>
+                                  {isStore ? "Upcoming Pickup" : "Upcoming Delivery"}
+                                </p>
+                                <h3 className="text-body-md-semibold text-text-primary">
+                                  {isStore ? stop.storeName || "Store Pickup" : stop.customerName || `Order #${stop.orderCode}`}
+                                </h3>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="space-y-sm">
-                          <div className="flex items-start gap-sm">
-                            <MapPin className="size-4 text-text-muted shrink-0 mt-0.5" />
-                            <p className="text-text-secondary text-[12px] leading-snug line-clamp-1">
-                              {isStore ? stop.storeAddress || "Store Address" : stop.address}
-                            </p>
+                          <div className="space-y-sm text-text-secondary text-[12px]">
+                            <div className="flex items-start gap-sm">
+                              <MapPin className="size-4 text-text-muted shrink-0 mt-0.5" />
+                              <p className="leading-snug line-clamp-1">
+                                {isStore ? stop.storeAddress || "Store Address" : stop.address}
+                              </p>
+                            </div>
+
+                            {stop.orderCode && <p>Order: #{stop.orderCode}</p>}
+                            {stop.items && stop.items.length > 0 && (
+                              <p>Items: {stop.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</p>
+                            )}
+                            {stop.total && <p>Total: {parseInt(stop.total).toLocaleString()} VND</p>}
                           </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-sm">
-                                <Timer className="size-4 text-text-muted shrink-0" />
-                                <p className="text-text-secondary text-[12px]">
-                                  {stop.type === "DELIVERY" ? "Deliver" : "Pickup"}: #{stop.orderCode || "Batch"}
-                                </p>
-                              </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                );
-              })}
-            </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Quick Support / Support Button */}

@@ -18,4 +18,31 @@ export const ProductService = {
     const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.BY_ID(id));
     return response.data;
   },
+
+  createProduct: async (formData: FormData): Promise<ApiResponse<Product>> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.PRODUCTS.INTERNAL, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  },
+
+  updateProduct: async (id: string, data: FormData | any): Promise<ApiResponse<Product>> => {
+    const isFormData = data instanceof FormData;
+    const response = await axiosInstance.put(API_ENDPOINTS.PRODUCTS.INTERNAL_BY_ID(id), data, {
+      headers: isFormData ? { "Content-Type": "multipart/form-data" } : undefined,
+    });
+    return response.data;
+  },
+
+  deleteProduct: async (id: string): Promise<ApiResponse<null>> => {
+    const response = await axiosInstance.delete(API_ENDPOINTS.PRODUCTS.INTERNAL_BY_ID(id));
+    return response.data;
+  },
+
+  updateOptionGroup: async (productId: string, optionGroupId: string, data: any): Promise<ApiResponse<any>> => {
+    const response = await axiosInstance.put(API_ENDPOINTS.PRODUCTS.OPTION_GROUPS(productId, optionGroupId), data);
+    return response.data;
+  },
 };

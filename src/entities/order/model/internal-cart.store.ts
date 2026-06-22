@@ -62,7 +62,7 @@ export const useInternalCartStore = create<InternalCartStore>((set, get) => ({
     set({ items: [] })
   },
   getSubtotal: () => {
-    return get().items.reduce((acc, item) => acc + item.price * item.quantity, 0)
+    return get().items.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0)
   },
   getDiscount: () => {
     return 0 // TODO: Implement discount logic

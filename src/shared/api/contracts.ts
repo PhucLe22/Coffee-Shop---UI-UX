@@ -153,7 +153,7 @@ export interface GuestOutput {
 // --- ORDER (order.output.schema.js) ---
 
 export interface CreateOrderBody {
-  storeId: string;
+  storeId?: string;
   type: OrderType;
   tableNumber?: string;
   note?: string;
@@ -263,6 +263,66 @@ export interface GetProductsQuery {
 export interface GetAvailableVouchersQuery {
   storeId?: string;
   orderAmount?: number;
+}
+
+// --- VOUCHER (internal CRUD) ---
+
+export interface VoucherStoreRef {
+  id: string;
+  name: string;
+}
+
+export interface VoucherOutput {
+  id: string;
+  code: string;
+  scope: string | null;
+  discountType: string | null;
+  discountValue: number | null;
+  maxUsage: number | null;
+  usedCount: number | null;
+  minOrderAmount: number | null;
+  maxDiscount: number | null;
+  storeId: string | null;
+  expiresAt: string | null;
+  isActive: boolean;
+  store: VoucherStoreRef | null;
+}
+
+export interface CreateVoucherBody {
+  code: string;
+  discountType: typeof DiscountType.PERCENT | typeof DiscountType.FIXED;
+  discountValue: number;
+  maxUsage?: number;
+  minOrderAmount?: number;
+  maxDiscount?: number;
+  storeId?: string;
+  expiresAt?: string;
+}
+
+export interface UpdateVoucherBody {
+  discountValue?: number;
+  maxUsage?: number;
+  minOrderAmount?: number;
+  maxDiscount?: number;
+  storeId?: string;
+  expiresAt?: string;
+  isActive?: boolean;
+}
+
+export interface GetVouchersQuery {
+  storeId?: string;
+  isActive?: boolean;
+  discountType?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetPromotionsQuery {
+  storeId?: string;
+  discountType?: string;
+  page?: number;
+  limit?: number;
 }
 
 // --- SHIP (ship.output.schema.js) ---
@@ -442,6 +502,19 @@ export interface AIChatOutput {
 
 // --- DELIVERY (delivery.output.schema.js) ---
 
+export interface DeliveryOrderItem {
+  id: string;
+  sku?: string | null;
+  tax?: string;
+  name: string;
+  note?: string | null;
+  price: string;
+  orderId?: string;
+  discount?: string;
+  quantity: number;
+  productId: string;
+}
+
 export interface DeliveryScheduleNode {
   shipperId: string;
   shipperName: string;
@@ -459,11 +532,17 @@ export interface DeliveryScheduleNode {
   action_amount?: number;
   travel_time_minutes?: number;
   lateness?: string;
+  customerName?: string;
+  customerPhone?: string;
+  items?: DeliveryOrderItem[];
+  total?: string;
+  address?: string;
 }
 
 export interface FormattedOrder {
   id: string;
   customer: string;
+  customerPhone: string;
   status: string;
   address: string;
   items: string;
@@ -474,11 +553,17 @@ export interface FormattedOrder {
   isFocused: boolean;
 }
 
+export interface Shipper {
+  shipperId: string;
+  shipperName: string;
+  routes: DeliveryScheduleNode[];
+  isPersisted: boolean;
+}
+
 export interface DeliveryScheduleOutput {
-  storeIds: string[];
   numShippers: number;
   numOrders: number;
-  schedule: DeliveryScheduleNode[];
+  shippers: Shipper[];
   formattedOrders: FormattedOrder[];
 }
 
