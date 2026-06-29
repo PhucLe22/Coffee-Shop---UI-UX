@@ -48,29 +48,29 @@
   --color-info: var(--info);
 
   /* --- Special Styles --- */
-  --color-border-primary-50: rgba(51, 15, 0, 0.5);
-  --color-text-muted-50: rgba(112, 120, 120, 0.5);
-  --color-inverse-text-80: rgba(240, 236, 236, 0.8);
-  --color-inverse-text-10: rgba(240, 236, 236, 0.1);
+  --color-border-primary-50: rgba(28, 28, 30, 0.5);
+  --color-text-muted-50: rgba(156, 163, 175, 0.5);
+  --color-inverse-text-80: rgba(250, 250, 250, 0.8);
+  --color-inverse-text-10: rgba(250, 250, 250, 0.1);
 
   /* --- Opacity Variants --- */
-  --color-primary-80: rgba(51, 15, 0, 0.8);
-  --color-primary-50: rgba(51, 15, 0, 0.5);
-  --color-primary-10: rgba(51, 15, 0, 0.1);
+  --color-primary-80: rgba(28, 28, 30, 0.8);
+  --color-primary-50: rgba(28, 28, 30, 0.5);
+  --color-primary-10: rgba(28, 28, 30, 0.1);
 
   --color-white-80: rgba(255, 255, 255, 0.8);
   --color-white-50: rgba(255, 255, 255, 0.5);
   --color-white-10: rgba(255, 255, 255, 0.1);
 
-  --color-green-80: rgba(57, 102, 96, 0.8);
-  --color-green-50: rgba(57, 102, 96, 0.5);
-  --color-green-10: rgba(57, 102, 96, 0.1);
+  --color-green-80: rgba(107, 114, 128, 0.8);
+  --color-green-50: rgba(107, 114, 128, 0.5);
+  --color-green-10: rgba(107, 114, 128, 0.1);
 
   --background-image-img-primary-gradient: linear-gradient(
     90deg,
-    rgba(51, 15, 0, 0.9) 0%,
-    rgba(51, 15, 0, 0.2) 50%,
-    rgba(51, 15, 0, 0) 100%
+    rgba(28, 28, 30, 0.9) 0%,
+    rgba(28, 28, 20, 0.2) 50%,
+    rgba(28, 28, 30, 0) 100%
   );
 
   /* --- Font Sizes --- */
@@ -108,14 +108,14 @@
   --ring: oklch(0.708 0 0);
 
   /* Figma Collection */
-  --surface-main: #FFF8F3;
-  --surface-accent: #FBF2EA;
-  --surface-muted: #EAE1D9;
-  --surface-inverse: #022C22;
-  --text-primary: #330F00;
-  --text-secondary: #396660;
-  --text-muted: #707977;
-  --text-inverse: #F0ECEC;
+  --surface-main: #FFFFFF;
+  --surface-accent: #F5F5F5;
+  --surface-muted: #E5E5E5;
+  --surface-inverse: #171717;
+  --text-primary: #1C1C1E;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --text-inverse: #FAFAFA;
   --brand-primary: #F0660A;
   --brand-accent: #F97316;
   --price-highlight: #F96C14;

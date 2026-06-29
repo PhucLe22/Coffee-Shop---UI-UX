@@ -20,8 +20,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { cn } from "@/shared/lib/utils";
+import { useStaffAuthStore, AuthService } from "@/shared/auth";
+import { useRouter } from "next/navigation";
 
 export default function InternalSettingsPage() {
+  const { logout, accessToken, refreshToken } = useStaffAuthStore();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      if (accessToken && refreshToken) {
+        await AuthService.logout(accessToken, refreshToken);
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      logout();
+      router.push("/login");
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-surface-main overflow-y-auto no-scrollbar pb-xl">
       {/* Profile Header */}
@@ -110,16 +128,17 @@ export default function InternalSettingsPage() {
         </Card>
       </div>
 
-      {/* Danger Zone */}
+      {/* Sign Out */}
       <div className="px-md lg:px-xl mt-xl">
         <Button 
           variant="ghost" 
           className="w-full h-16 rounded-[20px] bg-error/5 border border-error/10 text-error hover:bg-error hover:text-white transition-all justify-start px-md gap-md group"
+          onClick={handleLogout}
         >
           <div className="size-10 rounded-full bg-error/10 flex items-center justify-center group-hover:bg-white/20">
             <LogOut className="size-5" />
           </div>
-          <span className="text-body-md-bold uppercase tracking-widest text-[12px]">Sign Out of Console</span>
+          <span className="text-body-md-bold uppercase tracking-widest text-[12px]">Sign Out</span>
         </Button>
       </div>
 

@@ -6,8 +6,10 @@ import { PersonalInfoSection } from "./personal-info-section";
 import { AddressSection } from "./address-section";
 import { PaymentSection } from "./payment-section";
 import { NotificationSettingsSection } from "./notification-settings-section";
+import { useProfile } from "./use-profile";
 
 export function DesktopProfileView() {
+  useProfile();
   return (
     <div className="min-h-screen bg-surface-accent pb-20 pt-10">
       <div className="mx-auto flex max-w-[1280px] gap-10 px-6">

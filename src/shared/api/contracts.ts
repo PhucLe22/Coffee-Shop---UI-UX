@@ -117,6 +117,12 @@ export interface BaseResponse<T> {
   success: boolean;
   message: string;
   data: T;
+  meta?: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
 }
 
 // --- AUTH (auth.output.schema.js) ---
@@ -125,6 +131,21 @@ export interface RegisterOutput {
   id: string;
   email: string;
   phone: string;
+}
+
+export interface ProfileOutput {
+  name: string;
+  email: string;
+  phone: string;
+  tier: CustomerTier;
+  points: number;
+  storeInfo: Record<string, unknown>;
+  userInfo: {
+    email: string;
+    phone: string;
+    name: string;
+  };
+  managerInfo: Record<string, unknown> | null;
 }
 
 export interface LoginOutput {
@@ -421,6 +442,8 @@ export interface StoreOutput {
 export interface GetStoresQuery {
   lat?: number;
   lng?: number;
+  page?: number;
+  limit?: number;
 }
 
 // --- USER (user.output.schema.js) ---

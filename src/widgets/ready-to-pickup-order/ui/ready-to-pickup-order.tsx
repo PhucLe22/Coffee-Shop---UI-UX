@@ -26,7 +26,7 @@ export const ReadyToPickUpOrder = ({ order }: ReadyToPickUpOrderProps) => {
   const orderNumber = order.orderCode || order.id?.slice(0, 8).toUpperCase();
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-[20px] border border-text-primary/10 bg-[#ebe0d9] p-8 shadow-sm min-h-[220px]">
+    <div className="flex flex-col overflow-hidden rounded-[20px] border border-text-primary/10 bg-surface-muted p-8 shadow-sm min-h-[220px]">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">

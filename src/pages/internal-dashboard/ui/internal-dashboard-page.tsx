@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { 
-  Search, 
+  Search,
   Calendar, 
   TrendingUp, 
   TrendingDown, 
@@ -10,19 +10,29 @@ import {
   MapPin,
   Activity,
   ChevronRight,
-  MoreVertical,
-  Coffee,
   CheckCircle2,
-  Users
+  Users,
+  Truck
 } from "lucide-react";
 import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
 import { Separator } from "@/shared/ui/separator";
 import { cn } from "@/shared/lib/utils";
+import { useShipperRoutes } from "@/entities/delivery/api/use-shipper-routes";
+import { ShipperRouteMap } from "@/widgets/shipper-route-map";
 
 export default function DashboardPage() {
+  const [selectedShipperId, setSelectedShipperId] = useState<string>("ALL");
+  const { data: allData } = useShipperRoutes();
+  const { data: filteredData } = useShipperRoutes(
+    selectedShipperId === "ALL" ? undefined : selectedShipperId
+  );
+
+  const allShippers = allData?.data?.shippers || [];
+  const shippers = filteredData?.data?.shippers || [];
+  const routeData = filteredData?.data;
+
   return (
     <div className="flex flex-col p-md md:p-lg gap-md md:gap-lg animate-in fade-in duration-500">
       {/* Header */}
@@ -74,27 +84,47 @@ export default function DashboardPage() {
 
       {/* Middle Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-md md:gap-lg">
-        {/* Revenue Flow */}
-        <Card className="lg:col-span-2 bg-white border-0 shadow-sm rounded-md overflow-hidden">
+        {/* Shipper Routes Map */}
+        <Card className="lg:col-span-2 bg-white border-0 shadow-sm rounded-md overflow-hidden flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between p-md md:p-lg pb-0">
             <div className="flex flex-col gap-xs">
-              <CardTitle className="text-[10px] md:text-h5-bold text-text-primary uppercase tracking-wider opacity-60">Revenue Insights</CardTitle>
-              <h2 className="text-body-md-bold md:text-h3-bold text-text-primary">Monthly Revenue Flow</h2>
+              <CardTitle className="text-[10px] md:text-h5-bold text-text-primary uppercase tracking-wider opacity-60">Delivery Routes</CardTitle>
+              <h2 className="text-body-md-bold md:text-h3-bold text-text-primary">Shipper Route Map</h2>
             </div>
-            <div className="flex items-center bg-surface-muted/50 p-1 rounded-full border border-border-primary-50 scale-90 md:scale-100">
-              <Button variant="ghost" size="sm" className="rounded-full h-7 md:h-8 px-md text-text-primary text-[12px]">Week</Button>
-              <Button variant="ghost" size="sm" className="rounded-full h-7 md:h-8 px-md bg-white text-brand-primary shadow-sm text-[12px]">Month</Button>
+            <div className="flex items-center gap-sm">
+              <div className="relative">
+                <select
+                  value={selectedShipperId}
+                  onChange={(e) => setSelectedShipperId(e.target.value)}
+                  className="h-9 rounded-md border border-border-primary-50 bg-white px-md text-[12px] text-text-primary font-semibold outline-none focus:border-brand-primary appearance-none cursor-pointer pr-xl"
+                >
+                  <option value="ALL">All Shippers</option>
+                  {allShippers.map((s) => (
+                    <option key={s.shipperId} value={s.shipperId}>{s.shipperName}</option>
+                  ))}
+                </select>
+                <ChevronRight className="size-3 text-text-muted absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="p-md md:p-lg">
-            <div className="h-[180px] md:h-[232px] w-full mt-md">
-              <MockRevenueChart />
+          <CardContent className="p-md md:p-lg flex-1 min-h-0">
+            <div className="h-[320px] md:h-[400px] w-full rounded-md overflow-hidden bg-surface-muted/30">
+              {shippers.length > 0 ? (
+                <ShipperRouteMap shippers={shippers} />
+              ) : (
+                <div className="size-full flex flex-col items-center justify-center gap-md text-text-muted">
+                  <Truck className="size-10" />
+                  <p className="text-body-sm-reg">No route data available</p>
+                </div>
+              )}
             </div>
-            <div className="flex justify-between mt-md px-md">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                <span key={day} className="text-[8px] md:text-[10px] text-text-secondary uppercase tracking-widest font-bold opacity-60">{day}</span>
-              ))}
-            </div>
+            {routeData && (
+              <div className="flex items-center gap-lg mt-md text-[11px] text-text-secondary font-semibold">
+                <span>{routeData.numShippers} shipper{routeData.numShippers !== 1 ? "s" : ""}</span>
+                <span className="size-1 rounded-full bg-text-muted" />
+                <span>{routeData.numOrders} order{routeData.numOrders !== 1 ? "s" : ""}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -161,7 +191,7 @@ export default function DashboardPage() {
             />
             <NarrativeItem 
               icon={Activity} 
-              iconBg="bg-[#551e00]" 
+              iconBg="bg-text-primary" 
               iconColor="text-white"
               text="Riverside Roastery reported a peak in morning rush traffic." 
               time="1 hour ago" 
@@ -202,30 +232,6 @@ function StatCard({ title, value, trend, trendType }: { title: string, value: st
   );
 }
 
-function MockRevenueChart() {
-  // Creating a visual mock of the line chart as seen in Figma
-  const points = [40, 80, 60, 100, 70, 120, 90];
-  return (
-    <div className="flex items-end justify-between h-full w-full gap-2 md:gap-4 relative">
-      {points.map((height, i) => (
-        <div key={i} className="flex-1 group relative flex flex-col items-center justify-end h-full">
-          <div 
-            className="w-full bg-gradient-to-t from-brand-primary/10 to-brand-primary/5 rounded-t-sm relative" 
-            style={{ height: `${height}%` }}
-          >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 size-1.5 md:size-2 bg-brand-primary rounded-full shadow-[0_0_8px_rgba(240,102,10,0.5)] z-10" />
-          </div>
-        </div>
-      ))}
-      <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-10">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="w-full h-px bg-text-primary" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function PopularRoastItem({ image, name, percentage }: { image: string, name: string, percentage: number }) {
   return (
     <div className="flex items-center gap-md">
@@ -249,14 +255,14 @@ function GeoLocationItem({ name, value }: { name: string, value: string }) {
   return (
     <div className="flex items-center justify-between group cursor-pointer hover:bg-surface-main/50 p-xs -mx-xs rounded-sm transition-colors">
       <span className="text-body-sm-reg md:text-body-md-reg text-text-primary group-hover:text-brand-primary transition-colors">{name}</span>
-      <span className="text-body-sm-bold md:text-body-md-bold text-[#1f1b16]">{value}</span>
+      <span className="text-body-sm-bold md:text-body-md-bold text-text-primary">{value}</span>
     </div>
   );
 }
 
 function MockMap() {
   return (
-    <div className="absolute inset-0 bg-[#eae1d9] flex items-center justify-center grayscale contrast-75 opacity-50">
+    <div className="absolute inset-0 bg-surface-muted flex items-center justify-center grayscale contrast-75 opacity-50">
       <svg className="absolute inset-0 size-full" viewBox="0 0 100 100" preserveAspectRatio="none">
         <path d="M0,20 Q30,10 50,40 T100,30" fill="none" stroke="white" strokeWidth="0.5" />
         <path d="M0,50 Q40,60 60,30 T100,50" fill="none" stroke="white" strokeWidth="0.5" />

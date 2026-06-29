@@ -7,6 +7,7 @@ export * from "./api/use-orders";
 export * from "./api/use-internal-orders";
 export * from "./api/use-delivery-schedule";
 export * from "./api/use-order-by-code";
+export * from "./api/use-order-activities";
 export * from "./api/use-update-order-status";
 export { default as OrderCard } from "./ui/order-card";
 export * from "./ui/status-step";

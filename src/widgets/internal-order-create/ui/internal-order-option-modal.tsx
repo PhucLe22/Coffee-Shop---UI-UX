@@ -129,7 +129,7 @@ export const InternalOrderOptionModal = ({
 
   return (
     <Dialog open={!!productSlug} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-[#fff8f3] w-full max-w-6xl h-full max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row p-0 border-none">
+      <DialogContent className="bg-surface-main w-full max-w-6xl h-full max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row p-0 border-none">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 z-10 size-10 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-text-primary shadow-md transition-all active:scale-90"
@@ -149,7 +149,7 @@ export const InternalOrderOptionModal = ({
                 className="size-full object-cover"
               />
             )}
-            <div className="absolute inset-0 bg-linear-to-t from-[#330f00]/40 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-text-primary/40 to-transparent" />
           </div>
         )}
 
@@ -229,7 +229,7 @@ export const InternalOrderOptionModal = ({
           </div>
 
           {/* Sticky Footer */}
-          <div className="p-lg md:p-xl bg-[#faf2eb] border-t border-border-primary-50/10 flex flex-col md:flex-row items-center gap-lg">
+          <div className="p-lg md:p-xl bg-surface-accent border-t border-border-primary-50/10 flex flex-col md:flex-row items-center gap-lg">
             <div className="flex items-center justify-between w-full md:w-auto md:gap-lg">
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Total Amount</span>

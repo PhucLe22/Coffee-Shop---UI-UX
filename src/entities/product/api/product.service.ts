@@ -36,6 +36,22 @@ export const ProductService = {
     return response.data;
   },
 
+  getAdminProducts: async (query?: GetProductsQuery): Promise<PaginatedResponse<Product>> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.ADMIN, {
+      params: query,
+    });
+    return response.data;
+  },
+
+  toggleActive: async (id: string): Promise<ApiResponse<Product>> => {
+    const response = await axiosInstance.patch(API_ENDPOINTS.PRODUCTS.TOGGLE_ACTIVE(id));
+    return response.data;
+  },
+
+  deleteAdminProduct: async (id: string): Promise<void> => {
+    await axiosInstance.delete(API_ENDPOINTS.PRODUCTS.ADMIN_BY_ID(id));
+  },
+
   deleteProduct: async (id: string): Promise<ApiResponse<null>> => {
     const response = await axiosInstance.delete(API_ENDPOINTS.PRODUCTS.INTERNAL_BY_ID(id));
     return response.data;

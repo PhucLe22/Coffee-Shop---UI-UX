@@ -5,6 +5,9 @@ import { Order, useOrderByCode } from "@/entities/order";
 import { Badge, AppButton } from "@/shared/ui";
 import { cn, formatToVND } from "@/shared/lib";
 import { ChevronDown, MapPin, RotateCcw, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCartStore, CartItem } from "@/entities/cart";
+import { toast } from "sonner";
 
 interface OrderHistoryCardProps {
   order: Order;
@@ -21,8 +24,35 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 };
 
 export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
+  const router = useRouter();
+  const { addItem } = useCartStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const status = statusConfig[order.status] || statusConfig.NEW;
+
+  const handleReorder = () => {
+    const displayItems = order.items && order.items.length > 0
+      ? order.items
+      : (order as any).items || [];
+
+    displayItems.forEach((item: any) => {
+      const cartItem: CartItem = {
+        id: `${item.productId}-${(item.options || []).map((o: any) => o.id).join("-")}`,
+        productId: item.productId,
+        name: item.name,
+        price: Number(item.price),
+        quantity: item.quantity,
+        options: (item.options || []).map((opt: any) => ({
+          optionId: opt.id,
+          name: opt.name,
+          price: Number(opt.price),
+        })),
+      };
+      addItem(cartItem);
+    });
+
+    toast.success("Đã thêm vào giỏ hàng");
+    router.push("/cart");
+  };
 
   const { data: orderDetails, isLoading } = useOrderByCode(
     isExpanded && (!order.items || order.items.length === 0)
@@ -46,7 +76,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
     (order.id ? order.id.slice(0, 8).toUpperCase() : "UNKNOWN");
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-[20px] border border-text-primary/10 bg-[#ebe0d9] shadow-sm transition-all duration-300">
+    <div className="flex flex-col overflow-hidden rounded-[20px] border border-text-primary/10 bg-surface-muted shadow-sm transition-all duration-300">
       {/* Summary Header */}
       <div 
         className="flex items-center justify-between p-8 cursor-pointer hover:bg-black/5 transition-colors"
@@ -94,7 +124,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
             className="rounded-full px-8 h-12 font-bold text-[16px] text-text-primary hover:bg-surface-main transition-all"
             onClick={(e) => {
               e.stopPropagation();
-              // Navigate to detail
+              router.push(`/orders/detail/${order.orderCode || order.id}`);
             }}
           >
             Xem chi tiết
@@ -170,6 +200,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
                   <AppButton 
                     variant="primary" 
                     className="rounded-full px-12 h-14 font-bold text-[16px] shadow-lg active:scale-95 transition-all"
+                    onClick={handleReorder}
                   >
                     <RotateCcw className="size-5 mr-2" />
                     ĐẶT LẠI

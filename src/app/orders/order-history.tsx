@@ -7,6 +7,8 @@ import { ClipboardList } from "lucide-react";
 import { OrderHistoryCard } from "@/widgets/order-history-card";
 import { useIsMobile } from "@/shared/lib";
 import { OrderOutput, OrderStatus } from "@/shared/api";
+import { OrderDetailDialog } from "./order-detail-dialog";
+import { useRouter } from "next/navigation";
 
 const TABS = [
   { id: "all", label: "Tất cả" },
@@ -31,8 +33,10 @@ export const OrderHistory = ({
   activeStatus = "all",
   onStatusChange,
 }: OrderHistoryProps) => {
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [localActiveTab, setLocalActiveTab] = useState<string>("all");
+  const [detailOrderCode, setDetailOrderCode] = useState<string | null>(null);
 
   const activeTab = onStatusChange ? activeStatus : localActiveTab;
 
@@ -59,16 +63,16 @@ export const OrderHistory = ({
 
       {/* Tab Bar */}
       <div className={cn(
-        "flex h-14 w-full items-center gap-2 overflow-x-auto no-scrollbar rounded-2xl p-1.5 shadow-inner transition-all",
-        !isMobile ? "bg-[#ebe0d9]" : "bg-surface-muted"
+        "flex h-14 w-full items-center gap-2 overflow-x-auto no-scrollbar rounded-md p-1.5 shadow-inner transition-all",
+        !isMobile ? "bg-surface-muted" : "bg-surface-muted"
       )}>
         {TABS.map((tab) => (
           <button
             key={tab.id}
             className={cn(
-              "flex h-full min-w-[80px] flex-1 items-center justify-center rounded-lg font-plus-jakarta text-[12px] md:text-sm font-bold transition-all px-4 whitespace-nowrap",
+              "flex h-full min-w-[60px] flex-1 items-center justify-center rounded-md font-plus-jakarta text-[10px] leading-tight md:text-sm font-bold transition-all px-2 md:px-4 whitespace-nowrap",
               activeTab === tab.id
-                ? (!isMobile ? "bg-[#fff8f3] text-brand-primary shadow-sm" : "bg-surface-main text-brand-primary shadow-sm")
+                ? (!isMobile ? "bg-surface-main text-brand-primary shadow-sm" : "bg-surface-main text-brand-primary shadow-sm")
                 : "text-text-muted hover:text-text-primary"
             )}
             onClick={() => handleTabClick(tab.id)}
@@ -88,7 +92,8 @@ export const OrderHistory = ({
               <OrderCard
                 key={order.id}
                 order={order as any}
-                onAction={(o) => console.log("Action on order", o.id)}
+                onClick={(o) => setDetailOrderCode(o.orderCode ?? null)}
+                onAction={(o) => router.push(`/orders/detail/${o.orderCode ?? o.id}`)}
               />
             )
           ))
@@ -99,6 +104,12 @@ export const OrderHistory = ({
           </div>
         )}
       </div>
+
+      <OrderDetailDialog
+        orderCode={detailOrderCode}
+        open={!!detailOrderCode}
+        onOpenChange={(open) => { if (!open) setDetailOrderCode(null); }}
+      />
     </div>
   );
 };

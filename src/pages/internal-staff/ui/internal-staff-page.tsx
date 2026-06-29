@@ -83,13 +83,6 @@ export default function StaffPage() {
           <p className="text-[12px] md:text-body-sm-reg text-text-secondary">Oversee your team across all locations</p>
         </div>
         <div className="flex items-center gap-sm md:gap-md">
-          <div className="relative flex-1 md:w-full md:max-w-xs">
-            <Search className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-text-muted" />
-            <Input 
-              placeholder="Search..." 
-              className="pl-xl h-10 bg-white/50 border-border-primary-50 rounded-md focus:bg-white transition-colors"
-            />
-          </div>
           <Button className="bg-brand-primary hover:bg-brand-accent text-white rounded-md h-10 px-sm md:px-md gap-xs shadow-sm">
             <UserPlus className="size-4" />
             <span className="hidden sm:inline label-button-md text-sm">Add Staff</span>
@@ -246,7 +239,7 @@ export default function StaffPage() {
       {/* Bottom Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-md md:gap-lg">
         {/* Rewards Program */}
-        <Card className="lg:col-span-2 bg-[#386661] border-0 shadow-md rounded-md overflow-hidden relative">
+        <Card className="lg:col-span-2 bg-text-secondary border-0 shadow-md rounded-md overflow-hidden relative">
           <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <path d="M0,0 Q50,50 100,0 T200,0" fill="white" />

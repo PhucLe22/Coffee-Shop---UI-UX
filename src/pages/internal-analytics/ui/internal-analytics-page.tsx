@@ -79,12 +79,12 @@ export default function InternalAnalyticsPage() {
         </Card>
 
         {/* Retention Pie - 1 Column */}
-        <Card className="bg-[#330f00] border-0 shadow-md rounded-md overflow-hidden text-[#fbf2ea] flex flex-col">
+        <Card className="bg-text-primary border-0 shadow-md rounded-md overflow-hidden text-surface-accent flex flex-col">
           <CardHeader className="p-lg pb-0">
             <CardTitle className="text-[10px] font-bold opacity-50 uppercase tracking-widest text-center">Customer Retention</CardTitle>
           </CardHeader>
           <CardContent className="p-xl flex-1 flex flex-col items-center justify-center gap-xl text-center">
-            <div className="size-48 rounded-full border-[12px] border-[#fbf2ea]/10 relative flex items-center justify-center">
+            <div className="size-48 rounded-full border-[12px] border-surface-accent/10 relative flex items-center justify-center">
               {/* Mock Semicircle/Pie via clip-path or absolute elements */}
               <div className="absolute inset-0 rounded-full border-[12px] border-brand-primary" style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }} />
               <div className="flex flex-col">
@@ -106,7 +106,7 @@ export default function InternalAnalyticsPage() {
 
       {/* Bottom Insights */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-        <Card className="bg-[#386661] border-0 shadow-sm rounded-md p-lg flex items-center gap-lg text-white group">
+        <Card className="bg-text-secondary border-0 shadow-sm rounded-md p-lg flex items-center gap-lg text-white group">
           <div className="size-14 rounded-md bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
             <TrendingUp className="size-7 text-white" />
           </div>

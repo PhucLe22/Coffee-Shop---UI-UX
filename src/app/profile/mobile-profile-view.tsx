@@ -15,18 +15,27 @@ import {
 import { AppButton } from "@/shared/ui";
 import { useRouter } from "next/navigation";
 import { useCustomerAuthStore, AuthService } from "@/shared/auth";
+import { useProfile } from "./use-profile";
+import { PersonalInfoSection } from "./personal-info-section";
+import { AddressSection } from "./address-section";
 import { toast } from "sonner";
 
 const CustomerCard = () => {
+  const { user } = useCustomerAuthStore();
+
+  const tierLabel = user?.tier
+    ? user.tier.charAt(0) + user.tier.slice(1).toLowerCase() + " Member"
+    : "Member";
+
   return (
     <div className="flex h-auto w-full flex-col justify-between rounded-[32px] bg-surface-inverse p-6 text-inverse-text shadow-lg">
       <div className="flex flex-col gap-2">
         <h2 className="font-plus-jakarta text-[24px] font-bold leading-tight">
-          Julian Estévez
+          {user?.name ?? "Customer"}
         </h2>
         <div className="flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-1">
           <div className="size-2 rounded-full bg-brand-primary" />
-          <span className="font-inter text-sm font-semibold">Gold Member</span>
+          <span className="font-inter text-sm font-semibold">{tierLabel}</span>
         </div>
       </div>
 
@@ -38,27 +47,11 @@ const CustomerCard = () => {
             </span>
             <div className="flex items-baseline gap-1">
               <span className="font-plus-jakarta text-[24px] font-bold text-brand-primary">
-                2,450
+                {user?.points?.toLocaleString() ?? 0}
               </span>
               <span className="font-inter text-sm text-inverse-text">pts</span>
             </div>
           </div>
-          <div className="flex flex-col items-end">
-            <span className="font-plus-jakarta text-[11px] text-inverse-text">
-              Next Tier: Platinum
-            </span>
-            <span className="font-inter text-sm font-semibold text-text-muted">
-              550 pts to go
-            </span>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-brand-primary"
-            style={{ width: "78%" }}
-          />
         </div>
       </div>
     </div>
@@ -111,6 +104,7 @@ const SettingsGroup = ({
 export function MobileProfileView() {
   const router = useRouter();
   const { logout, accessToken, refreshToken } = useCustomerAuthStore();
+  useProfile();
 
   const handleLogout = async () => {
     try {
@@ -143,6 +137,16 @@ export function MobileProfileView() {
     <div className="flex flex-1 flex-col bg-surface-accent p-md pb-10">
       {/* Customer Card */}
       <CustomerCard />
+
+      {/* Personal Information */}
+      <div className="mt-6">
+        <PersonalInfoSection />
+      </div>
+
+      {/* Saved Addresses */}
+      <div className="mt-6">
+        <AddressSection />
+      </div>
 
       {/* Menu Groups */}
       <div className="mt-8 flex flex-col gap-8">

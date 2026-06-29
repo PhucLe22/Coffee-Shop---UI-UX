@@ -164,7 +164,7 @@ export default function InternalOrdersPage() {
                   key={order.id} 
                   className={cn(
                     "border shadow-sm rounded-md overflow-hidden flex flex-col h-full transition-all duration-300",
-                    order.status === "NEW" ? "bg-[#eae1d9] border-[#f0660a]/20" : "bg-[#fbf2ea] border-transparent",
+                    order.status === "NEW" ? "bg-surface-muted border-[#f0660a]/20" : "bg-surface-accent border-transparent",
                     isThisUpdating && "opacity-70 scale-[0.99]"
                   )}
                 >
@@ -198,7 +198,7 @@ export default function InternalOrdersPage() {
                       {order.note && (
                         <div className="flex items-start gap-sm bg-white/30 p-sm rounded-sm border border-black/5 italic">
                           <AlertCircle className="size-4 text-brand-primary shrink-0 mt-0.5" />
-                          <p className="text-[12px] md:text-[13px] text-[#386661] leading-snug">"{order.note}"</p>
+                          <p className="text-[12px] md:text-[13px] text-text-secondary leading-snug">"{order.note}"</p>
                         </div>
                       )}
                     </div>

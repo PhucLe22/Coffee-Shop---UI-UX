@@ -5,13 +5,17 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
     LOGOUT: '/auth/logout',
     ME: '/auth/me',
+    PROFILE: '/auth/profile',
   },
   PRODUCTS: {
     BASE: '/products',
     INTERNAL: '/internal/products',
+    ADMIN: '/internal/admin/products',
+    ADMIN_BY_ID: (id: string) => `/internal/admin/products/${id}`,
     BY_SLUG: (slug: string) => `/products/${slug}`,
     BY_ID: (id: string) => `/products/id/${id}`,
     INTERNAL_BY_ID: (id: string) => `/internal/products/${id}`,
+    TOGGLE_ACTIVE: (id: string) => `/internal/products/${id}/toggle-active`,
     OPTION_GROUPS: (productId: string, optionGroupId: string) => `/internal/products/${productId}/option-groups/${optionGroupId}`,
   },
   CATEGORIES: {
@@ -19,6 +23,7 @@ export const API_ENDPOINTS = {
   },
   ORDERS: {
     BASE: "/orders",
+    ACTIVITIES: (id: string) => `/orders/${id}/activities`,
     INTERNAL: "/internal/orders",
     BY_ID: (id: string) => `/orders/${id}`,
     BY_CODE: (code: string) => `/orders/code/${code}`,
@@ -35,6 +40,7 @@ export const API_ENDPOINTS = {
   },
   DELIVERY: {
     SCHEDULE: '/internal/kitchen/delivery-schedule',
+    SHIPPER_ROUTES: '/internal/admin/shipper-routes',
   },
   ADDRESSES: {
     BASE: '/addresses',

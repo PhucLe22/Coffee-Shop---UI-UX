@@ -1,7 +1,14 @@
+import { Order } from '@/entities/order';
 import { MapPin } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
 
-export function DesktopDestination() {
+interface DesktopDestinationProps {
+  order?: Order;
+}
+
+export function DesktopDestination({ order }: DesktopDestinationProps) {
+  const address = order?.address || (order?.customer as any)?.address || null;
+
   return (
     <Card className="bg-surface-accent border border-border-primary-50 shadow-none rounded-md">
       <CardHeader>
@@ -12,11 +19,8 @@ export function DesktopDestination() {
       <CardContent>
         <div className="flex flex-col gap-1 w-full ">
           <p className="text-h4-bold text-text-primary w-full">
-            4822 Birchwood Avenue, Apt 4C Seattle, WA 98101
+            {address || "No address available"}
           </p>
-          <span className="text-body-sm-semibold text-text-muted">
-            Gate Code: 1234 • Leave at Door
-          </span>
         </div>
       </CardContent>
     </Card>

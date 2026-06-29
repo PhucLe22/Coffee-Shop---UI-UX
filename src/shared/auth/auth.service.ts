@@ -1,4 +1,4 @@
-import { axiosInstance, API_ENDPOINTS, BaseResponse } from "@/shared/api";
+import { axiosInstance, API_ENDPOINTS, BaseResponse, ProfileOutput } from "@/shared/api";
 import { useAuthStore } from "@/shared/auth";
 
 export const AuthService = {
@@ -18,6 +18,12 @@ export const AuthService = {
   getMe: async (): Promise<BaseResponse<any>> => {
     const response = await axiosInstance.get<BaseResponse<any>>(
       API_ENDPOINTS.AUTH.ME
+    );
+    return response.data;
+  },
+  getProfile: async (): Promise<BaseResponse<ProfileOutput>> => {
+    const response = await axiosInstance.get<BaseResponse<ProfileOutput>>(
+      API_ENDPOINTS.AUTH.PROFILE
     );
     return response.data;
   },

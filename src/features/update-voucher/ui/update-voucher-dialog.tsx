@@ -48,8 +48,12 @@ export const UpdateVoucherDialog = ({ voucher, open, onOpenChange }: UpdateVouch
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-md border-0 p-xl">
+    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+      <DialogContent
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-md border-0 p-xl"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="mb-6 flex flex-row items-start justify-between">
           <div className="flex flex-col gap-1">
             <DialogTitle className="text-h3-bold text-text-primary text-left">

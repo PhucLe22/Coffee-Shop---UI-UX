@@ -270,7 +270,7 @@ export default function ProductDetailPage({
         </div>
         <button 
           onClick={handleAddToCart}
-          className="flex-1 bg-[#D15139] text-white rounded-full py-4 px-6 flex items-center justify-between shadow-lg shadow-orange-900/20 active:scale-[0.98] transition-all"
+          className="flex-1 bg-brand-primary text-white rounded-full py-4 px-6 flex items-center justify-between shadow-lg shadow-orange-900/20 active:scale-[0.98] transition-all"
         >
           <span className="font-bold">Add to cart</span>
           <span className="font-bold">{formatToVND(totalPrice)}</span>

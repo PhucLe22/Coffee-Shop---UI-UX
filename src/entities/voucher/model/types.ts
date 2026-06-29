@@ -9,6 +9,7 @@ export interface ApiResponse<T> {
   meta?: {
     totalItems: number;
     currentPage: number;
+    pageSize?: number;
     totalPages: number;
     hasNext: boolean;
   };

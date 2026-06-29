@@ -4,7 +4,7 @@ import { VoucherOutput, CreateVoucherBody, UpdateVoucherBody, ApiResponse, Pagin
 export const VoucherService = {
   getVouchers: async (query?: GetVouchersQuery): Promise<PaginatedResponse<VoucherOutput>> => {
     const response = await axiosInstance.get(API_ENDPOINTS.VOUCHERS.INTERNAL, {
-      params: query,
+      params: { ...query, page: query?.page ?? 1, limit: query?.limit ?? 10 },
     });
     return response.data;
   },

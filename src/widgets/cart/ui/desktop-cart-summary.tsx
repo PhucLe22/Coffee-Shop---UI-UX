@@ -27,7 +27,7 @@ export function DesktopCartSummary({
   return (
     <aside
       className={cn(
-        "flex flex-col gap-xl rounded-md bg-[#ebe0d9] p-xl",
+        "flex flex-col gap-xl rounded-md bg-surface-muted p-xl",
         className,
       )}>
       <h3 className="text-[24px] font-bold font-plus-jakarta text-text-primary leading-[30.24px]">
@@ -85,7 +85,7 @@ export function DesktopCartSummary({
           <input
             type="text"
             placeholder="Nhập mã"
-            className="h-[49px] w-full rounded-[8px] bg-[#faf2eb] px-md text-[14px] font-normal font-inter text-text-primary outline-none border border-transparent focus:border-brand-primary/20"
+            className="h-[49px] w-full rounded-[8px] bg-surface-accent px-md text-[14px] font-normal font-inter text-text-primary outline-none border border-transparent focus:border-brand-primary/20"
           />
           <AppButton variant="secondary" onClick={() => onApplyPromo("")}>
             ÁP DỤNG

@@ -33,7 +33,7 @@ const NavItem = ({ icon: Icon, label, isActive, onClick }: NavItemProps) => (
 export function DesktopProfileSidebar() {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState("Thông tin cá nhân");
-  const { logout, accessToken, refreshToken } = useCustomerAuthStore();
+  const { user, logout, accessToken, refreshToken } = useCustomerAuthStore();
 
   const handleLogout = async () => {
     try {
@@ -62,22 +62,19 @@ export function DesktopProfileSidebar() {
       <div className="flex flex-col items-center gap-4 rounded-md bg-surface-inverse p-8 text-center text-inverse-text overflow-hidden relative">
         {/* Large Background Text Decoration */}
         <span className="absolute -bottom-4 -left-4 text-[60px] font-pacifico opacity-10 whitespace-nowrap pointer-events-none">
-          Verdant Amber
+          {user?.name ?? "Customer"}
         </span>
         
         <div className="flex flex-col gap-1 z-10">
-          <h2 className="text-h4-bold">Verdant Amber</h2>
-          <p className="text-body-sm-reg text-text-muted">verdant.amber@example.com</p>
+          <h2 className="text-h4-bold">{user?.name ?? "Customer"}</h2>
+          <p className="text-body-sm-reg text-text-muted">{user?.email ?? ""}</p>
         </div>
         
         {/* Points Display (Simplified from mobile version) */}
         <div className="mt-4 flex w-full flex-col gap-2 rounded-lg bg-white/5 p-4 z-10">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-inverse-text/60">COLLECTIVE POINTS</span>
-            <span className="text-lg font-bold text-brand-primary">2,450 pts</span>
-          </div>
-          <div className="h-1 w-full bg-white/10 rounded-full">
-            <div className="h-full bg-brand-primary rounded-full w-[78%]" />
+            <span className="text-lg font-bold text-brand-primary">{user?.points?.toLocaleString() ?? 0} pts</span>
           </div>
         </div>
       </div>

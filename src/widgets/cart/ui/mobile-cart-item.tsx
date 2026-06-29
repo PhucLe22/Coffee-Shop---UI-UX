@@ -18,12 +18,12 @@ export function MobileCartItem({
   return (
     <div
       className={cn(
-        "flex h-32 w-full gap-md rounded-2xl bg-surface-muted p-md shadow-sm",
+        "flex h-32 w-full gap-md rounded-md bg-surface-muted p-md shadow-sm",
         className
       )}
     >
       {/* Product Image */}
-      <div className="size-24 shrink-0 overflow-hidden rounded-xl bg-stone-200">
+      <div className="size-24 shrink-0 overflow-hidden rounded-md bg-stone-200">
         {item.imageUrl ? (
           <img
             src={item.imageUrl}

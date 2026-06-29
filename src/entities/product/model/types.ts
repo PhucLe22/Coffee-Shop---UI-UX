@@ -53,6 +53,7 @@ export interface Product {
 export interface GetProductsQuery {
   categoryId?: string;
   search?: string;
+  isActive?: boolean;
   limit?: number;
   page?: number;
 }

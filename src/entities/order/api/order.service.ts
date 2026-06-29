@@ -7,7 +7,7 @@ import {
   StaffCreateOrderBody,
   DeliveryScheduleOutput,
 } from '@/shared/api';
-import { Order, GetOrdersQuery } from '../model/types';
+import { Order, GetOrdersQuery, OrderActivity } from '../model/types';
 import { OrderResponse } from '../model/types';
 
 export const OrderService = {
@@ -73,6 +73,13 @@ export const OrderService = {
     return response.data;
   },
 
+  getOrderActivities: async (id: string): Promise<OrderActivity[]> => {
+    const response = await axiosInstance.get<BaseResponse<OrderActivity[]>>(
+      API_ENDPOINTS.ORDERS.ACTIVITIES(id)
+    );
+    return response.data.data;
+  },
+
   getDeliverySchedule: async (): Promise<BaseResponse<DeliveryScheduleOutput>> => {
     const response = await axiosInstance.get<BaseResponse<DeliveryScheduleOutput>>(
       API_ENDPOINTS.DELIVERY.SCHEDULE
@@ -83,7 +90,14 @@ export const OrderService = {
 
 export const fetchOrderById = async (code: string): Promise<Order> => {
   const response = await OrderService.getOrderByCode(code);
-  return response.data as Order;
+  const data = response.data as any;
+  if (data?.orderItems) {
+    data.orderItems = data.orderItems.map((item: any) => ({
+      ...item,
+      options: item.options?.map((opt: any) => opt.name || opt) || [],
+    }));
+  }
+  return data as Order;
 };
 
 export const createOrder = OrderService.createOrder;

@@ -22,7 +22,7 @@ export const DesktopProductCard = ({
 }: DesktopProductCardProps) => {
   return (
     <div className={cn("flex w-full flex-col gap-md", className)}>
-      <div className="relative aspect-[230/282] w-full overflow-hidden rounded-lg bg-surface-muted group">
+      <div className="relative w-full overflow-hidden rounded-lg bg-surface-muted group" style={{ aspectRatio: '230/282' }}>
         <Link href={`/products/${slug}`} className="block h-full w-full">
           {imageUrl && (
             <img

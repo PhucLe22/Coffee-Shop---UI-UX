@@ -4,27 +4,62 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { 
   Search, 
   RefreshCcw, 
-  SearchIcon,
   Loader2,
   Pencil,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  Trash2,
+  AlertTriangle
 } from "lucide-react";
 import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
+import { AppButton } from "@/shared/ui/app-button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { cn } from "@/shared/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/shared/ui/alert-dialog";
 import { CreateProductDialog } from "@/features/create-product";
 import { UpdateProductDialog } from "@/features/update-product/ui/update-product-dialog";
-import { useInfiniteProducts, Product } from "@/entities/product";
+import { useInfiniteProducts, Product, ProductService } from "@/entities/product";
 import { useCategories } from "@/entities/category";
 import { useIntersectionObserver } from "@/shared/lib/use-intersection-observer";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useStaffAuthStore } from "@/shared/auth";
+
+type StatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
 
 export default function InternalInventoryPage() {
+  const queryClient = useQueryClient();
+  const { user } = useStaffAuthStore();
+  const canDelete = user?.role?.toUpperCase() === "ADMIN";
   const [activeCategoryId, setActiveCategoryId] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const toggleMutation = useMutation({
+    mutationFn: (productId: string) => ProductService.toggleActive(productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products-infinite"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (productId: string) => ProductService.deleteAdminProduct(productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products-infinite"] });
+    },
+  });
 
   // Debounce search
   useEffect(() => {
@@ -46,6 +81,7 @@ export default function InternalInventoryPage() {
   } = useInfiniteProducts({
     categoryId: activeCategoryId === "ALL" ? undefined : activeCategoryId,
     search: debouncedSearch || undefined,
+    isActive: statusFilter === "ALL" ? undefined : statusFilter === "ACTIVE",
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -102,7 +138,6 @@ export default function InternalInventoryPage() {
         </div>
         <div className="flex items-center gap-md">
           <div className="relative w-full max-w-xs hidden md:block">
-            <SearchIcon className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-text-muted" />
             <Input 
               placeholder="Search inventory..." 
               className="pl-xl h-10 bg-white/50 border-border-primary-50 rounded-md focus:bg-white transition-colors"
@@ -120,6 +155,24 @@ export default function InternalInventoryPage() {
             <RefreshCcw className={cn("size-4 text-text-primary", isLoading && "animate-spin")} />
           </Button>
         </div>
+      </div>
+
+      {/* Status Filter */}
+      <div className="flex items-center gap-sm">
+        {(["ALL", "ACTIVE", "INACTIVE"] as const).map((status) => (
+          <Button
+            key={status}
+            onClick={() => setStatusFilter(status)}
+            className={cn(
+              "rounded-md h-8 px-lg text-[11px] font-extrabold tracking-widest transition-all",
+              statusFilter === status
+                ? "bg-brand-primary text-white shadow-md"
+                : "bg-surface-muted text-text-secondary hover:bg-surface-muted/80"
+            )}
+          >
+            {status === "ALL" ? "ALL" : status === "ACTIVE" ? "ACTIVE" : "INACTIVE"}
+          </Button>
+        ))}
       </div>
 
       {/* Category Chips */}
@@ -169,7 +222,7 @@ export default function InternalInventoryPage() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-md md:gap-lg">
                 {group.products.map((item) => (
-                  <InventoryCard key={item.id} item={item} onEdit={setEditingProduct} />
+                  <InventoryCard key={item.id} item={item} onEdit={setEditingProduct} onToggle={() => toggleMutation.mutate(item.id)} onDelete={() => deleteMutation.mutate(item.id)} isDeleting={deleteMutation.isPending} canDelete={canDelete} />
                 ))}
               </div>
             </div>
@@ -203,13 +256,11 @@ export default function InternalInventoryPage() {
   );
 }
 
-function InventoryCard({ item, onEdit }: { item: Product, onEdit: (product: Product) => void }) {
-  const [isAvailable, setIsAvailable] = useState(item.isActive);
-
+function InventoryCard({ item, onEdit, onToggle, onDelete, isDeleting, canDelete }: { item: Product, onEdit: (product: Product) => void, onToggle: () => void, onDelete: () => void, isDeleting: boolean, canDelete: boolean }) {
   return (
     <Card className={cn(
-      "bg-[#faf2eb] border-0 shadow-sm rounded-md overflow-hidden group transition-all duration-300",
-      !isAvailable ? "opacity-75 grayscale-[0.5]" : "hover:shadow-md"
+      "bg-surface-accent border-0 shadow-sm rounded-md overflow-hidden group transition-all duration-300",
+      !item.isActive ? "opacity-75 grayscale-[0.5]" : "hover:shadow-md"
     )}>
       <CardContent className="p-md flex items-center justify-between gap-md">
         <div 
@@ -240,17 +291,51 @@ function InventoryCard({ item, onEdit }: { item: Product, onEdit: (product: Prod
           </div>
         </div>
 
-        {/* Custom Toggle Switch using Lucide Icons */}
-        <button 
-          onClick={() => setIsAvailable(!isAvailable)}
-          className="text-text-muted hover:text-brand-primary transition-colors"
-        >
-          {isAvailable ? (
-            <ToggleRight className="size-8 text-brand-primary" />
-          ) : (
-            <ToggleLeft className="size-8" />
+        <div className="flex items-center gap-sm">
+          {canDelete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  className="text-text-muted hover:text-error transition-colors"
+                  title="Delete product"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="rounded-md border-0 overflow-y-auto max-h-[85vh]">
+                <AlertDialogHeader>
+                  <div className="flex items-center gap-3 text-red-500 mb-2">
+                    <AlertTriangle className="size-6 shrink-0" />
+                    <AlertDialogTitle className="text-h4-bold">Delete product?</AlertDialogTitle>
+                  </div>
+                  <AlertDialogDescription className="text-body-md-reg">
+                    This action cannot be undone. This will permanently delete <strong>{item.name}</strong> and remove its data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="mt-6">
+                  <AlertDialogCancel asChild>
+                    <AppButton variant="outline" size="sm">Cancel</AppButton>
+                  </AlertDialogCancel>
+                  <AlertDialogAction asChild onClick={onDelete}>
+                    <AppButton size="sm" isLoading={isDeleting} className="bg-red-500 text-white hover:bg-red-600">
+                      DELETE PRODUCT
+                    </AppButton>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
-        </button>
+          <button 
+            onClick={onToggle}
+            className="text-text-muted hover:text-brand-primary transition-colors"
+          >
+            {item.isActive ? (
+              <ToggleRight className="size-8 text-brand-primary" />
+            ) : (
+              <ToggleLeft className="size-8" />
+            )}
+          </button>
+        </div>
       </CardContent>
     </Card>
   );

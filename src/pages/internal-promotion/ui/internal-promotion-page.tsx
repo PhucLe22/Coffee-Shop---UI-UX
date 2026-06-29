@@ -1,23 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
-import { Search, Ticket, Calendar, Percent, DollarSign, Hash, Repeat } from "lucide-react";
-import { Input } from "@/shared/ui/input";
+import React, { useState, useEffect } from "react";
+import { Ticket, Calendar, Percent, DollarSign, Hash, Repeat } from "lucide-react";
 import { Badge } from "@/shared/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { useVouchers, VoucherOutput } from "@/entities/voucher";
+import { useInfiniteVouchers, VoucherOutput } from "@/entities/voucher";
 import { CreateVoucherDialog } from "@/features/create-voucher";
 import { UpdateVoucherDialog } from "@/features/update-voucher";
 
 export default function PromotionsPage() {
-  const [search, setSearch] = useState("");
   const [selectedVoucher, setSelectedVoucher] = useState<VoucherOutput | null>(null);
   const [updateOpen, setUpdateOpen] = useState(false);
 
-  const { data, isLoading } = useVouchers(search ? { search } : undefined);
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteVouchers({ limit: 10 });
 
-  const vouchers = data?.data ?? [];
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const vouchers = data?.pages?.flatMap((p) => p?.data ?? []).filter(Boolean) ?? [];
 
   const getDiscountLabel = (voucher: VoucherOutput) => {
     if (voucher.discountType === "PERCENT") return `${voucher.discountValue}%`;
@@ -44,15 +54,6 @@ export default function PromotionsPage() {
           <p className="text-[12px] md:text-body-sm-reg text-text-secondary">Create and manage discount vouchers</p>
         </div>
         <div className="flex items-center gap-sm md:gap-md">
-          <div className="relative flex-1 md:w-full md:max-w-xs">
-            <Search className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-text-muted" />
-            <Input
-              placeholder="Search by code..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-xl h-10 bg-white/50 border-border-primary-50 rounded-md focus:bg-white transition-colors"
-            />
-          </div>
           <CreateVoucherDialog />
         </div>
       </div>

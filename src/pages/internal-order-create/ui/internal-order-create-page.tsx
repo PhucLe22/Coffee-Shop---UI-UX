@@ -117,13 +117,13 @@ const OrderSummaryFooter = ({
   onPlaceOrder,
   isPending,
 }: OrderSummaryFooterProps) => (
-  <div className="p-lg flex flex-col gap-md bg-[#faf2eb] border-t border-border-primary-50/10">
+  <div className="p-lg flex flex-col gap-md bg-surface-accent border-t border-border-primary-50/10">
     <div className="flex flex-col gap-sm">
       <div className="flex justify-between text-body-sm-reg text-text-primary">
         <span>Subtotal</span>
         <span>{formatToVND(getSubtotal())}</span>
       </div>
-      <div className="flex justify-between text-body-sm-reg text-[#386661]">
+      <div className="flex justify-between text-body-sm-reg text-text-secondary">
         <span>Discount</span>
         <span>-{formatToVND(getDiscount())}</span>
       </div>
@@ -273,7 +273,7 @@ export default function InternalOrderCreatePage() {
       <div className="flex flex-col md:flex-row min-h-screen bg-surface-main relative">
         <div className="flex-1 flex flex-col min-w-0 bg-surface-main">
           <div className="flex-1 overflow-y-auto no-scrollbar p-md md:p-xl flex flex-col gap-lg">
-            <div className="flex flex-col gap-md p-md bg-[#faf2eb]/50 rounded-md border border-border-primary-50/10 shadow-sm">
+            <div className="flex flex-col gap-md p-md bg-surface-accent/50 rounded-md border border-border-primary-50/10 shadow-sm">
               <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Order Configuration</span>
               
               <div className="flex flex-col gap-sm">
@@ -453,7 +453,7 @@ export default function InternalOrderCreatePage() {
         {/* Sidebar Summary (Desktop) */}
         {!isMobile && (
           <aside className="w-[400px] xl:w-[450px] bg-surface-accent border-l border-border-primary-50/10 flex flex-col sticky top-0 h-screen shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
-            <div className="p-lg flex items-center justify-between border-b border-border-primary-50/10 bg-[#faf2eb]/50 backdrop-blur-md">
+            <div className="p-lg flex items-center justify-between border-b border-border-primary-50/10 bg-surface-accent/50 backdrop-blur-md">
               <h2 className="text-h4-bold text-text-primary">Order Summary</h2>
               <Button
                 variant="ghost"
@@ -478,7 +478,7 @@ export default function InternalOrderCreatePage() {
         {/* Mobile Sticky Footer & Cart Sheet */}
         {isMobile && items.length > 0 && (
           <>
-            <div className="fixed bottom-[87px] left-0 right-0 p-md bg-[#faf2eb] border-t border-border-primary-50/10 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] flex items-center justify-between z-[50] animate-in slide-in-from-bottom duration-300">
+            <div className="fixed bottom-[87px] left-0 right-0 p-md bg-surface-accent border-t border-border-primary-50/10 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] flex items-center justify-between z-[50] animate-in slide-in-from-bottom duration-300">
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
                   Total Amount
@@ -495,7 +495,7 @@ export default function InternalOrderCreatePage() {
                 </SheetTrigger>
                 <SheetContent
                   side="bottom"
-                  className="h-[80vh] rounded-t-[32px] p-0 flex flex-col bg-[#fff8f3] border-none shadow-2xl">
+                  className="h-[80vh] rounded-t-[32px] p-0 flex flex-col bg-surface-main border-none shadow-2xl">
                   <SheetHeader className="p-lg border-b border-border-primary-50/5">
                     <div className="flex items-center justify-between">
                       <SheetTitle className="text-h3-bold text-text-primary">

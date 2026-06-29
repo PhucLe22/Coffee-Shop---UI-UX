@@ -108,7 +108,7 @@ export function RegisterForm() {
         </div>
 
         <div className="flex items-start gap-sm">
-          <Checkbox id="joinRewards" {...register("joinRewards")} className="mt-1 border-text-primary/50 bg-[#ebe0d9] rounded-full" />
+          <Checkbox id="joinRewards" {...register("joinRewards")} className="mt-1 border-text-primary/50 bg-surface-muted rounded-full" />
           <Label htmlFor="joinRewards" className="normal-case font-medium text-[13px] text-text-muted leading-tight">
             Join the Roastery Rewards program to<br />earn beans on every purchase.
           </Label>

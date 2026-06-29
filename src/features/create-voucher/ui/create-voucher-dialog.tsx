@@ -17,14 +17,18 @@ export const CreateVoucherDialog = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal={false}>
       <DialogTrigger asChild>
         <AppButton className="h-10 px-md">
           <Plus className="mr-2 h-4 w-4" />
           New Voucher
         </AppButton>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-md border-0 p-xl">
+      <DialogContent
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-md border-0 p-xl"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="mb-6">
           <DialogTitle className="text-h3-bold text-text-primary text-left">
             Create New Voucher

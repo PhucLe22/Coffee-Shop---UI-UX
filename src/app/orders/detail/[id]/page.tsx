@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchOrderById } from '@/entities/order';
+import { fetchOrderById, useOrderActivities } from '@/entities/order';
 import { 
   OrderHero, 
   DesktopOrderHero 
@@ -38,6 +38,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
     queryFn: () => fetchOrderById(id),
   });
 
+  const { data: activities } = useOrderActivities(order?.id);
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-lg p-md">
@@ -72,14 +74,14 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
               
               <DesktopOrderDriverCard order={order} />
 
-              <DesktopOrderStatusTimeline order={order} />
+              <DesktopOrderStatusTimeline order={order} activities={activities} />
             </div>
 
             {/* Right Column: Arrival, Destination, and Summary */}
             <div className="col-span-5 flex flex-col gap-lg">
               <DesktopEstimatedArrival order={order} />
               
-              <DesktopDestination />
+              <DesktopDestination order={order} />
 
               <div className="sticky top-[120px]">
                 <DesktopOrderSummary order={order} />
@@ -109,7 +111,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
           </div>
         </div>
 
-        <OrderStatusTimeline order={order} />
+        <OrderStatusTimeline order={order} activities={activities} />
         
         <OrderItemsSummary order={order} />
       </section>

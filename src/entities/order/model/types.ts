@@ -41,12 +41,20 @@ export interface Order extends Omit<Partial<OrderOutput>, 'status'> {
   totalPrice?: number;
   items?: OrderItem[];
   estimatedArrival?: string;
-  estimatedArrivalText?: string;
   driver?: {
     name: string;
     avatarUrl?: string;
     phoneNumber?: string;
   };
+}
+
+export interface OrderActivity {
+  status: string;
+  label: string;
+  time: string | null;
+  isPast: boolean;
+  description?: string;
+  isEstimate?: boolean;
 }
 
 export interface OrderStep {

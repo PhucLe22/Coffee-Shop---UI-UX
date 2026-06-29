@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { AppButton } from "@/shared/ui";
+import { useCustomerAuthStore } from "@/shared/auth";
+import { useProfile } from "./use-profile";
 
 interface InfoItemProps {
   label: string;
@@ -20,20 +21,22 @@ const InfoItem = ({ label, value }: InfoItemProps) => (
 );
 
 export function PersonalInfoSection() {
+  const { user } = useCustomerAuthStore();
+  useProfile();
+
   return (
     <section className="rounded-md bg-surface-muted overflow-hidden">
-      <div className="flex items-center justify-between border-b border-black/5 bg-black/5 px-8 py-4">
+      <div className="flex items-center justify-between border-b border-black/5 bg-black/5 px-4 py-4 md:px-8">
         <h3 className="text-h5-bold text-text-primary">Personal Information</h3>
         <button className="text-body-sm-semibold text-text-primary hover:underline transition-all">
           Edit Profile
         </button>
       </div>
       
-      <div className="grid grid-cols-2 p-4">
-        <InfoItem label="Full Name" value="Verdant Amber" />
-        <InfoItem label="Email Address" value="verdant.amber@example.com" />
-        <InfoItem label="Phone Number" value="+1 (555) 0123-4567" />
-        <InfoItem label="Birthday" value="October 14, 1992" />
+      <div className="grid grid-cols-1 md:grid-cols-2 p-4">
+        <InfoItem label="Full Name" value={user?.name ?? ""} />
+        <InfoItem label="Email Address" value={user?.email ?? ""} />
+        <InfoItem label="Phone Number" value={user?.phone ?? ""} />
       </div>
     </section>
   );

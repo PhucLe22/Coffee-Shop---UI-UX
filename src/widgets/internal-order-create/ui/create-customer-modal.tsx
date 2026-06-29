@@ -53,7 +53,7 @@ export const CreateCustomerModal = ({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-[#fff8f3] border-none max-w-xl w-full">
+      <DialogContent className="bg-surface-main border-none max-w-xl w-full">
         <button
           type="button"
           onClick={onClose}
@@ -109,7 +109,7 @@ export const CreateCustomerModal = ({
             </div>
           </div>
 
-          <DialogFooter className="bg-[#faf2eb]/50 border-t border-border-primary-50/5 flex gap-md">
+          <DialogFooter className="bg-surface-accent/50 border-t border-border-primary-50/5 flex gap-md">
             <Button
               type="button"
               variant="ghost"

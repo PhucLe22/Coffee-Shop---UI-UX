@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { 
-  Search, 
   MapPin, 
   Store, 
   Plus, 
@@ -14,7 +13,6 @@ import {
   ChevronRight,
   Filter
 } from "lucide-react";
-import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
@@ -30,7 +28,7 @@ const LOCATIONS_DATA = [
     manager: "Marcus Thorne",
     managerImg: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
     status: "Operational",
-    statusColor: "bg-green-100 text-[#386661]",
+    statusColor: "bg-green-100 text-text-secondary",
     capacity: "85%",
     performance: "+12%"
   },
@@ -41,7 +39,7 @@ const LOCATIONS_DATA = [
     manager: "Elena Rodriguez",
     managerImg: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
     status: "Operational",
-    statusColor: "bg-green-100 text-[#386661]",
+    statusColor: "bg-green-100 text-text-secondary",
     capacity: "42%",
     performance: "+5%"
   },
@@ -59,8 +57,6 @@ const LOCATIONS_DATA = [
 ];
 
 export default function InternalLocationsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-
   return (
     <div className="flex flex-col p-md md:p-lg gap-lg animate-in fade-in duration-500 max-w-[1200px] mx-auto">
       {/* Header */}
@@ -70,15 +66,6 @@ export default function InternalLocationsPage() {
           <p className="text-body-sm-reg text-text-secondary">Manage your regional collective branches.</p>
         </div>
         <div className="flex items-center gap-md">
-          <div className="relative w-full max-w-xs hidden md:block">
-            <Search className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-text-muted" />
-            <Input 
-              placeholder="Search locations..." 
-              className="pl-xl h-10 bg-white/50 border-border-primary-50 rounded-md focus:bg-white transition-colors"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
           <Button className="bg-brand-primary hover:bg-brand-accent text-white rounded-md h-10 gap-xs shadow-sm whitespace-nowrap">
             <Plus className="size-4" />
             <span className="label-button-md text-sm">Add New Store</span>
@@ -186,13 +173,13 @@ export default function InternalLocationsPage() {
 
         {/* Side Panel: System Stats - 1 Column */}
         <div className="lg:col-span-1 flex flex-col gap-lg">
-          <Card className="bg-[#330f00] border-0 shadow-md rounded-md overflow-hidden relative group">
+          <Card className="bg-text-primary border-0 shadow-md rounded-md overflow-hidden relative group">
             <CardContent className="p-xl flex flex-col gap-lg">
               <div className="flex flex-col gap-xs">
-                <span className="text-[10px] font-bold text-[#fbf2ea]/50 uppercase tracking-[0.2em]">Operational Health</span>
-                <h4 className="text-display-md text-[#fbf2ea] leading-none">98.4%</h4>
+                <span className="text-[10px] font-bold text-surface-accent/50 uppercase tracking-[0.2em]">Operational Health</span>
+                <h4 className="text-display-md text-surface-accent leading-none">98.4%</h4>
               </div>
-              <p className="text-[12px] text-[#fbf2ea]/80 leading-relaxed">
+              <p className="text-[12px] text-surface-accent/80 leading-relaxed">
                 All regions are reporting optimal server and POS performance. No active critical maintenance alerts.
               </p>
               <Button className="bg-brand-primary hover:bg-brand-accent text-white rounded-md h-11 w-full font-bold shadow-sm transition-transform active:scale-95">

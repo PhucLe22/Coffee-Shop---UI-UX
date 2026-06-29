@@ -4,7 +4,7 @@ import Link from "next/link";
 
 interface ProductCardProps {
   name: string;
-  size: string;
+  size?: string;
   price: number;
   slug: string;
   imageUrl?: string;
@@ -21,8 +21,7 @@ export const ProductCard = ({
 }: ProductCardProps) => {
   return (
     <div className={cn("flex w-full flex-col gap-sm", className)}>
-      {/* Product Image & Add Button */}
-      <div className="relative aspect-[160/220] w-full overflow-hidden rounded-md bg-surface-accent">
+      <div className="relative w-full overflow-hidden rounded-md bg-surface-accent" style={{ aspectRatio: '160/220' }}>
         <Link href={`/products/${slug}`} className="block h-full w-full">
           {imageUrl && (
             <img
@@ -41,14 +40,13 @@ export const ProductCard = ({
         </Link>
       </div>
 
-      {/* Product Info */}
       <Link href={`/products/${slug}`} className="flex flex-col">
         <h4 className="text-h4-bold line-clamp-2 h-14 w-full text-text-primary">
           {name}
         </h4>
         <div className="flex items-center justify-between text-body-md-bold">
-          <span className="text-text-secondary">{size}</span>
-          <span className="text-brand-primary">{formatToVND(price)}</span>
+          {size && <span className="text-text-secondary">{size}</span>}
+          <span className="text-brand-primary ml-auto">{formatToVND(price)}</span>
         </div>
       </Link>
     </div>

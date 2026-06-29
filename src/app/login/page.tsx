@@ -28,7 +28,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen w-full flex-col lg:flex-row">
 ...
-      <div className="relative flex h-[350px] w-full flex-col justify-end px-md pb-xl pt-2xl lg:h-auto lg:w-1/2 lg:justify-center lg:px-2xl lg:py-0 bg-[#330f00]">
+      <div className="relative flex h-[350px] w-full flex-col justify-end px-md pb-xl pt-2xl lg:h-auto lg:w-1/2 lg:justify-center lg:px-2xl lg:py-0 bg-text-primary">
         <Link 
           href="/" 
           className="absolute left-md top-md z-20 flex items-center gap-xs text-body-sm-semibold text-inverse-text opacity-70 hover:opacity-100 transition-opacity lg:left-2xl lg:top-xl"
@@ -44,12 +44,12 @@ export default function LoginPage() {
             className="object-cover opacity-60"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#330f00] via-[#330f00]/40 to-transparent lg:bg-gradient-to-r lg:from-[#330f00] lg:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-text-primary via-text-primary/40 to-transparent lg:bg-gradient-to-r lg:from-text-primary lg:to-transparent" />
         </div>
         
         <div className="relative z-10 flex flex-col gap-lg lg:max-w-[480px]">
           <div className="flex items-center gap-md">
-            <div className="h-[38px] w-[38px] rounded-full bg-[#330f00] border border-border-primary-50" />
+            <div className="h-[38px] w-[38px] rounded-full bg-text-primary border border-border-primary-50" />
             <span className="font-plus-jakarta text-h3-bold text-inverse-text tracking-tight">
               AMBER ROAST
             </span>

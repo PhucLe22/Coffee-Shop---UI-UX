@@ -163,7 +163,7 @@ export default function CartPage() {
   const AddressSelectionSection = () => (
     <div className={cn(
       "p-xl rounded-md flex flex-col gap-md",
-      !isMobile ? "bg-[#ebe0d9]" : "bg-surface-muted"
+      !isMobile ? "bg-surface-muted" : "bg-surface-muted"
     )}>
       <div className="flex items-center justify-between">
         <h3 className={cn(
@@ -199,7 +199,7 @@ export default function CartPage() {
           <div className="relative">
             <MapPin className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-brand-primary" />
             <select 
-              className="h-14 w-full rounded-md bg-[#faf2eb] pl-11 pr-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none appearance-none"
+              className="h-14 w-full rounded-md bg-surface-accent pl-11 pr-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none appearance-none"
               onChange={(e) => handleSelectSavedInfo(e.target.value)}
               value={addresses.find(a => a.addressLine === deliveryInfo.addressLine)?.id || ""}
             >
@@ -220,7 +220,7 @@ export default function CartPage() {
                 placeholder="Nhập địa chỉ của bạn..."
                 value={deliveryInfo.addressLine}
                 onChange={(e) => setDeliveryInfo({ ...deliveryInfo, addressLine: e.target.value })}
-                className="h-14 pl-11 bg-[#faf2eb] border-none"
+                className="h-14 pl-11 bg-surface-accent border-none"
               />
            </div>
            {!user && (
@@ -240,20 +240,20 @@ export default function CartPage() {
       />
       
       {!isMobile ? (
-        <main className="min-h-screen bg-[#faf2eb] pb-3xl">
+        <main className="min-h-screen bg-surface-accent pb-3xl">
           <div className="container mx-auto px-2xl py-xl">
             <div className="grid grid-cols-12 gap-xl">
               <div className="col-span-8 flex flex-col gap-lg">
                 <AddressSelectionSection />
 
                 <div className={cn(
-                  "p-xl rounded-md flex flex-col gap-lg bg-[#ebe0d9]"
+                  "p-xl rounded-md flex flex-col gap-lg bg-surface-muted"
                 )}>
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold font-plus-jakarta text-[20px]">
                       Hình thức đơn hàng
                     </h3>
-                    <div className="flex bg-[#faf2eb] p-1 rounded-full border border-black/5">
+                    <div className="flex bg-surface-accent p-1 rounded-full border border-black/5">
                       <button
                         onClick={() => setOrderType(OrderType.DELIVERY)}
                         className={cn(
@@ -291,7 +291,7 @@ export default function CartPage() {
                             receiverName: e.target.value,
                           })
                         }
-                        className="h-12 bg-[#faf2eb] border-none"
+                        className="h-12 bg-surface-accent border-none"
                       />
                     </div>
                     <div className="flex flex-col gap-sm">
@@ -305,7 +305,7 @@ export default function CartPage() {
                             receiverPhone: e.target.value,
                           })
                         }
-                        className="h-12 bg-[#faf2eb] border-none"
+                        className="h-12 bg-surface-accent border-none"
                       />
                     </div>
                   </div>
@@ -321,7 +321,7 @@ export default function CartPage() {
                     />
                   ))}
                   {items.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-3xl bg-[#ebe0d9] rounded-md border border-dashed border-text-muted/30">
+                    <div className="flex flex-col items-center justify-center py-3xl bg-surface-muted rounded-md border border-dashed border-text-muted/30">
                       <p className="text-h3-bold text-text-muted">Giỏ hàng của bạn đang trống</p>
                     </div>
                   )}
@@ -358,7 +358,7 @@ export default function CartPage() {
               <h3 className="font-bold font-plus-jakarta text-body-lg-bold">
                 Hình thức nhận
               </h3>
-              <div className="flex bg-[#faf2eb] p-1 rounded-full border border-black/5">
+              <div className="flex bg-surface-accent p-1 rounded-full border border-black/5">
                 <button
                   onClick={() => setOrderType(OrderType.DELIVERY)}
                   className={cn(
@@ -396,7 +396,7 @@ export default function CartPage() {
                       receiverName: e.target.value,
                     })
                   }
-                  className="h-12 bg-[#faf2eb] border-none"
+                  className="h-12 bg-surface-accent border-none"
                 />
               </div>
               <div className="flex flex-col gap-sm">
@@ -410,7 +410,7 @@ export default function CartPage() {
                       receiverPhone: e.target.value,
                     })
                   }
-                  className="h-12 bg-[#faf2eb] border-none"
+                  className="h-12 bg-surface-accent border-none"
                 />
               </div>
             </div>
@@ -426,7 +426,7 @@ export default function CartPage() {
             ))}
             
             {items.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 bg-surface-muted rounded-2xl border border-dashed border-text-muted/30">
+              <div className="flex flex-col items-center justify-center py-20 bg-surface-muted rounded-md border border-dashed border-text-muted/30">
                 <p className="text-body-md-bold text-text-muted text-center px-4">
                   Chưa có món nào trong giỏ hàng<br />của bạn
                 </p>

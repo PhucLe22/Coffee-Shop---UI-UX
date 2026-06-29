@@ -6,6 +6,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/shared/ui/card";
+import { formatToVND } from "@/shared/lib";
 
 interface DesktopOrderSummaryProps {
   order: Order;
@@ -46,7 +47,7 @@ export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
               </div>
             </div>
             <span className="text-h5-bold text-text-primary">
-              ${item.price.toFixed(2)}
+              {formatToVND(item.price)}
             </span>
           </div>
         ))}
@@ -55,18 +56,18 @@ export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
       <div className="p-xl flex flex-col gap-md">
         <div className="flex justify-between items-center text-body-md-bold text-text-muted">
           <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>{formatToVND(subtotal)}</span>
         </div>
         <div className="flex justify-between items-center text-body-md-bold text-text-muted">
           <span>Delivery Fee</span>
-          <span>${deliveryFee.toFixed(2)}</span>
+          <span>{formatToVND(deliveryFee)}</span>
         </div>
       </div>
 
       <CardFooter className="p-xl flex justify-between items-center">
         <span className="text-h3-bold text-text-primary">Total</span>
         <span className="text-h3-bold text-brand-primary">
-          ${total.toFixed(2)}
+          {formatToVND(total)}
         </span>
       </CardFooter>
     </Card>

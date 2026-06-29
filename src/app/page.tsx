@@ -1,21 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { AppButton } from "@/shared/ui";
-import { ProductCard } from "@/entities/product";
 import { useIsMobile } from "@/shared/lib";
 
 import { HomeHero } from "@/widgets/home-hero";
 import { HomeRituals } from "@/widgets/home-rituals";
 import { HomePopularChoices } from "@/widgets/home-popular-choices";
-import { useStoreStore } from "@/entities/store";
 import { AIChatButton } from "@/widgets/ai-chat-button";
-import Link from "next/link";
 
 export default function HomePage() {
   const isMobile = useIsMobile();
-  const { selectedStore } = useStoreStore();
   const [mounted, setMounted] = useState(false);
 
 
@@ -37,20 +33,8 @@ export default function HomePage() {
         </div>
       ) : (
         <main className="flex flex-col gap-xl px-md py-md">
-        {/* Branch Selector & Search */}
+        {/* Search */}
         <section className="flex flex-col gap-lg">
-          <div className="flex flex-col gap-1">
-            <span className="text-body-sm-semibold text-text-secondary">
-              Hiện đang phục vụ tại
-            </span>
-            <Link href="/locations" className="flex items-center justify-between w-full">
-              <h2 className="text-display-md text-text-primary leading-tight">
-                {selectedStore?.name || "Chọn cửa hàng"}
-              </h2>
-              <ChevronDown className="size-6 text-text-primary shrink-0" />
-            </Link>
-          </div>
-
           <div className="relative">
             <Search className="absolute top-1/2 left-lg size-6 -translate-y-1/2 text-text-muted/50" />
             <input
@@ -101,53 +85,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Popular Choices */}
-        <section className="flex flex-col gap-lg pb-xl">
-          <div className="flex items-end justify-between gap-md">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-h1-bold text-text-secondary leading-tight">
-                Popular<br />Choices
-              </h2>
-              <p className="text-body-md-reg text-text-muted">
-                Hand-picked favorites by our local baristas.
-              </p>
-            </div>
-            <button className="flex h-14 shrink-0 items-center justify-center border-b border-brand-primary px-xs text-center text-body-md-bold text-text-primary leading-tight">
-              View full<br />menu
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-md gap-y-xl">
-            <ProductCard
-              name="Cold Brew Nitro"
-              size="350ml"
-              price={55000}
-              slug="cold-brew-nitro"
-              imageUrl="https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=1974&auto=format&fit=crop"
-            />
-            <ProductCard
-              name="Double Espresso"
-              size="350ml"
-              price={55000}
-              slug="double-espresso"
-              imageUrl="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=1970&auto=format&fit=crop"
-            />
-            <ProductCard
-              name="Caramel Macchiato"
-              size="350ml"
-              price={55000}
-              slug="caramel-macchiato"
-              imageUrl="https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=1974&auto=format&fit=crop"
-            />
-            <ProductCard
-              name="Oatmilk Latte"
-              size="350ml"
-              price={55000}
-              slug="oatmilk-latte"
-              imageUrl="https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=1974&auto=format&fit=crop"
-            />
-          </div>
-        </section>
+        <HomePopularChoices />
       </main>
       )}
       <AIChatButton />

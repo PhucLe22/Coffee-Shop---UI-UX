@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-[#fff8f3] py-2xl px-md lg:py-3xl">
+    <div className="flex min-h-screen w-full flex-col items-center bg-surface-main py-2xl px-md lg:py-3xl">
       <Link 
         href="/" 
         className="absolute left-md top-md flex items-center gap-xs text-body-sm-semibold text-text-secondary opacity-70 hover:opacity-100 transition-opacity"
@@ -34,7 +34,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Main Sign Up Card */}
-      <div className="w-full max-w-[420px] overflow-hidden rounded-[32px] border border-text-primary/10 bg-[#faf2eb] shadow-xl">
+      <div className="w-full max-w-[420px] overflow-hidden rounded-[32px] border border-text-primary/10 bg-surface-accent shadow-xl">
         {/* Visual Accent Header */}
         <div className="relative h-[128px] w-full">
           <Image
@@ -43,7 +43,7 @@ export default function RegisterPage() {
             fill
             className="object-cover opacity-80"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#330f00] via-[#330f00]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-text-primary via-text-primary/40 to-transparent" />
         </div>
 
         {/* Form Content */}

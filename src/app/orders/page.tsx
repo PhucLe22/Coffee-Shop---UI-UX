@@ -27,7 +27,12 @@ export default function OrdersPage() {
     limit: 10,
   });
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
 
   const {
     data: ordersResponse,
@@ -70,12 +75,12 @@ export default function OrdersPage() {
   const FilterSection = () => (
     <div
       className={cn(
-        "flex flex-col gap-md p-lg rounded-2xl border transition-all duration-300",
+        "flex flex-col gap-md p-lg rounded-md border transition-all duration-300",
         isFilterOpen
           ? "max-h-[500px] opacity-100 mb-lg"
           : "max-h-0 opacity-0 overflow-hidden mb-0",
         !isMobile
-          ? "bg-[#ebe0d9]/50 border-text-primary/10"
+          ? "bg-surface-muted/50 border-text-primary/10"
           : "bg-surface-muted border-border-primary-50",
       )}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
@@ -85,7 +90,7 @@ export default function OrdersPage() {
             TRẠNG THÁI
           </Label>
           <select
-            className="h-10 w-full rounded-lg bg-[#faf2eb] px-md text-sm border-none focus:ring-1 focus:ring-brand-primary"
+            className="h-10 w-full rounded-lg bg-surface-accent px-md text-sm border-none focus:ring-1 focus:ring-brand-primary"
             value={filters.status || ""}
             onChange={(e) =>
               handleFilterChange("status", e.target.value || undefined)
@@ -107,14 +112,14 @@ export default function OrdersPage() {
           <div className="flex items-center gap-xs">
             <Input
               type="date"
-              className="h-10 text-xs bg-[#faf2eb]"
+              className="h-10 text-xs bg-surface-accent"
               value={filters.startDate}
               onChange={(e) => handleFilterChange("startDate", e.target.value)}
             />
             <span className="text-text-muted">-</span>
             <Input
               type="date"
-              className="h-10 text-xs bg-[#faf2eb]"
+              className="h-10 text-xs bg-surface-accent"
               value={filters.endDate}
               onChange={(e) => handleFilterChange("endDate", e.target.value)}
             />
@@ -130,7 +135,7 @@ export default function OrdersPage() {
             <Input
               type="number"
               placeholder="Từ"
-              className="h-10 text-xs bg-[#faf2eb]"
+              className="h-10 text-xs bg-surface-accent"
               value={filters.minTotal || ""}
               onChange={(e) =>
                 handleFilterChange(
@@ -143,7 +148,7 @@ export default function OrdersPage() {
             <Input
               type="number"
               placeholder="Đến"
-              className="h-10 text-xs bg-[#faf2eb]"
+              className="h-10 text-xs bg-surface-accent"
               value={filters.maxTotal || ""}
               onChange={(e) =>
                 handleFilterChange(
@@ -273,13 +278,13 @@ export default function OrdersPage() {
                 <button
                   disabled={filters.page === 1}
                   onClick={() => handleFilterChange("page", filters.page - 1)}
-                  className="flex size-10 items-center justify-center rounded-xl bg-[#ebe0d9] border border-text-primary/10 text-text-muted hover:text-brand-primary disabled:opacity-50 transition-all active:scale-95">
+                  className="flex size-10 items-center justify-center rounded-xl bg-surface-muted border border-text-primary/10 text-text-muted hover:text-brand-primary disabled:opacity-50 transition-all active:scale-95">
                   <ChevronLeft className="size-5" />
                 </button>
                 <button
                   disabled={!meta?.hasNext}
                   onClick={() => handleFilterChange("page", filters.page + 1)}
-                  className="flex size-10 items-center justify-center rounded-xl bg-[#ebe0d9] border border-text-primary/10 text-text-muted hover:text-brand-primary disabled:opacity-50 transition-all active:scale-95">
+                  className="flex size-10 items-center justify-center rounded-xl bg-surface-muted border border-text-primary/10 text-text-muted hover:text-brand-primary disabled:opacity-50 transition-all active:scale-95">
                   <ChevronLeft className="size-5 rotate-180" />
                 </button>
               </div>
@@ -290,7 +295,7 @@ export default function OrdersPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-32 w-full animate-pulse rounded-2xl bg-[#ebe0d9]/50"
+                    className="h-32 w-full animate-pulse rounded-2xl bg-surface-muted/50"
                   />
                 ))}
               </div>

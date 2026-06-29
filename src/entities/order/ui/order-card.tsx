@@ -6,6 +6,7 @@ import { RotateCcw, ChevronRight } from "lucide-react";
 interface OrderCardProps {
   order: Order;
   onAction?: (order: Order) => void;
+  onClick?: (order: Order) => void;
   className?: string;
 }
 
@@ -19,7 +20,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
   REFUNDED: { label: "REFUNDED", className: "bg-error" },
 };
 
-const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
+const OrderCard = ({ order, onAction, onClick, className }: OrderCardProps) => {
   const status = statusConfig[order.status] || statusConfig.NEW;
   const isCompleted =
     order.status === "COMPLETED" || order.status === "CANCELLED";
@@ -32,8 +33,10 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
     <div
       className={cn(
         "flex flex-col gap-lg rounded-[32px] border border-border-primary-50 bg-surface-main p-6 shadow-sm",
+        onClick && "cursor-pointer",
         className,
-      )}>
+      )}
+      onClick={() => onClick?.(order)}>
       {/* Header: ID, Date, Status */}
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-1">
@@ -59,9 +62,9 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
           {items.length > 0 ? (
             items.slice(0, 2).map((item: any, index: number) => (
               <div
-                key={item.id}
+                key={item.id || `${item.name}-${index}`}
                 className={cn(
-                  "relative size-12 overflow-hidden rounded-2xl border-2 border-surface-main bg-stone-200 shadow-sm",
+                  "relative size-12 overflow-hidden rounded-md border-2 border-surface-main bg-stone-200 shadow-sm",
                   index > 0 && "-ml-6",
                 )}
                 style={{ zIndex: 2 - index }}>
@@ -71,7 +74,7 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
               </div>
             ))
           ) : (
-            <div className="relative size-12 overflow-hidden rounded-2xl border-2 border-surface-main bg-stone-200 shadow-sm">
+            <div className="relative size-12 overflow-hidden rounded-md border-2 border-surface-main bg-stone-200 shadow-sm">
               <div className="flex h-full w-full items-center justify-center bg-brand-primary/10 text-brand-primary font-bold">
                 O
               </div>
@@ -105,11 +108,14 @@ const OrderCard = ({ order, onAction, className }: OrderCardProps) => {
           variant="secondary"
           size="sm"
           className="rounded-xl px-4 py-2 font-bold"
-          onClick={() => onAction?.(order)}>
+          onClick={(e) => {
+            e.stopPropagation();
+            onAction?.(order);
+          }}>
           {isCompleted ? (
             <div className="flex items-center gap-2">
               <RotateCcw className="size-4" />
-              <span>{isCompleted ? "Buy again" : "Detail"}</span>
+              <span>Mua lại</span>
             </div>
           ) : (
             <div className="flex items-center gap-2">

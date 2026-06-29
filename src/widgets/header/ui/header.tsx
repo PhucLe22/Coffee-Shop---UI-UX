@@ -25,7 +25,7 @@ export function Header() {
     : 0;
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-surface-muted px-2xl h-[102px] flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-surface-muted px-2xl h-[102px] flex items-center justify-between">
       <div className="flex items-center">
         <Link href="/" className="text-brand-desktop text-text-primary">
           VERDANT

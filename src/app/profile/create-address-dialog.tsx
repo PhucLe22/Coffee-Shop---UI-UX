@@ -72,15 +72,15 @@ export function CreateAddressDialog({ onCreated, trigger }: CreateAddressDialogP
           </button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-surface-main p-xl rounded-md border-none">
+      <DialogContent className="sm:max-w-[425px] bg-surface-main rounded-md border-none">
         <DialogHeader>
-          <DialogTitle className="text-body-md-bold text-text-primary uppercase tracking-[0.2em] mb-4">
+          <DialogTitle className="text-body-md-bold text-text-primary uppercase tracking-[0.2em]">
             Add New Address
           </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-lg py-4">
+          className="flex flex-col gap-lg px-lg py-4">
           <div className="flex flex-col gap-xs">
             <Label
               htmlFor="receiverName"
@@ -190,18 +190,18 @@ export function CreateAddressDialog({ onCreated, trigger }: CreateAddressDialogP
             </Label>
           </div>
 
-          <DialogFooter className="flex flex-row gap-md sm:gap-md pt-6">
+          <DialogFooter>
             <AppButton
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="flex-1 rounded-full border-text-muted/20 text-text-secondary hover:bg-surface-accent h-[54px]">
+              className="w-full rounded-full border-text-muted/20 text-text-secondary hover:bg-surface-accent h-[54px]">
               CANCEL
             </AppButton>
             <AppButton
               type="submit"
               isLoading={isPending}
-              className="flex-1 rounded-full text-inverse-text px-8 h-[54px]">
+              className="w-full rounded-full text-inverse-text h-[54px]">
               SAVE ADDRESS
             </AppButton>
           </DialogFooter>

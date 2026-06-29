@@ -7,6 +7,7 @@ import {
   CardFooter,
 } from "@/shared/ui/card";
 import { Separator } from "@/shared/ui/separator";
+import { formatToVND } from "@/shared/lib";
 
 interface OrderItemsSummaryProps {
   order: Order;
@@ -44,7 +45,7 @@ export function OrderItemsSummary({ order }: OrderItemsSummaryProps) {
               </div>
             </div>
             <span className="text-body-sm-bold text-text-primary">
-              ${item.price.toFixed(2)}
+              {formatToVND(item.price)}
             </span>
           </div>
         ))}
@@ -53,7 +54,7 @@ export function OrderItemsSummary({ order }: OrderItemsSummaryProps) {
       <CardFooter className="p-md flex justify-between items-center">
         <span className="text-body-md-bold text-text-primary">Total</span>
         <span className="text-body-md-bold text-brand-primary">
-          ${total.toFixed(2)}
+          {formatToVND(total)}
         </span>
       </CardFooter>
     </Card>

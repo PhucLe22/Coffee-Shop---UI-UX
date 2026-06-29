@@ -50,7 +50,7 @@ const items = [
     title: "Delivery",
     url: "/internal/delivery",
     icon: Truck,
-    roles: ["ADMIN", "SHIPPER"],
+    roles: ["SHIPPER"],
   },
   {
     title: "Staff Management",
@@ -86,7 +86,7 @@ const items = [
     title: "Settings",
     url: "/internal/settings",
     icon: Settings,
-    roles: ["ADMIN", "MANAGER", "STAFF", "SHIPPER"],
+    roles: ["ADMIN", "MANAGER", "SHIPPER"],
   },
 ];
 

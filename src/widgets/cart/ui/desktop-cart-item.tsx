@@ -21,7 +21,7 @@ export function DesktopCartItem({
   return (
     <div
       className={cn(
-        "flex h-[240px] w-full gap-xl rounded-md bg-[#ebe0d9] p-xl border border-[#ebe0d9]",
+        "flex h-[240px] w-full gap-xl rounded-md bg-surface-muted p-xl border border-surface-muted",
         className
       )}
     >
@@ -69,7 +69,7 @@ export function DesktopCartItem({
         {/* Action Section */}
         <div className="flex items-center justify-between mt-auto">
           {/* Quantity Controls */}
-          <div className="flex h-[56px] w-[150.77px] items-center justify-between rounded-[128px] bg-[#faf2eb] px-xl border border-border-primary-50">
+          <div className="flex h-[56px] w-[150.77px] items-center justify-between rounded-[128px] bg-surface-accent px-xl border border-border-primary-50">
             <button
               onClick={() => onUpdateQuantity(item.id, -1)}
               className="flex size-4 items-center justify-center text-text-primary hover:text-brand-primary transition-colors"

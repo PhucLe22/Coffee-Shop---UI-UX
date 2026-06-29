@@ -4,6 +4,15 @@ interface OrderHeroProps {
   order: Order;
 }
 
+function formatEstimatedArrival(iso: string | undefined): string {
+  if (!iso) return "--:--";
+  try {
+    return new Date(iso).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "--:--";
+  }
+}
+
 export function OrderHero({ order }: OrderHeroProps) {
   const orderNumber = order.orderCode || order.id?.slice(0, 8).toUpperCase();
 
@@ -19,16 +28,12 @@ export function OrderHero({ order }: OrderHeroProps) {
             : 'Your order is being prepared.'}
         </h1>
       </div>
-...
       <div className="bg-surface-muted rounded-md p-md flex flex-col items-center justify-center gap-xs">
         <span className="text-overline-inter text-text-secondary uppercase font-bold">
           ESTIMATED ARRIVAL
         </span>
         <span className="text-display-lg text-brand-primary">
-          {order.estimatedArrival}
-        </span>
-        <span className="text-body-sm-semibold text-text-secondary">
-          {order.estimatedArrivalText}
+          {formatEstimatedArrival(order.estimatedArrival)}
         </span>
       </div>
     </section>

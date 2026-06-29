@@ -26,7 +26,7 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
   const orderNumber = order.orderCode || order.id?.slice(0, 8).toUpperCase();
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-text-primary/10 bg-[#ebe0d9] p-10 shadow-sm relative">
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-text-primary/10 bg-surface-muted p-10 shadow-sm relative">
       {/* Header */}
       <div className="mb-10 flex items-center justify-between">
         <div className="flex items-center gap-6">
@@ -62,8 +62,8 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
                 Đang tải chi tiết sản phẩm...
               </div>
             ) : displayItems.length > 0 ? (
-              displayItems.slice(0, 2).map((item: any) => (
-                <div key={item.id} className="flex items-start justify-between group">
+              displayItems.slice(0, 2).map((item: any, index: number) => (
+                <div key={item.id || `${item.name}-${index}`} className="flex items-start justify-between group">
                   <div className="flex flex-col gap-1.5">
                     <h3 className="text-[24px] font-bold font-plus-jakarta text-text-primary leading-tight">
                       {item.name}

@@ -5,6 +5,15 @@ interface DesktopEstimatedArrivalProps {
   order: Order;
 }
 
+function formatEstimatedArrival(iso: string | undefined): string {
+  if (!iso) return "--:--";
+  try {
+    return new Date(iso).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "--:--";
+  }
+}
+
 export function DesktopEstimatedArrival({ order }: DesktopEstimatedArrivalProps) {
   return (
     <Card className="bg-surface-accent border border-border-primary-50 shadow-none rounded-md">
@@ -13,10 +22,7 @@ export function DesktopEstimatedArrival({ order }: DesktopEstimatedArrivalProps)
           ESTIMATED ARRIVAL
         </span>
         <span className="text-display-lg text-brand-primary leading-none">
-          {order.estimatedArrival}
-        </span>
-        <span className="text-h5-bold text-text-secondary">
-          {order.estimatedArrivalText}
+          {formatEstimatedArrival(order.estimatedArrival)}
         </span>
       </CardContent>
     </Card>

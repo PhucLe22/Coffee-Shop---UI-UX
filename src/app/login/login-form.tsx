@@ -81,7 +81,7 @@ export function LoginForm() {
         </div>
 
         <div className="flex items-center gap-sm h-9">
-          <Checkbox id="keepLoggedIn" {...register("keepLoggedIn")} className="border-text-primary/50 bg-[#faf2eb] rounded-md" />
+          <Checkbox id="keepLoggedIn" {...register("keepLoggedIn")} className="border-text-primary/50 bg-surface-accent rounded-md" />
           <Label htmlFor="keepLoggedIn" className="normal-case font-medium text-body-sm-reg text-text-primary">
             Keep me logged in for 30 days
           </Label>
