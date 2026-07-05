@@ -38,7 +38,7 @@ export const DesktopProductCard = ({
             variant="primary"
             size="icon"
             className="size-14 shadow-lg"
-            aria-label="Add to cart"
+            aria-label="Thêm vào giỏ hàng"
           >
             <Plus className="size-8" />
           </AppButton>
@@ -47,14 +47,14 @@ export const DesktopProductCard = ({
 
       <div className="flex justify-between items-start">
         <Link href={`/products/${slug}`} className="flex flex-col gap-1">
-          <h4 className="text-h4-bold text-text-primary">
+          <h4 className="text-body-md-bold text-text-primary leading-tight">
             {name}
           </h4>
-          <span className="text-body-sm-reg text-text-secondary">
+          <span className="text-xs text-text-secondary line-clamp-2">
             {description}
           </span>
         </Link>
-        <span className="text-body-md-bold text-brand-primary pt-1">
+        <span className="text-body-sm-bold text-brand-primary pt-1 shrink-0">
           {price}
         </span>
       </div>

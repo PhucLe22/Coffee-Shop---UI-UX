@@ -134,7 +134,7 @@ export default function ProductDetailPage({
   if (isError || !product) {
     return (
       <div className="flex h-[50vh] items-center justify-center p-6 text-center text-text-secondary">
-        Product not found or failed to load.
+        Không tìm thấy sản phẩm hoặc tải thất bại.
       </div>
     );
   }
@@ -159,7 +159,7 @@ export default function ProductDetailPage({
           {product.isActive && (
             <div className="flex h-6 w-fit items-center rounded-full bg-orange-500 px-3">
               <span className="text-[10px] font-bold text-white uppercase">
-                AVAILABLE
+                CÓ SẴN
               </span>
             </div>
           )}
@@ -175,7 +175,7 @@ export default function ProductDetailPage({
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-lg font-bold text-text-secondary">
-              Category
+              Danh Mục
             </h2>
             <span className="text-sm text-text-secondary font-semibold">
               {product.category.name}
@@ -186,7 +186,7 @@ export default function ProductDetailPage({
               {formatToVND(product.basePrice)}
             </span>
             <span className="text-[10px] font-bold text-text-secondary uppercase">
-              BASE PRICE
+              GIÁ CƠ BẢN
             </span>
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function ProductDetailPage({
             <div className="flex w-full items-center justify-between">
               <h5 className="text-h5-bold">{group.name}</h5>
               <span className="text-label-badge text-text-secondary uppercase">
-                {group.isRequired ? "REQUIRED" : "OPTIONAL"}
+                {group.isRequired ? "BẮT BUỘC" : "TÙY CHỌN"}
               </span>
             </div>
 
@@ -272,7 +272,7 @@ export default function ProductDetailPage({
           onClick={handleAddToCart}
           className="flex-1 bg-brand-primary text-white rounded-full py-4 px-6 flex items-center justify-between shadow-lg shadow-orange-900/20 active:scale-[0.98] transition-all"
         >
-          <span className="font-bold">Add to cart</span>
+          <span className="font-bold">Thêm vào giỏ hàng</span>
           <span className="font-bold">{formatToVND(totalPrice)}</span>
         </button>
       </div>

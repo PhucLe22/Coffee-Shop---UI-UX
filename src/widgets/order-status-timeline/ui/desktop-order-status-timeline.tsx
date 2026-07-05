@@ -29,12 +29,7 @@ function buildSteps(order: Order, activities?: OrderActivity[]): OrderStep[] {
       isActive: !a.isPast && !a.isEstimate,
     }));
   }
-  return [
-    { status: 'placed', label: 'Order Placed', time: '10:15 AM • Your order has been acknowledged by the collective.', isCompleted: true, isActive: order.status === 'placed' },
-    { status: 'preparing', label: 'Preparing', time: '10:20 AM • Our artisans are meticulously crafting your ritual.', isCompleted: order.status === 'on_the_way' || order.status === 'delivered', isActive: order.status === 'preparing' },
-    { status: 'on_the_way', label: 'Out for delivery', time: '10:45 AM • Your courier is navigating the city to your doorstep.', isCompleted: order.status === 'delivered', isActive: order.status === 'on_the_way' },
-    { status: 'delivered', label: 'Delivered', time: 'Estimated 11:15 AM • The warmth has arrived.', isCompleted: false, isActive: order.status === 'delivered' },
-  ];
+  return [];
 }
 
 export function DesktopOrderStatusTimeline({ order, activities }: DesktopOrderStatusTimelineProps) {
@@ -44,7 +39,7 @@ export function DesktopOrderStatusTimeline({ order, activities }: DesktopOrderSt
     <Card className="bg-surface-accent border border-border-primary-50 shadow-none rounded-md">
       <CardHeader className="p-xl pb-md">
         <CardTitle className="text-h3-bold text-text-primary">
-          Order Status
+          Trạng Thái Đơn Hàng
         </CardTitle>
       </CardHeader>
       <CardContent className="p-xl pt-0">

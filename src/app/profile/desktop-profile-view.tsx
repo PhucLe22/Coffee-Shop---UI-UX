@@ -5,7 +5,6 @@ import { DesktopProfileSidebar } from "./desktop-profile-sidebar";
 import { PersonalInfoSection } from "./personal-info-section";
 import { AddressSection } from "./address-section";
 import { PaymentSection } from "./payment-section";
-import { NotificationSettingsSection } from "./notification-settings-section";
 import { useProfile } from "./use-profile";
 
 export function DesktopProfileView() {
@@ -27,8 +26,6 @@ export function DesktopProfileView() {
             <PaymentSection />
           </div>
 
-          {/* Bottom Section: Notification Settings */}
-          <NotificationSettingsSection />
         </div>
       </div>
     </div>

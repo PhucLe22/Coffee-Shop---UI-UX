@@ -1,5 +1,6 @@
 "use client";
 
+import { Toaster } from "sonner";
 import {
   environmentManager,
   QueryClient,
@@ -50,6 +51,14 @@ export default function QueryProvider({
     <QueryClientProvider client={queryClient}>
       {children}
       <ReactQueryDevtools initialIsOpen={false} />
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton
+        toastOptions={{
+          duration: 4000,
+        }}
+      />
     </QueryClientProvider>
   );
 }

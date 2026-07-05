@@ -129,7 +129,7 @@ export const InternalOrderOptionModal = ({
 
   return (
     <Dialog open={!!productSlug} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-surface-main w-full max-w-6xl h-full max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row p-0 border-none">
+      <DialogContent className="bg-surface-main w-full max-w-6xl h-full max-h-[90vh] rounded-md overflow-hidden shadow-2xl flex flex-col md:flex-row p-0 border-none">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 z-10 size-10 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-text-primary shadow-md transition-all active:scale-90"
@@ -167,7 +167,7 @@ export const InternalOrderOptionModal = ({
                 <div className="flex flex-col gap-sm">
                   <span className="text-[10px] font-bold text-brand-primary uppercase tracking-[0.2em]">{product?.category.name}</span>
                   <h2 className="text-h2-bold md:text-display-sm text-text-primary leading-tight">{product?.name}</h2>
-                  <p className="text-body-md-reg text-text-muted max-w-lg">{product?.description}</p>
+                  <p className="text-body-md-reg text-text-muted ">{product?.description}</p>
                 </div>
 
                 <div className="flex flex-col gap-xl mt-md">

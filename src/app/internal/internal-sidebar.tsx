@@ -5,14 +5,12 @@ import {
   LayoutDashboard,
   UsersRound,
   Store,
-  ChartNoAxesCombined,
   Megaphone,
   Boxes,
   LogOut,
   ChevronRight,
   Truck,
   ClipboardList,
-  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -35,58 +33,46 @@ import { useStaffAuthStore, AuthService } from "@/shared/auth";
 
 const items = [
   {
-    title: "Orders",
-    url: "/internal/orders",
-    icon: ClipboardList,
-    roles: ["ADMIN", "MANAGER", "STAFF", "KITCHEN", "CASHIER"],
-  },
-  {
-    title: "Dashboard",
+    title: "Tổng Quan",
     url: "/internal/dashboard",
     icon: LayoutDashboard,
     roles: ["ADMIN", "MANAGER"],
   },
   {
-    title: "Delivery",
+    title: "Đơn Hàng",
+    url: "/internal/orders",
+    icon: ClipboardList,
+    roles: ["MANAGER", "STAFF", "KITCHEN", "CASHIER"],
+  },
+  {
+    title: "Giao Hàng",
     url: "/internal/delivery",
     icon: Truck,
     roles: ["SHIPPER"],
   },
   {
-    title: "Staff Management",
+    title: "Quản Lý Nhân Viên",
     url: "/internal/staff",
     icon: UsersRound,
     roles: ["ADMIN", "MANAGER"],
   },
   {
-    title: "Store Locations",
+    title: "Cửa Hàng",
     url: "/internal/locations",
     icon: Store,
     roles: ["ADMIN", "MANAGER"],
   },
   {
-    title: "Analytics",
-    url: "/internal/analytics",
-    icon: ChartNoAxesCombined,
-    roles: ["ADMIN"],
-  },
-  {
-    title: "Inventory",
+    title: "Kho Hàng",
     url: "/internal/inventory",
     icon: Boxes,
     roles: ["ADMIN", "MANAGER", "STAFF"],
   },
   {
-    title: "Promotion",
+    title: "Khuyến Mãi",
     url: "/internal/promotion",
     icon: Megaphone,
     roles: ["ADMIN"],
-  },
-  {
-    title: "Settings",
-    url: "/internal/settings",
-    icon: Settings,
-    roles: ["ADMIN", "MANAGER", "SHIPPER"],
   },
 ];
 
@@ -119,7 +105,7 @@ export function InternalSidebar() {
       <SidebarHeader className="p-lg pt-xl">
         <div className="flex flex-col gap-xs">
           <h1 className="text-h4-bold text-text-primary">The Collective</h1>
-          <p className="text-body-sm-semibold text-text-primary opacity-80 font-inter">Admin Console</p>
+          <p className="text-body-sm-semibold text-text-primary opacity-80 font-inter">Bảng Điều Khiển</p>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-lg">
@@ -153,7 +139,7 @@ export function InternalSidebar() {
           >
             <Link href="/internal/orders/create">
               <ClipboardList className="size-6" />
-              <span className="label-button-md">Create New Order</span>
+              <span className="label-button-md">Tạo Đơn Mới</span>
             </Link>
           </Button>
         )}
@@ -166,7 +152,7 @@ export function InternalSidebar() {
             </Avatar>
             <div className="flex flex-col min-w-0">
               <span className="text-body-sm-semibold text-text-primary truncate">{user?.name}</span>
-              <span className="text-[10px] text-text-muted uppercase tracking-wider font-bold truncate">{user?.role || "Staff"}</span>
+              <span className="text-[10px] text-text-muted uppercase tracking-wider font-bold truncate">{user?.role || "Nhân Viên"}</span>
             </div>
           </div>
           <Button 

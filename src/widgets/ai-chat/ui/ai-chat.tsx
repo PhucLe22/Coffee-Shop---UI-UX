@@ -130,7 +130,7 @@ export function AIChat({ className, onClose }: AIChatProps) {
       onError: (error) => {
         addMessage({ 
           role: "assistant", 
-          content: "Sorry, I encountered an error. Please try again later." 
+          content: "Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau." 
         });
         console.error("AI Chat Error:", error);
       }
@@ -147,7 +147,7 @@ export function AIChat({ className, onClose }: AIChatProps) {
         <div className="flex flex-col">
           <h2 className="text-h3-bold text-text-primary leading-tight">Amber AI</h2>
           <span className="text-overline-inter text-text-secondary uppercase tracking-wider">
-            Your Master Roaster Companion
+            Trợ Lý Của Bạn
           </span>
         </div>
         {onClose && (
@@ -167,7 +167,7 @@ export function AIChat({ className, onClose }: AIChatProps) {
         {isPending && (
           <div className="flex items-center gap-sm text-text-muted">
             <Loader2 size={16} className="animate-spin" />
-            <span className="text-body-sm-reg italic">Amber is thinking...</span>
+            <span className="text-body-sm-reg italic">Amber đang suy nghĩ...</span>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -178,28 +178,28 @@ export function AIChat({ className, onClose }: AIChatProps) {
         <div className="flex gap-sm overflow-x-auto no-scrollbar pb-1">
           <QuickActionButton 
             icon={<Tag size={16} />} 
-            label="Special Offers" 
+            label="Khuyến Mãi" 
             onClick={() => handleSend("Show me special offers")}
           />
           <QuickActionButton 
             icon={<PackageSearch size={16} />} 
-            label="Order Status" 
+            label="Trạng Thái Đơn" 
             onClick={() => handleSend("Check my order status")}
           />
           <QuickActionButton 
             icon={<Info size={16} />} 
-            label="Business Info" 
+            label="Thông Tin Cửa Hàng" 
             onClick={() => handleSend("Tell me about Verdant Roastery")}
           />
           <QuickActionButton 
             icon={<ShoppingCart size={16} />} 
-            label="Share Cart" 
+            label="Chia Sẻ Giỏ Hàng" 
             onClick={() => {
               const items = useCartStore.getState().items;
               const cartJson = JSON.stringify(items);
               
               // 1. Add user-friendly message to UI
-              const userMessageText = "What are in my cart?";
+              const userMessageText = "Có gì trong giỏ hàng của tôi?";
               addMessage({ role: "user" as const, content: userMessageText });
 
               // 2. Prepare history
@@ -236,7 +236,7 @@ export function AIChat({ className, onClose }: AIChatProps) {
                 onError: (error) => {
                   addMessage({ 
                     role: "assistant", 
-                    content: "Sorry, I encountered an error. Please try again later." 
+                    content: "Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau." 
                   });
                   console.error("AI Chat Error:", error);
                 }
@@ -251,7 +251,7 @@ export function AIChat({ className, onClose }: AIChatProps) {
         <div className="flex items-center gap-sm bg-surface-muted rounded-full border border-text-primary/10 p-1 px-4 focus-within:border-text-primary/30 transition-colors">
           <input
             type="text"
-            placeholder="Ask Amber AI anything..."
+            placeholder="Hỏi Amber AI bất cứ điều gì..."
             className="flex-1 h-12 bg-transparent border-none outline-none text-body-md-reg text-text-primary placeholder:text-text-muted/50"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}

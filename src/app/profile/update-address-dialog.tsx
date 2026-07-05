@@ -72,7 +72,7 @@ export function UpdateAddressDialog({ address }: UpdateAddressDialogProps) {
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-lg py-4">
           <div className="flex flex-col gap-xs">
-            <Label htmlFor="receiverName" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">RECEIVER NAME</Label>
+            <Label htmlFor="receiverName" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">TÊN NGƯỜI NHẬN</Label>
             <Input
               id="receiverName"
               placeholder="e.g. Nguyen Van A"
@@ -88,7 +88,7 @@ export function UpdateAddressDialog({ address }: UpdateAddressDialogProps) {
           </div>
 
           <div className="flex flex-col gap-xs">
-            <Label htmlFor="receiverPhone" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">RECEIVER PHONE</Label>
+            <Label htmlFor="receiverPhone" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">SỐ ĐIỆN THOẠI NGƯỜI NHẬN</Label>
             <Input
               id="receiverPhone"
               placeholder="e.g. 0912345678"
@@ -104,7 +104,7 @@ export function UpdateAddressDialog({ address }: UpdateAddressDialogProps) {
           </div>
 
           <div className="flex flex-col gap-xs">
-            <Label htmlFor="addressLine" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">ADDRESS LINE</Label>
+            <Label htmlFor="addressLine" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">ĐỊA CHỈ</Label>
             <Input
               id="addressLine"
               placeholder="e.g. 1 Vo Van Ngan, Thu Duc..."
@@ -120,10 +120,10 @@ export function UpdateAddressDialog({ address }: UpdateAddressDialogProps) {
           </div>
 
           <div className="flex flex-col gap-xs">
-            <Label htmlFor="label" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">LABEL</Label>
+            <Label htmlFor="label" className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">NHÃN</Label>
             <Input
               id="label"
-              placeholder="e.g. Home, Work, Gym"
+              placeholder="VD: Nhà riêng, Cơ quan, Phòng Gym"
               {...register("label")}
               className={cn(
                 "h-14 px-md rounded-md transition-all bg-surface-accent",

@@ -86,6 +86,31 @@ export const OrderService = {
     );
     return response.data;
   },
+
+  confirmPickup: async (id: string): Promise<BaseResponse<OrderOutput>> => {
+    const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
+      API_ENDPOINTS.ORDERS.PICKUP(id)
+    );
+    return response.data;
+  },
+
+  completeDelivery: async (id: string): Promise<BaseResponse<OrderOutput>> => {
+    const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
+      API_ENDPOINTS.ORDERS.DELIVERY_COMPLETE(id)
+    );
+    return response.data;
+  },
+
+  completeOrder: async (id: string): Promise<BaseResponse<OrderOutput>> => {
+    const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
+      API_ENDPOINTS.ORDERS.COMPLETE(id)
+    );
+    return response.data;
+  },
+
+  cancelOrder: async (id: string): Promise<void> => {
+    await axiosInstance.delete(API_ENDPOINTS.ORDERS.INTERNAL_BY_ID(id));
+  },
 };
 
 export const fetchOrderById = async (code: string): Promise<Order> => {

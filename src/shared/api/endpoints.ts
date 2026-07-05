@@ -6,6 +6,8 @@ export const API_ENDPOINTS = {
     LOGOUT: '/auth/logout',
     ME: '/auth/me',
     PROFILE: '/auth/profile',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
   },
   PRODUCTS: {
     BASE: '/products',
@@ -27,13 +29,19 @@ export const API_ENDPOINTS = {
     INTERNAL: "/internal/orders",
     BY_ID: (id: string) => `/orders/${id}`,
     BY_CODE: (code: string) => `/orders/code/${code}`,
-    STATUS: (id: string) => `/internal/staff/orders/${id}/status`,
+    STATUS: (id: string) => `/internal/orders/${id}/status`,
+    PICKUP: (id: string) => `/internal/orders/${id}/pickup`,
+    COMPLETE: (id: string) => `/internal/orders/${id}/complete`,
+    DELIVERY_COMPLETE: (id: string) => `/internal/orders/${id}/delivery/complete`,
+    INTERNAL_BY_ID: (id: string) => `/internal/orders/${id}`,
   },
   CART: {
     BASE: '/cart',
   },
   STORES: {
     BASE: '/stores',
+    INTERNAL: '/internal/admin/stores',
+    INTERNAL_BY_ID: (id: string) => `/internal/admin/stores/${id}`,
   },
   AI: {
     CHAT: '/ai/chat',
@@ -50,7 +58,17 @@ export const API_ENDPOINTS = {
     INTERNAL: '/internal/vouchers',
     INTERNAL_BY_ID: (id: string) => `/internal/vouchers/${id}`,
   },
+  OPTION_GROUPS: {
+    BASE: '/internal/option-groups',
+    BY_ID: (id: string) => `/internal/option-groups/${id}`,
+  },
   PROMOTIONS: {
     BASE: '/promotions',
+  },
+  STAFF: {
+    REGISTER: '/internal/auth/register/staff',
+    BASE: '/internal/staff',
+    BY_ID: (id: string) => `/internal/staff/${id}`,
+    HARD_BY_ID: (id: string) => `/internal/staff/${id}/hard`,
   },
 } as const;

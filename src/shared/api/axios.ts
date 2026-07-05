@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 import { API_ENDPOINTS } from "./endpoints";
 import { useCustomerAuthStore, useStaffAuthStore } from "../auth/auth.store";
 
@@ -28,60 +29,103 @@ axiosInstance.interceptors.request.use(
 );
 
 // Response interceptor: Handle 401 and Refresh Token
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve(token!);
+    }
+  });
+  failedQueue = [];
+}
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // If 401 error and not already retrying
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
-          {},
-          { withCredentials: true }
-        );
-
-        const newAccessToken = response.data.accessToken;
-        
-        // Update the correct store
-        const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
-        if (isInternal) {
-          const { user, refreshToken, setAuth } = useStaffAuthStore.getState();
-          if (user && refreshToken) {
-             setAuth({ ...user, accessToken: newAccessToken, refreshToken } as any);
-          }
-        } else {
-          const { user, refreshToken, setAuth } = useCustomerAuthStore.getState();
-          if (user && refreshToken) {
-             setAuth({ ...user, accessToken: newAccessToken, refreshToken } as any);
-          }
-        }
-
-        // Update header and retry original request
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        }
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, clear tokens and redirect to login
-        const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
-        if (isInternal) {
-          useStaffAuthStore.getState().logout();
-        } else {
-          useCustomerAuthStore.getState().logout();
-        }
-        
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-        return Promise.reject(refreshError);
-      }
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    if (isRefreshing) {
+      return new Promise<string>((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then((newToken) => {
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        }
+        return axiosInstance(originalRequest);
+      });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
+        {},
+        { withCredentials: true }
+      );
+
+      const data = response.data?.data || response.data;
+      
+      let newAccessToken: string;
+      let newRefreshToken: string;
+
+      if (data.tokens) {
+        newAccessToken = data.tokens.accessToken;
+        newRefreshToken = data.tokens.refreshToken;
+      } else {
+        newAccessToken = data.accessToken;
+        newRefreshToken = data.refreshToken;
+      }
+
+      const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
+      if (isInternal) {
+        const { user, setAuth } = useStaffAuthStore.getState();
+        if (user) {
+          setAuth({ ...user, accessToken: newAccessToken, refreshToken: newRefreshToken } as any);
+        }
+      } else {
+        const { user, setAuth } = useCustomerAuthStore.getState();
+        if (user) {
+          setAuth({ ...user, accessToken: newAccessToken, refreshToken: newRefreshToken } as any);
+        }
+      }
+
+      processQueue(null, newAccessToken);
+
+      if (originalRequest.headers) {
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      }
+      return axiosInstance(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+
+      const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
+      if (isInternal) {
+        useStaffAuthStore.getState().logout();
+      } else {
+        useCustomerAuthStore.getState().logout();
+      }
+      
+      if (typeof window !== "undefined") {
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        window.location.href = "/login";
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 

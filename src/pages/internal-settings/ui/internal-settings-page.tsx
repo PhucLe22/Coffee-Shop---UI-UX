@@ -89,10 +89,10 @@ export default function InternalSettingsPage() {
         
         <div className="space-y-sm">
           {[
-            { icon: User, label: "Personal Information", color: "text-blue-500", bg: "bg-blue-50" },
-            { icon: Bell, label: "Notification Preferences", color: "text-orange-500", bg: "bg-orange-50" },
-            { icon: ShieldCheck, label: "Security & Privacy", color: "text-green-500", bg: "bg-green-50" },
-            { icon: History, label: "Work History & Logs", color: "text-purple-500", bg: "bg-purple-50" },
+            { icon: User, label: "Thông Tin Cá Nhân", color: "text-blue-500", bg: "bg-blue-50" },
+            { icon: Bell, label: "Cài Đặt Thông Báo", color: "text-orange-500", bg: "bg-orange-50" },
+            { icon: ShieldCheck, label: "Bảo Mật & Riêng Tư", color: "text-green-500", bg: "bg-green-50" },
+            { icon: History, label: "Lịch Sử & Nhật Ký", color: "text-purple-500", bg: "bg-purple-50" },
           ].map((item, idx) => (
             <Button 
               key={idx}

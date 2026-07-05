@@ -26,7 +26,7 @@ export const OptionCard = ({
           : "bg-surface-accent text-text-secondary border-surface-muted hover:border-brand-primary/20",
         className,
       )}>
-      <div className="flex items-center gap-sm">
+      <div className="flex items-center gap-sm min-w-0">
         <div
           className={cn(
             "p-2 rounded-sm flex items-center justify-center",
@@ -34,8 +34,8 @@ export const OptionCard = ({
           )}>
           <Box className="size-6" />
         </div>
-        <div className="flex flex-col">
-          <span className="text-body-sm-semibold leading-tight">{name}</span>
+        <div className="flex flex-col min-w-0">
+          <span className="text-body-sm-semibold leading-tight truncate">{name}</span>
           <span className="label-overline-inter leading-tight">
             {formatToVND(price)}
           </span>

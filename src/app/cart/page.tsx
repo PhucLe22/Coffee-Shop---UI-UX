@@ -44,10 +44,13 @@ export default function CartPage() {
     addressLine: "",
   });
 
-  // Automatically select the first store if none selected
+  // Auto-select first store if none selected, or if stored store no longer exists in API
   useEffect(() => {
-    if (!selectedStore && stores.length > 0) {
-      setSelectedStore(stores[0]);
+    if (stores.length > 0) {
+      const stillExists = selectedStore && stores.some(s => s.id === selectedStore.id);
+      if (!stillExists) {
+        setSelectedStore(stores[0]);
+      }
     }
   }, [stores, selectedStore, setSelectedStore]);
 
@@ -211,6 +214,20 @@ export default function CartPage() {
             </select>
           </div>
         </div>
+      ) : user ? (
+        <div className="flex flex-col items-center gap-3 py-lg">
+          <MapPin className="size-10 text-text-muted" />
+          <p className="text-body-sm-reg text-text-muted">Bạn chưa có địa chỉ nào.</p>
+          <CreateAddressDialog
+            onCreated={(newAddr) => {
+              setDeliveryInfo({
+                receiverName: newAddr.receiverName,
+                receiverPhone: newAddr.receiverPhone,
+                addressLine: newAddr.addressLine,
+              });
+            }}
+          />
+        </div>
       ) : (
         <div className="flex flex-col gap-sm">
            <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">ĐỊA CHỈ NHẬN HÀNG</Label>
@@ -223,9 +240,7 @@ export default function CartPage() {
                 className="h-14 pl-11 bg-surface-accent border-none"
               />
            </div>
-           {!user && (
-             <p className="text-overline text-text-muted italic">Đăng nhập để chọn địa chỉ đã lưu</p>
-           )}
+           <p className="text-overline text-text-muted italic">Đăng nhập để chọn địa chỉ đã lưu</p>
         </div>
       )}
     </div>
@@ -278,6 +293,29 @@ export default function CartPage() {
                       </button>
                     </div>
                   </div>
+
+                  {orderType === OrderType.TAKEAWAY && (
+                    <div className="flex flex-col gap-sm">
+                      <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">CHỌN CỬA HÀNG</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-brand-primary" />
+                        <select
+                          className="h-14 w-full rounded-md bg-surface-accent pl-11 pr-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none appearance-none"
+                          value={selectedStore?.id || ""}
+                          onChange={(e) => {
+                            const store = stores.find(s => s.id === e.target.value);
+                            if (store) setSelectedStore(store);
+                          }}
+                        >
+                          {stores.map(store => (
+                            <option key={store.id} value={store.id}>
+                              {store.name} - {store.address}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-md">
                     <div className="flex flex-col gap-sm">
@@ -383,6 +421,29 @@ export default function CartPage() {
                 </button>
               </div>
             </div>
+
+            {orderType === OrderType.TAKEAWAY && (
+              <div className="flex flex-col gap-sm">
+                <Label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">CHỌN CỬA HÀNG</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-md top-1/2 -translate-y-1/2 size-4 text-brand-primary" />
+                  <select
+                    className="h-14 w-full rounded-md bg-surface-accent pl-11 pr-md py-sm text-body-md-reg text-text-primary focus:outline-none border-none appearance-none"
+                    value={selectedStore?.id || ""}
+                    onChange={(e) => {
+                      const store = stores.find(s => s.id === e.target.value);
+                      if (store) setSelectedStore(store);
+                    }}
+                  >
+                    {stores.map(store => (
+                      <option key={store.id} value={store.id}>
+                        {store.name} - {store.address}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-md">
               <div className="flex flex-col gap-sm">

@@ -2,11 +2,24 @@
 
 import { MapPin, Play } from "lucide-react";
 import { AppButton } from "@/shared/ui";
-import { useStoreStore } from "@/entities/store";
+import { useStoreStore, useStores } from "@/entities/store";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export function HomeHero() {
-  const { selectedStore } = useStoreStore();
+  const { selectedStore, setSelectedStore } = useStoreStore();
+  const { data: storesResponse } = useStores();
+  const stores = storesResponse?.data || [];
+
+  useEffect(() => {
+    if (stores.length > 0) {
+      const storedStore = selectedStore;
+      const stillExists = storedStore && stores.some(s => s.id === storedStore.id);
+      if (!stillExists) {
+        setSelectedStore(stores[0]);
+      }
+    }
+  }, [stores, selectedStore, setSelectedStore]);
 
   return (
     <section className="px-2xl py-2xl flex items-center justify-between min-h-[900px] gap-2xl">
@@ -28,15 +41,14 @@ export function HomeHero() {
         </h1>
 
         <p className="text-body-lg-reg text-text-secondary">
-          A curated micro-lot blend finished with cold pressed wildflower honey
-          and toasted oak infused milk. The morning ritual, redefined.
+          Sự kết hợp tinh tế giữa mật ong hoa dại ép lạnh và sữa phong vị gỗ sồi. Nghi thức buổi sáng được tái định nghĩa.
         </p>
 
         <div className="flex items-center gap-md">
-          <AppButton variant="primary">CUSTOMIZE YOURS</AppButton>
+          <AppButton variant="primary">TÙY CHỈNH NGAY</AppButton>
           <AppButton variant="outline" className="gap-sm">
             <Play className="size-5 fill-text-primary" />
-            The Brewing Story
+            Câu Chuyện Pha Chế
           </AppButton>
         </div>
       </div>
@@ -53,8 +65,7 @@ export function HomeHero() {
             Estate Series No. 24
           </h3>
           <p className="text-body-sm-reg text-inverse-text opacity-80">
-            Single-origin beans from the Sidama region, Ethiopia. Roasted in
-            small batches every Tuesday.
+            Hạt cà phê đơn nguồn từ vùng Sidama, Ethiopia. Được rang thủ công mỗi tuần.
           </p>
         </div>
       </div>

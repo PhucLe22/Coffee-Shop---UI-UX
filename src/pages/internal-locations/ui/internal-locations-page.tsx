@@ -1,64 +1,86 @@
 "use client";
 
-import React from "react";
-import { 
-  MapPin, 
-  Store, 
-  Plus, 
-  MoreVertical, 
-  CheckCircle2, 
-  Clock, 
-  Users,
-  ExternalLink,
-  ChevronRight,
-  Filter
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import {
+  MapPin, Store, Plus, Pencil, Users, ChevronLeft, ChevronRight, Loader2, RotateCcw,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Card, CardContent } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
-import { Separator } from "@/shared/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
-
-const LOCATIONS_DATA = [
-  {
-    id: 1,
-    name: "Downtown Reserve",
-    address: "742 Evergreen Terrace, Springfield",
-    manager: "Marcus Thorne",
-    managerImg: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    status: "Operational",
-    statusColor: "bg-green-100 text-text-secondary",
-    capacity: "85%",
-    performance: "+12%"
-  },
-  {
-    id: 2,
-    name: "East End Roastery",
-    address: "123 Maple Street, Riverside",
-    manager: "Elena Rodriguez",
-    managerImg: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    status: "Operational",
-    statusColor: "bg-green-100 text-text-secondary",
-    capacity: "42%",
-    performance: "+5%"
-  },
-  {
-    id: 3,
-    name: "The Hub (Central)",
-    address: "456 Oak Lane, Downtown",
-    manager: "Julian Vance",
-    managerImg: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
-    status: "Maintenance",
-    statusColor: "bg-orange-100 text-orange-700",
-    capacity: "0%",
-    performance: "N/A"
-  }
-];
+import { useInternalStores, useUpdateStore } from "@/entities/store";
+import { StoreOutput } from "@/shared/api";
+import { CreateStoreDialog } from "@/features/create-store";
+import { UpdateStoreDialog } from "@/features/update-store";
+import { useIntersectionObserver } from "@/shared/lib/use-intersection-observer";
+import { toast } from "sonner";
 
 export default function InternalLocationsPage() {
+  const [selectedStore, setSelectedStore] = useState<StoreOutput | null>(null);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInternalStores();
+
+  const allStores = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data],
+  );
+
+  const currentPageStores = useMemo(
+    () => data?.pages[currentPage - 1]?.data ?? [],
+    [data, currentPage],
+  );
+
+  const { mutate: updateStore, isPending: isUpdating } = useUpdateStore();
+
+  const handleRecover = (store: StoreOutput, e: React.MouseEvent) => {
+    e.stopPropagation();
+    updateStore(
+      { id: store.id, data: { isDeleted: false } },
+      {
+        onSuccess: () => {
+          toast.success(`${store.name} has been recovered`);
+        },
+        onError: (err: any) => {
+          toast.error(err?.response?.data?.message || "Failed to recover store");
+        },
+      },
+    );
+  };
+
+  const totalPages = data?.pages[0]?.meta?.totalPages ?? 1;
+  const totalItems = data?.pages[0]?.meta?.totalItems ?? 0;
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const entry = useIntersectionObserver(loadMoreRef, {
+    threshold: 0,
+    rootMargin: "0px 0px 200px 0px",
+  });
+
+  useEffect(() => {
+    if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [entry, fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  const handleNextPage = async () => {
+    if (currentPage >= totalPages) return;
+    if (!data?.pages[currentPage]) {
+      await fetchNextPage();
+    }
+    setCurrentPage((prev) => prev + 1);
+  };
+
   return (
-    <div className="flex flex-col p-md md:p-lg gap-lg animate-in fade-in duration-500 max-w-[1200px] mx-auto">
+    <div className="flex flex-col p-md md:p-lg gap-lg animate-in fade-in duration-500 w-full max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-md">
         <div>
@@ -66,151 +88,270 @@ export default function InternalLocationsPage() {
           <p className="text-body-sm-reg text-text-secondary">Manage your regional collective branches.</p>
         </div>
         <div className="flex items-center gap-md">
-          <Button className="bg-brand-primary hover:bg-brand-accent text-white rounded-md h-10 gap-xs shadow-sm whitespace-nowrap">
-            <Plus className="size-4" />
-            <span className="label-button-md text-sm">Add New Store</span>
-          </Button>
+          <CreateStoreDialog />
         </div>
       </div>
 
-      {/* Grid: Map + Stats */}
+      {/* Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-lg">
-        {/* Desktop Table / Mobile List - 3 Columns */}
-        <div className="lg:col-span-3 flex flex-col gap-lg">
-          <Card className="bg-white border-0 shadow-sm rounded-md overflow-hidden">
-            {/* Desktop View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-surface-accent/30 text-left border-b border-border-primary-50/10">
-                    <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Branch Name</th>
-                    <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Manager</th>
-                    <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Status</th>
-                    <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Capacity</th>
-                    <th className="p-lg text-right text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {LOCATIONS_DATA.map((loc) => (
-                    <tr key={loc.id} className="border-b border-border-primary-50/5 hover:bg-surface-main/30 transition-colors group">
-                      <td className="p-lg">
-                        <div className="flex flex-col gap-xs">
-                          <span className="text-body-md-bold text-text-primary">{loc.name}</span>
-                          <span className="text-[12px] text-text-muted flex items-center gap-1">
-                            <MapPin className="size-3" /> {loc.address}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-lg">
-                        <div className="flex items-center gap-sm">
-                          <Avatar className="size-8 border border-border-primary-50/20">
-                            <AvatarImage src={loc.managerImg} alt={loc.manager} />
-                            <AvatarFallback>{loc.manager.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <span className="text-body-sm-semibold text-text-primary">{loc.manager}</span>
-                        </div>
-                      </td>
-                      <td className="p-lg">
-                        <Badge className={cn("rounded-full px-md py-0.5 border-0 font-bold text-[10px] uppercase tracking-wide", loc.statusColor)}>
-                          {loc.status}
-                        </Badge>
-                      </td>
-                      <td className="p-lg">
-                        <div className="flex flex-col gap-xs w-24">
-                          <div className="flex items-center justify-between text-[10px] font-bold text-text-secondary">
-                            <span>{loc.capacity}</span>
-                            <span className="text-success">{loc.performance}</span>
-                          </div>
-                          <div className="h-1.5 w-full bg-surface-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-brand-primary rounded-full" style={{ width: loc.capacity }} />
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-lg text-right">
-                        <Button variant="ghost" size="icon" className="size-8 text-text-muted hover:text-brand-primary rounded-md">
-                          <ExternalLink className="size-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile View */}
-            <div className="md:hidden flex flex-col">
-              {LOCATIONS_DATA.map((loc) => (
-                <div key={loc.id} className="p-lg border-b border-border-primary-50/10 flex flex-col gap-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex flex-col gap-xs">
-                      <h3 className="text-body-md-bold text-text-primary">{loc.name}</h3>
-                      <p className="text-[12px] text-text-muted leading-snug max-w-[200px]">{loc.address}</p>
+        {/* Store List */}
+        <div className="lg:col-span-3 flex flex-col gap-lg order-last lg:order-none">
+          {isLoading ? (
+            <Card className="bg-white border-0 shadow-sm rounded-md overflow-hidden w-full min-w-0">
+              <div className="p-lg space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-4 w-48" />
                     </div>
-                    <Badge className={cn("rounded-full px-md py-0.5 border-0 font-bold text-[9px] uppercase tracking-wide", loc.statusColor)}>
-                      {loc.status}
-                    </Badge>
+                    <Skeleton className="h-8 w-20" />
                   </div>
-                  <div className="flex items-center justify-between mt-xs">
-                    <div className="flex items-center gap-md">
-                      <Avatar className="size-8 border border-border-primary-50/20">
-                        <AvatarImage src={loc.managerImg} alt={loc.manager} />
-                        <AvatarFallback>{loc.manager.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col">
-                        <span className="text-[12px] font-bold text-text-primary">{loc.manager}</span>
-                        <span className="text-[10px] text-text-muted">Branch Manager</span>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline" className="h-9 px-md border-border-primary-50 text-text-primary rounded-md gap-xs">
-                      Manage <ChevronRight className="size-3" />
+                ))}
+              </div>
+            </Card>
+          ) : allStores.length === 0 ? (
+            <Card className="bg-white border-0 shadow-sm rounded-md overflow-hidden w-full min-w-0">
+              <div className="flex flex-col items-center justify-center py-20 gap-md">
+                <Store className="size-16 text-text-muted/30" />
+                <p className="text-body-md-reg text-text-secondary">Không tìm thấy cửa hàng</p>
+              </div>
+            </Card>
+          ) : (
+            <>
+              {/* Desktop Table */}
+              <Card className="bg-white border-0 shadow-sm rounded-md overflow-hidden w-full min-w-0 max-md:hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-surface-accent/30 text-left border-b border-border-primary-50/10">
+                        <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Code</th>
+                        <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Branch Name</th>
+                        <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Address</th>
+                        <th className="p-lg text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Status</th>
+                        <th className="p-lg text-right text-body-sm-semibold text-text-secondary uppercase tracking-widest text-[10px] font-bold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentPageStores.map((store) => (
+                        <tr
+                          key={store.id}
+                          className={cn(
+                            "border-b border-border-primary-50/5 transition-colors group",
+                            store.isDeleted
+                              ? "bg-red-50/20 line-through decoration-1 opacity-60 cursor-default"
+                              : "hover:bg-surface-main/30 cursor-pointer"
+                          )}
+                          onClick={() => {
+                            if (store.isDeleted) return;
+                            setSelectedStore(store);
+                            setUpdateOpen(true);
+                          }}
+                        >
+                          <td className="p-lg">
+                            <span className={cn(
+                              "font-mono tracking-wide",
+                              store.isDeleted ? "text-body-sm-reg text-text-muted" : "text-body-sm-semibold text-text-primary"
+                            )}>{store.code}</span>
+                          </td>
+                          <td className="p-lg">
+                            <span className={cn(
+                              store.isDeleted ? "text-body-sm-reg text-text-muted" : "text-body-sm-semibold text-text-primary"
+                            )}>{store.name}</span>
+                          </td>
+                          <td className="p-lg">
+                            <span className="text-[12px] text-text-muted flex items-center gap-1">
+                              <MapPin className="size-3 shrink-0" /> {store.address}
+                            </span>
+                          </td>
+                          <td className="p-lg">
+                          <Badge className={cn(
+                            "rounded-full px-md py-0.5 border-0 font-bold text-[10px] uppercase tracking-wide",
+                            store.isDeleted
+                              ? "bg-gray-100 text-gray-500"
+                              : store.isActive
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                          )}>
+                            {store.isDeleted ? "Deleted" : store.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </td>
+                        <td className="p-lg text-right">
+                          {store.isDeleted ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-gray-400 hover:text-green-600 rounded-md"
+                              onClick={(e) => handleRecover(store, e)}
+                              disabled={isUpdating}
+                            >
+                              <RotateCcw className="size-4" />
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" size="icon" className="size-8 text-text-muted hover:text-brand-primary rounded-md">
+                              <Pencil className="size-4" />
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              </Card>
+
+              {/* Desktop Pagination */}
+              {totalPages > 1 && (
+                <div className="max-md:hidden flex items-center justify-between pt-3 pb-1">
+                  <p className="text-[12px] text-text-muted">{totalItems} total stores</p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage((prev) => prev - 1)}
+                      className="text-text-muted hover:text-text-primary"
+                    >
+                      <ChevronLeft className="size-4" />
+                      Prev
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      <Button
+                        key={pageNum}
+                        variant={pageNum === currentPage ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => {
+                          if (pageNum > currentPage && !data?.pages[pageNum - 1]) {
+                            fetchNextPage();
+                          }
+                          setCurrentPage(pageNum);
+                        }}
+                        className={cn(
+                          "min-w-[32px] text-[12px]",
+                          pageNum === currentPage
+                            ? "bg-brand-primary text-white hover:bg-brand-accent"
+                            : "text-text-muted hover:text-text-primary"
+                        )}
+                      >
+                        {pageNum}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={currentPage >= totalPages || isFetchingNextPage}
+                      onClick={handleNextPage}
+                      className="text-text-muted hover:text-text-primary"
+                    >
+                      {isFetchingNextPage ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <ChevronRight className="size-4" />
+                      )}
+                      Next
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </Card>
+              )}
+
+              {/* Mobile Cards */}
+              <div className="md:hidden flex flex-col gap-2">
+                {allStores.map((store) => (
+                  <div
+                    key={store.id}
+                    className={cn(
+                      "bg-white border border-border-primary-50/10 shadow-sm rounded-[10px] overflow-hidden transition-all duration-300",
+                      store.isDeleted
+                        ? "border-red-200 bg-red-50/20 opacity-70 cursor-default"
+                        : "cursor-pointer hover:shadow-md active:scale-[0.99]",
+                      !store.isDeleted && !store.isActive && "opacity-75"
+                    )}
+                    onClick={() => {
+                      if (store.isDeleted) return;
+                      setSelectedStore(store);
+                      setUpdateOpen(true);
+                    }}
+                  >
+                    <div className="p-3 flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className={cn(
+                          "text-[10px] font-mono tracking-widest uppercase font-bold",
+                          store.isDeleted ? "text-text-muted line-through" : "text-text-muted"
+                        )}>{store.code}</span>
+                        <Badge className={cn(
+                          "rounded-full px-2 py-0.5 border-0 font-bold text-[9px] uppercase tracking-wide shrink-0",
+                          store.isDeleted
+                            ? "bg-gray-100 text-gray-500"
+                            : store.isActive
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                        )}>
+                          {store.isDeleted ? "Deleted" : store.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <h3 className={cn(
+                        store.isDeleted ? "text-body-sm-reg text-text-muted line-through" : "text-body-sm-semibold text-text-primary",
+                        "leading-snug"
+                      )}>{store.name}</h3>
+                      <div className="flex items-start gap-1.5">
+                        <MapPin className="size-3.5 shrink-0 mt-0.5 text-text-muted" />
+                        <span className="text-[12px] text-text-muted leading-snug">{store.address}</span>
+                      </div>
+                      {store.isDeleted && (
+                        <div className="mt-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-[11px] border-gray-200 text-gray-500 hover:text-green-600 hover:border-green-200 gap-1"
+                            onClick={(e) => handleRecover(store, e)}
+                            disabled={isUpdating}
+                          >
+                            <RotateCcw className="size-3" />
+                            Recover
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile Infinite Scroll Sentinel */}
+              {hasNextPage && (
+                <div ref={loadMoreRef} className="md:hidden flex items-center justify-center py-4">
+                  {isFetchingNextPage && (
+                    <Loader2 className="size-5 animate-spin text-brand-primary" />
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
-        {/* Side Panel: System Stats - 1 Column */}
-        <div className="lg:col-span-1 flex flex-col gap-lg">
-          <Card className="bg-text-primary border-0 shadow-md rounded-md overflow-hidden relative group">
-            <CardContent className="p-xl flex flex-col gap-lg">
-              <div className="flex flex-col gap-xs">
-                <span className="text-[10px] font-bold text-surface-accent/50 uppercase tracking-[0.2em]">Operational Health</span>
-                <h4 className="text-display-md text-surface-accent leading-none">98.4%</h4>
-              </div>
-              <p className="text-[12px] text-surface-accent/80 leading-relaxed">
-                All regions are reporting optimal server and POS performance. No active critical maintenance alerts.
-              </p>
-              <Button className="bg-brand-primary hover:bg-brand-accent text-white rounded-md h-11 w-full font-bold shadow-sm transition-transform active:scale-95">
-                Run Diagnostics
-              </Button>
-            </CardContent>
-          </Card>
-
+        {/* Side Panel */}
+        <div className="lg:col-span-1 flex flex-col gap-lg order-first lg:order-none">
           <Card className="bg-surface-accent border border-border-primary-50/20 shadow-sm rounded-md p-lg flex flex-col gap-md">
-            <div className="flex items-center gap-md">
-              <div className="size-10 rounded-md bg-white flex items-center justify-center shadow-sm border border-border-primary-50/10">
-                <Users className="size-5 text-brand-primary" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Total Staffing</span>
-                <span className="text-body-md-bold text-text-primary">148 Employees</span>
-              </div>
-            </div>
-            <Separator className="bg-text-primary/5" />
             <div className="flex items-center gap-md">
               <div className="size-10 rounded-md bg-white flex items-center justify-center shadow-sm border border-border-primary-50/10">
                 <Store className="size-5 text-brand-primary" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Active Footprint</span>
-                <span className="text-body-md-bold text-text-primary">12 Locations</span>
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Total Stores</span>
+                <span className="text-body-md-bold text-text-primary">{allStores.length} {allStores.length > 1 ? "Locations" : "Location"}</span>
               </div>
             </div>
           </Card>
         </div>
       </div>
+
+      {/* Update Dialog */}
+      {selectedStore && (
+        <UpdateStoreDialog
+          store={selectedStore}
+          open={updateOpen}
+          onOpenChange={setUpdateOpen}
+        />
+      )}
     </div>
   );
 }

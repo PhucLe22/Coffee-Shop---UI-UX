@@ -11,13 +11,13 @@ interface OrderCardProps {
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
-  NEW: { label: "NEW", className: "bg-warning" },
-  CONFIRMED: { label: "CONFIRMED", className: "bg-info" },
-  PREPARING: { label: "PREPARING", className: "bg-info" },
-  READY: { label: "READY", className: "bg-info" },
-  COMPLETED: { label: "COMPLETED", className: "bg-success" },
-  CANCELLED: { label: "CANCELLED", className: "bg-error" },
-  REFUNDED: { label: "REFUNDED", className: "bg-error" },
+  NEW: { label: "MỚI", className: "bg-warning" },
+  CONFIRMED: { label: "ĐÃ XÁC NHẬN", className: "bg-info" },
+  PREPARING: { label: "ĐANG CHUẨN BỊ", className: "bg-info" },
+  READY: { label: "SẴN SÀNG", className: "bg-info" },
+  COMPLETED: { label: "HOÀN THÀNH", className: "bg-success" },
+  CANCELLED: { label: "ĐÃ HỦY", className: "bg-error" },
+  REFUNDED: { label: "ĐÃ HOÀN TIỀN", className: "bg-error" },
 };
 
 const OrderCard = ({ order, onAction, onClick, className }: OrderCardProps) => {
@@ -27,7 +27,7 @@ const OrderCard = ({ order, onAction, onClick, className }: OrderCardProps) => {
 
   // Handle items if they exist (they might not be in the summary list)
   const items = (order as any).items || [];
-  const orderNumber = order.orderCode || (order.id ? order.id.slice(0, 8).toUpperCase() : "UNKNOWN");
+  const orderNumber = order.orderCode || (order.id ? order.id.slice(0, 8).toUpperCase() : "KHÔNG XÁC ĐỊNH");
 
   return (
     <div

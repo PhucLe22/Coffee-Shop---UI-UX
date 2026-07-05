@@ -5,8 +5,8 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Join Amber Roast | Create Your Account",
-  description: "Join our community of artisans and access exclusive roasts and rewards.",
+  title: "Đăng Ký | Amber Roast",
+  description: "Tham gia cộng đồng Amber Roast và nhận các ưu đãi độc quyền.",
 };
 
 export default function RegisterPage() {
@@ -17,7 +17,7 @@ export default function RegisterPage() {
         className="absolute left-md top-md flex items-center gap-xs text-body-sm-semibold text-text-secondary opacity-70 hover:opacity-100 transition-opacity"
       >
         <ChevronLeft className="size-4" />
-        Back to Home
+        Về trang chủ
       </Link>
       
       {/* Brand Header */}
@@ -29,7 +29,7 @@ export default function RegisterPage() {
           Amber Roast
         </h1>
         <p className="text-body-sm-semibold text-text-muted tracking-tight">
-          The Artisanal Ledger of Specialty Coffee
+          Sổ Tay Nghệ Nhân Cà Phê Đặc Sản
         </p>
       </div>
 

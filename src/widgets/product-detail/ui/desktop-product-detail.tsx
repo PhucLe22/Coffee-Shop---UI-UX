@@ -131,7 +131,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                 </h3>
                 {group.isRequired && (
                   <span className="text-body-sm-semibold text-text-secondary">
-                    REQUIRED
+                    BẮT BUỘC
                   </span>
                 )}
               </div>
@@ -188,7 +188,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
             <div className="flex justify-between items-end">
               <div className="flex flex-col gap-1">
                 <span className="text-body-sm-semibold text-text-muted uppercase tracking-widest">
-                  TOTAL AMOUNT
+                  TỔNG TIỀN
                 </span>
                 <span className="text-display-md text-text-secondary leading-none">
                   {formatToVND(totalPrice)}
@@ -219,7 +219,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
               onClick={handleAddToCart}
             >
               <ShoppingCart className="size-6" />
-              ADD TO CART
+              THÊM VÀO GIỎ
             </AppButton>
           </div>
         </div>

@@ -12,8 +12,8 @@ export function HomePopularChoices() {
     return (
       <section className="px-md py-xl lg:px-2xl lg:py-2xl flex flex-col items-center gap-xl">
         <div className="flex flex-col items-center gap-sm text-center max-w-[1152px]">
-          <h2 className="text-h1-bold text-text-primary">Our Products</h2>
-          <p className="text-body-lg-reg text-text-secondary">Loading...</p>
+          <h2 className="text-h1-bold text-text-primary">Sản Phẩm Của Chúng Tôi</h2>
+          <p className="text-body-lg-reg text-text-secondary">Đang tải...</p>
         </div>
       </section>
     );
@@ -24,10 +24,9 @@ export function HomePopularChoices() {
   return (
     <section className="px-md py-xl lg:px-2xl lg:py-2xl flex flex-col items-center gap-xl">
       <div className="flex flex-col items-center gap-sm text-center max-w-[1152px]">
-        <h2 className="text-h1-bold text-text-primary">Our Products</h2>
+        <h2 className="text-h1-bold text-text-primary">Sản Phẩm Của Chúng Tôi</h2>
         <p className="text-body-lg-reg text-text-secondary">
-          Voted by our community of coffee enthusiasts in the Greenwich Village
-          collective.
+          Được bình chọn bởi cộng đồng những người yêu cà phê.
         </p>
       </div>
 
@@ -56,7 +55,7 @@ export function HomePopularChoices() {
 
       <Link href="/menu">
         <AppButton variant="outline" size="lg">
-          View Full Menu
+          Xem Thực Đơn Đầy Đủ
         </AppButton>
       </Link>
     </section>

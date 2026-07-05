@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const createAddressSchema = z.object({
-  receiverName: z.string().min(1, "Receiver name is required"),
-  receiverPhone: z.string().min(10, "Phone number must be at least 10 characters"),
-  addressLine: z.string().min(1, "Address is required"),
-  label: z.string().min(1, "Label is required (e.g. Home, Work)"),
+  receiverName: z.string().min(1, "Vui lòng nhập tên người nhận"),
+  receiverPhone: z.string().min(10, "Số điện thoại phải có ít nhất 10 ký tự"),
+  addressLine: z.string().min(1, "Vui lòng nhập địa chỉ"),
+  label: z.string().min(1, "Vui lòng nhập nhãn (VD: Nhà riêng, Cơ quan)"),
   isDefault: z.boolean().default(false),
 });
 

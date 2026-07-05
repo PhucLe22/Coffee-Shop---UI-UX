@@ -23,7 +23,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         isAssistant ? "items-start" : "items-end",
       )}>
       <span className="text-overline-inter text-text-secondary px-1 uppercase">
-        {isAssistant ? "Amber AI" : "You"}
+        {isAssistant ? "Amber AI" : "Bạn"}
       </span>
       <div
         className={cn(
@@ -97,12 +97,12 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
                   <div className="flex flex-col gap-sm w-full mt-sm">
                     <button className="w-full h-8 bg-brand-primary text-inverse-text rounded-full text-body-xs-bold hover:bg-brand-primary/90 transition-colors flex items-center justify-center">
-                      Order Now
+                      Đặt Ngay
                     </button>
                     <Link
                       href={`/products/${message.attachment.data.slug}`}
                       className="w-full h-8 bg-surface-accent text-brand-primary rounded-full text-body-xs-bold hover:bg-surface-accent/80 transition-colors flex items-center justify-center border border-brand-primary/10">
-                      View Details
+                      Xem Chi Tiết
                     </Link>
                   </div>
                 </div>

@@ -19,6 +19,9 @@ export const OrderStatus = {
   COMPLETED: "COMPLETED",
   CANCELLED: "CANCELLED",
   REFUNDED: "REFUNDED",
+  DELIVERING: "DELIVERING",
+  PICKED_UP: "PICKED_UP",
+  DELIVERED: "DELIVERED",
 } as const;
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
@@ -148,6 +151,30 @@ export interface ProfileOutput {
   managerInfo: Record<string, unknown> | null;
 }
 
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface LoginUser {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  type: UserType;
+  tier?: CustomerTier;
+  points?: number;
+  role?: StaffRole;
+  storeName?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface LoginApiResponse {
+  user: LoginUser;
+  tokens: TokenPair;
+}
+
 export interface LoginOutput {
   id: string;
   name: string;
@@ -269,8 +296,6 @@ export interface InternalPaymentBody {
   amount: number;
   pin: string;
 }
-
-// --- PRODUCT (product.output.schema.js) ---
 
 export interface GetProductsQuery {
   categoryId?: string;
@@ -440,10 +465,31 @@ export interface StoreOutput {
 }
 
 export interface GetStoresQuery {
+  search?: string;
   lat?: number;
   lng?: number;
   page?: number;
   limit?: number;
+}
+
+export interface CreateStoreBody {
+  code: string;
+  name: string;
+  address: string;
+  hotline: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface UpdateStoreBody {
+  code?: string;
+  name?: string;
+  address?: string;
+  hotline?: string;
+  lat?: number;
+  lng?: number;
+  isActive?: boolean;
+  isDeleted?: boolean;
 }
 
 // --- USER (user.output.schema.js) ---
@@ -545,6 +591,7 @@ export interface DeliveryScheduleNode {
   node: number;
   orderId?: string | null;
   orderCode?: string | null;
+  status?: string;
   lat: number;
   lng: number;
   arrival_datetime: string | null;
@@ -581,6 +628,57 @@ export interface Shipper {
   shipperName: string;
   routes: DeliveryScheduleNode[];
   isPersisted: boolean;
+}
+
+// --- STAFF MANAGEMENT ---
+
+export interface StaffOutput {
+  id: string;
+  name: string | null;
+  email: string;
+  phone?: string;
+  role: StaffRole;
+  storeId: string;
+  storeName: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface RegisterStaffBody {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  storeId: string;
+  role: StaffRole;
+}
+
+export interface RegisterStaffResponse {
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+    phone: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  staff: StaffOutput;
+}
+
+export interface UpdateStaffBody {
+  name?: string;
+  role?: StaffRole;
+  isActive?: boolean;
+  email?: string;
+  storeId?: string;
+}
+
+export interface GetStaffQuery {
+  page?: number;
+  limit?: number;
+  role?: StaffRole;
 }
 
 export interface DeliveryScheduleOutput {

@@ -40,21 +40,21 @@ export function NotificationSettingsSection() {
   return (
     <section className="rounded-md bg-surface-muted overflow-hidden">
       <div className="border-b border-black/5 bg-black/5 px-8 py-6">
-        <h3 className="text-h5-bold text-text-primary">Notification Settings</h3>
+        <h3 className="text-h5-bold text-text-primary">Cài Đặt Thông Báo</h3>
       </div>
       
       <div className="flex flex-col gap-2 p-4">
         <ToggleItem 
-          title="Order Status Updates" 
+          title="Cập Nhật Trạng Thái Đơn Hàng" 
           description="Get notified when your coffee is roasted and shipped." 
           defaultEnabled
         />
         <ToggleItem 
-          title="Promotional Offers" 
+          title="Khuyến Mãi" 
           description="Receive exclusive discounts and new product reveals." 
         />
         <ToggleItem 
-          title="Brewing Workshops" 
+          title="Hội Thảo Pha Chế" 
           description="Alerts for upcoming local events and digital brew classes." 
           defaultEnabled
         />

@@ -9,27 +9,38 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
 const CALENDAR_CLASSES = {
   root: "p-3",
-  months: "flex flex-col gap-1",
-  month: "flex flex-col gap-2",
-  month_caption: "flex justify-center gap-2 items-center h-8",
-  caption_label: "text-sm font-medium",
-  nav: "flex items-center justify-between px-1",
-  button_previous: "inline-flex items-center justify-center rounded-md text-sm font-medium h-7 w-7 bg-transparent p-0 hover:bg-accent",
-  button_next: "inline-flex items-center justify-center rounded-md text-sm font-medium h-7 w-7 bg-transparent p-0 hover:bg-accent",
-  chevron: "h-4 w-4",
-  weekday: "text-muted-foreground rounded-md w-8 font-normal text-xs text-center",
-  day: "flex p-0",
-  day_button: "mx-auto inline-flex items-center justify-center rounded-md text-sm font-medium h-8 w-8 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors",
-  selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
-  today: "bg-accent text-accent-foreground",
-  outside: "text-muted-foreground opacity-50",
-  disabled: "text-muted-foreground opacity-50",
+  months: "flex flex-col",
+  month: "flex flex-col",
+  month_caption: "hidden",
+  caption_label: "hidden",
+  nav: "hidden",
+  button_previous: "hidden",
+  button_next: "hidden",
+  chevron: "hidden",
+  weekday: "text-text-muted font-normal text-xs text-center pb-1 w-[36px]",
+  day: "p-0 text-center",
+  day_button:
+    "mx-auto h-8 w-8 text-sm rounded-md hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors",
+  selected: "bg-brand-primary text-white hover:bg-brand-primary hover:text-white",
+  today: "font-bold",
+  outside: "text-text-muted opacity-50",
+  disabled: "text-text-muted opacity-50",
   hidden: "invisible",
-  dropdowns: "flex gap-1",
-  dropdown: "bg-transparent text-sm font-medium border-0 outline-none focus:ring-2 focus:ring-ring rounded",
-  dropdown_root: "flex items-center",
+  dropdowns: "hidden",
+  dropdown: "hidden",
+  dropdown_root: "hidden",
+  months_dropdown: "hidden",
+  years_dropdown: "hidden",
+  month_grid: "w-full border-collapse",
+  weeks: "",
+  week: "",
 } as const;
 
 interface DatePickerProps {
@@ -53,12 +64,31 @@ export const DatePicker = ({
 
   const date = value ? new Date(value + "T00:00:00") : undefined;
 
+  const [currentMonth, setCurrentMonth] = React.useState<Date>(
+    date ?? new Date(),
+  );
+
+  const years = React.useMemo(() => {
+    const start = new Date(2020, 0).getFullYear();
+    const end = new Date(2030, 11).getFullYear();
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }, []);
+
   const handleSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
       const formatted = dateFnsFormat(selectedDate, "yyyy-MM-dd");
       onChange?.(formatted);
+      setCurrentMonth(selectedDate);
       setOpen(false);
     }
+  };
+
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), Number(e.target.value), 1));
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrentMonth(new Date(Number(e.target.value), currentMonth.getMonth(), 1));
   };
 
   const displayValue = value
@@ -86,15 +116,43 @@ export const DatePicker = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <DayPicker
-          mode="single"
-          selected={date}
-          onSelect={handleSelect as any}
-          classNames={CALENDAR_CLASSES as any}
-          startMonth={new Date(2020, 0)}
-          endMonth={new Date(2030, 11)}
-          captionLayout="dropdown"
-        />
+        <div className="max-h-[300px] overflow-y-auto">
+          <div className="flex items-center gap-1 border-b border-border p-3 pb-2">
+            <select
+              value={currentMonth.getMonth()}
+              onChange={handleMonthChange}
+              className="flex-1 rounded-md border-0 bg-surface-muted px-2 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+            >
+              {MONTHS.map((month, i) => (
+                <option key={month} value={i}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <select
+              value={currentMonth.getFullYear()}
+              onChange={handleYearChange}
+              className="w-[88px] rounded-md border-0 bg-surface-muted px-2 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <DayPicker
+            mode="single"
+            month={currentMonth}
+            onMonthChange={setCurrentMonth}
+            selected={date}
+            onSelect={handleSelect as any}
+            classNames={CALENDAR_CLASSES as any}
+            disableNavigation
+            startMonth={new Date(2020, 0)}
+            endMonth={new Date(2030, 11)}
+          />
+        </div>
       </PopoverContent>
     </Popover>
   );

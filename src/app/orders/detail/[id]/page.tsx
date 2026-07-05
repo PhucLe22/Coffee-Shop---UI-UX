@@ -53,7 +53,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   if (!order) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <span className="text-h3-bold text-text-primary">Order not found</span>
+        <span className="text-h3-bold text-text-primary">Không tìm thấy đơn hàng</span>
       </div>
     );
   }

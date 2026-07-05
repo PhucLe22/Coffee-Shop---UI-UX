@@ -9,6 +9,7 @@ import {
   DollarSign,
   Loader2,
   Store,
+  Check,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
@@ -22,12 +23,15 @@ import {
   MarkerLabel,
   MarkerTooltip,
 } from "@/components/ui/map";
-import { useDeliverySchedule } from "@/entities/order";
+import { useDeliverySchedule, useConfirmPickup, useCompleteDelivery } from "@/entities/order";
 import { useStaffAuthStore } from "@/shared/auth";
+import { toast } from "sonner";
 
 export default function InternalDeliveryPage() {
   const { user } = useStaffAuthStore();
   const { data: scheduleResponse, isLoading, error } = useDeliverySchedule();
+  const { mutate: confirmPickup, isPending: isPickupPending } = useConfirmPickup();
+  const { mutate: completeDelivery, isPending: isCompletePending } = useCompleteDelivery();
 
   const [roadCoordinates, setRoadCoordinates] = useState<[number, number][]>([]);
 
@@ -58,9 +62,13 @@ export default function InternalDeliveryPage() {
     }));
   }, [sortedSchedule]);
 
+  const firstPendingIdx = useMemo(() => {
+    return sortedSchedule.findIndex(n => n.status !== 'COMPLETED');
+  }, [sortedSchedule]);
+
   const pendingSteps = useMemo(() => {
-    // Treat a node as pending if status is 'PENDING'
-    return routeSteps.filter(step => step.status === 'PENDING');
+    // Treat a node as actionable if status is 'PENDING' or 'IN_PROGRESS'
+    return routeSteps.filter(step => step.status === 'PENDING' || step.status === 'IN_PROGRESS');
   }, [routeSteps]);
 
   const mapNodes = useMemo(() => {
@@ -152,10 +160,10 @@ export default function InternalDeliveryPage() {
     return (
       <div className="flex h-full flex-col items-center justify-center bg-surface-main p-xl text-center">
         <p className="text-h3-bold text-error">
-          Failed to load delivery schedule
+          Không thể tải lịch giao hàng
         </p>
         <p className="text-text-secondary mt-md">
-          Please check your connection and try again.
+          Vui lòng kiểm tra kết nối và thử lại.
         </p>
       </div>
     );
@@ -166,13 +174,13 @@ export default function InternalDeliveryPage() {
       {/* Page Header */}
       <div className="p-md lg:p-xl space-y-xs lg:space-y-sm">
         <p className="text-brand-primary text-body-sm-semibold uppercase tracking-[0.2em]">
-          Active Shift
+          Ca Làm Việc
         </p>
         <h1 className="text-h1-bold text-text-primary leading-none uppercase">
-          {user?.name || "Shipper"} Tracking
+          {user?.name || "Shipper"} Theo Dõi
         </h1>
         <p className="text-text-secondary text-body-md-reg">
-          Navigating {sortedSchedule.filter(n => n.type === "DELIVERY").length} artisanal deliveries in this shift.
+          Đang thực hiện {sortedSchedule.filter(n => n.type === "DELIVERY").length} chuyến giao hàng trong ca này.
         </p>
       </div>
 
@@ -239,7 +247,7 @@ export default function InternalDeliveryPage() {
                           isNext ? "text-info font-extrabold" : "text-text-primary",
                         )}>
                         {isStore
-                          ? node.storeName || "Store"
+                          ? node.storeName || "Cửa Hàng"
                           : `Delivery ${orderSeq}`}
                       </MarkerLabel>
                     </MarkerContent>
@@ -247,8 +255,8 @@ export default function InternalDeliveryPage() {
                       <div className="p-1">
                         <p className="font-bold">
                           {isStore
-                            ? node.storeName || "Store Location"
-                            : `Delivery #${orderSeq}`}
+                          ? node.storeName || "Địa Điểm Cửa Hàng"
+                          : `Giao Hàng #${orderSeq}`}
                         </p>
                         {node.orderCode && (
                           <p className="text-xs text-text-secondary">
@@ -262,7 +270,7 @@ export default function InternalDeliveryPage() {
                         )}
                         {node.arrival_datetime && (
                           <p className="text-[10px] text-success font-bold uppercase mt-1">
-                            Completed
+                            Hoàn Thành
                           </p>
                         )}
                       </div>
@@ -281,21 +289,21 @@ export default function InternalDeliveryPage() {
                   </div>
                   <div className="flex flex-col">
                     <p className="text-text-secondary text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
-                      Next Destination
+                      Điểm Đến Tiếp Theo
                     </p>
                     <p className="text-text-primary text-body-sm-semibold leading-tight line-clamp-2">
                       {nextDestination.type === "STORE" || nextDestination.type === "PICKUP"
-                        ? nextDestination.storeName || "Store Pickup"
+                        ? nextDestination.storeName || "Nhận Tại Cửa Hàng"
                         : `Delivery #${nextDestination.orderCode}`}
                     </p>
                   </div>
                 </div>
                 <div className="text-right border-l border-text-muted/20 pl-md">
                   <p className="text-info text-[10px] font-extrabold uppercase tracking-widest leading-none mb-1">
-                    Type
+                    Loại
                   </p>
                   <p className="text-text-primary text-h4-bold leading-none uppercase">
-                    {nextDestination.type === "STORE" || nextDestination.type === "PICKUP" ? "Pickup" : "Delivery"}
+                    {nextDestination.type === "STORE" || nextDestination.type === "PICKUP" ? "Nhận Hàng" : "Giao Hàng"}
                   </p>
                 </div>
               </div>
@@ -306,7 +314,7 @@ export default function InternalDeliveryPage() {
           <div className="grid grid-cols-2 gap-md lg:gap-lg">
             <Card className="rounded-[24px] bg-surface-accent border-text-muted/10 p-lg flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
               <p className="text-text-secondary text-[10px] font-bold uppercase tracking-widest">
-                Total Orders
+                Tổng Đơn Hàng
               </p>
               <h3 className="text-h2-bold text-text-primary mt-md">
                 {deliveryData?.numOrders || 0}
@@ -315,7 +323,7 @@ export default function InternalDeliveryPage() {
             <Card className="rounded-[24px] bg-surface-accent border-text-muted/10 p-lg flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start">
                 <p className="text-text-secondary text-[10px] font-bold uppercase tracking-widest">
-                  Shippers
+                  Shipper
                 </p>
                 <DollarSign className="size-4 text-brand-primary opacity-50" />
               </div>
@@ -326,159 +334,241 @@ export default function InternalDeliveryPage() {
           </div>
         </div>
 
-        {/* Active Order List Section */}
+        {/* Route Timeline - shows all nodes */}
         <div className="space-y-md lg:space-y-lg">
           <div className="flex items-center justify-between px-xs">
             <h2 className="text-h4-bold text-text-primary">
-              Upcoming Route
+              Lộ Trình
             </h2>
             <Badge
               variant="outline"
               className="rounded-full border-text-muted/20 text-text-secondary text-[10px] font-bold px-3">
-              {pendingSteps.length} STOPS REMAINING
+              {sortedSchedule.length} ĐIỂM DỪNG
             </Badge>
           </div>
 
-          <div className="relative space-y-md lg:space-y-lg">
+          <div className="relative space-y-0">
             {/* Visual Route Line */}
-            {pendingSteps.length > 0 && (
+            {sortedSchedule.length > 0 && (
               <div className="absolute left-[26px] top-12 bottom-12 w-0.5 border-l-2 border-dashed border-info/20 z-0 hidden lg:block" />
             )}
 
-            {/* Heading To Card */}
-            {currentStep && (
-              <div className="relative z-10">
-                <Card className="rounded-[24px] border-none shadow-sm overflow-hidden bg-info/5 border border-info/20 ring-1 ring-info/20">
-                  <CardContent className="p-lg lg:p-xl space-y-lg">
-                    <div className="flex items-start justify-between gap-md">
-                      <div className="flex items-center gap-md">
-                        <div className="size-12 rounded-[16px] bg-info flex items-center justify-center shadow-lg shadow-info/20 relative">
-                          {currentStep.type === "STORE" || currentStep.type === "PICKUP" ? <Store className="text-white size-6" /> : <Navigation className="text-white size-6" />}
-                          <div className="absolute -right-1 -top-1 size-4 bg-white rounded-full flex items-center justify-center border-2 border-info">
-                            <div className="size-1.5 bg-info rounded-full animate-ping" />
+            {sortedSchedule.map((node, idx) => {
+              const isCompleted = node.status === 'COMPLETED';
+              const isStore = node.type === 'STORE' || node.type === 'PICKUP';
+              const isFirstPending = idx === firstPendingIdx;
+              const hasOrder = !!node.orderId;
+              const prevTravelTime = idx > 0 ? sortedSchedule[idx - 1]?.travel_time_minutes : undefined;
+
+              const arrivalTime = node.arrival_datetime
+                ? (() => {
+                    try {
+                      return new Date(node.arrival_datetime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                    } catch { return node.arrival_datetime; }
+                  })()
+                : null;
+
+              return (
+                <div key={`${node.node}-${node.orderId || idx}`} className="relative z-10">
+                  {/* Travel time separator */}
+                  {prevTravelTime != null && (
+                    <div className="flex items-center gap-md py-md">
+                      <div className="h-px flex-1 bg-border-primary-50/20" />
+                      <Timer className="size-3 text-text-muted" />
+                      <span className="text-text-muted text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+                        {prevTravelTime} PHÚT
+                      </span>
+                      <div className="h-px flex-1 bg-border-primary-50/20" />
+                    </div>
+                  )}
+
+                  {/* Connection dot on timeline (desktop) */}
+                  <div className={cn(
+                    "absolute -left-[32px] top-8 size-4 rounded-full border-2 border-white shadow-sm z-20 hidden lg:block",
+                    isCompleted ? "bg-success" : isStore ? "bg-info" : "bg-brand-primary"
+                  )} />
+
+                  <Card
+                    id={node.orderCode ? `order-${node.orderCode}` : `node-${idx}`}
+                    className={cn(
+                      "rounded-[16px] border-none shadow-sm overflow-hidden transition-all duration-300",
+                      isFirstPending && !isCompleted
+                        ? "bg-info/5 border border-info/20 ring-1 ring-info/20"
+                        : isCompleted
+                          ? "bg-surface-accent/40 opacity-70"
+                          : "bg-surface-accent/60 hover:shadow-md"
+                    )}
+                  >
+                    <CardContent className={cn(
+                      "p-lg lg:p-xl",
+                      isFirstPending && !isCompleted ? "space-y-lg" : "space-y-md"
+                    )}>
+                      <div className="flex items-start justify-between gap-md">
+                        <div className="flex items-center gap-md min-w-0">
+                          <div className={cn(
+                            "size-10 rounded-[12px] flex items-center justify-center shadow-md shrink-0",
+                            isCompleted
+                              ? "bg-success/10 text-success"
+                              : isStore
+                                ? "bg-info/10 text-info"
+                                : "bg-brand-primary/10 text-brand-primary"
+                          )}>
+                            {isCompleted ? (
+                              <Check className="size-5" />
+                            ) : isStore ? (
+                              <Store className="size-5" />
+                            ) : (
+                              <Package className="size-5" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            {/* Badges row */}
+                            <div className="flex items-center gap-sm flex-wrap mb-1">
+                              {arrivalTime && (
+                                <Badge className="bg-brand-primary/10 text-brand-primary text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full border-none">
+                                  {arrivalTime}
+                                </Badge>
+                              )}
+                              {isCompleted && (
+                                <Badge className="bg-success/10 text-success text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full border-none gap-sm">
+                                  <Check className="size-3" /> HOÀN THÀNH
+                                </Badge>
+                              )}
+                              {node.action_amount != null && (
+                                <Badge className={cn(
+                                  "text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full border-none",
+                                  node.action_amount > 0
+                                    ? "bg-info/10 text-info"
+                                    : "bg-warning/10 text-warning"
+                                )}>
+                                  {node.action_amount > 0 ? `+${node.action_amount}` : node.action_amount}
+                                </Badge>
+                              )}
+                              {node.load_after_action != null && (
+                                <Badge className="bg-surface-accent text-text-secondary text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full border-none">
+                                  Tải: {node.load_after_action}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className={cn(
+                              "text-[10px] font-bold uppercase tracking-widest leading-none mb-1",
+                              isCompleted ? "text-success" : isStore ? "text-info" : "text-brand-primary"
+                            )}>
+                              {!hasOrder
+                                ? "Điểm Xuất Phát"
+                                : isCompleted
+                                  ? (isStore ? "Đã Nhận Hàng" : "Đã Giao Hàng")
+                                  : (isStore ? "Nhận Hàng" : "Giao Hàng")}
+                            </p>
+                            <h3 className={cn(
+                              "leading-tight truncate",
+                              isFirstPending && !isCompleted ? "text-h3-bold" : "text-body-md-semibold"
+                            )}>
+                              {!hasOrder
+                                ? (node.storeName || "Điểm Xuất Phát")
+                                : `${isStore ? 'Pickup' : 'Deliver'}: ${node.orderCode || 'N/A'}`}
+                            </h3>
                           </div>
                         </div>
-                        <div>
-                          <p className="text-info text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
-                            Currently Heading To
-                          </p>
-                          <h3 className="text-h3-bold text-text-primary">
-                            {currentStep.type === "STORE" || currentStep.type === "PICKUP"
-                              ? currentStep.storeName || "Store Pickup"
-                              : currentStep.customerName || `Order ${currentStep.orderCode}`}
-                          </h3>
-                        </div>
-                      </div>
-                      <Badge className="bg-info text-white hover:bg-info/90 text-[10px] font-extrabold tracking-widest px-3 py-1 rounded-full shrink-0 uppercase">
-                        On My Way
-                      </Badge>
-                    </div>
-
-                    <div className="space-y-md">
-                      <div className="flex items-start gap-sm">
-                        <MapPin className="size-5 text-info shrink-0 mt-0.5" />
-                        <p className="text-text-secondary text-body-sm-reg leading-snug">
-                          {currentStep.type === "STORE" || currentStep.type === "PICKUP"
-                            ? currentStep.storeAddress || "Store Address"
-                            : currentStep.address || "Delivery Address"}
-                        </p>
+                        {isFirstPending && !isCompleted && (
+                          <Badge className="bg-info text-white hover:bg-info/90 text-[10px] font-extrabold tracking-widest px-3 py-1 rounded-full shrink-0 uppercase">
+                            Đang Tới
+                          </Badge>
+                        )}
                       </div>
 
-                      {/* Detailed info at this stop */}
-                      <div className="space-y-sm pt-xs text-text-secondary text-body-sm-reg">
-                        {currentStep.orderCode && <p><span className="font-bold">Order:</span> #{currentStep.orderCode}</p>}
-                        {currentStep.items && currentStep.items.length > 0 && (
+                      <div className={cn(
+                        "space-y-sm text-text-secondary",
+                        isFirstPending && !isCompleted ? "text-body-sm-reg" : "text-[12px]"
+                      )}>
+                        {hasOrder && (
+                          <>
+                            {isStore && node.storeName && (
+                              <p><span className="font-semibold">Cửa Hàng:</span> {node.storeName}</p>
+                            )}
+                            {!isStore && node.customerName && (
+                              <p><span className="font-semibold">Khách Hàng:</span> {node.customerName}{node.customerPhone ? ` (${node.customerPhone})` : ''}</p>
+                            )}
+                          </>
+                        )}
+
+                        {(node.address || node.storeAddress) && (
+                          <div className="flex items-start gap-sm">
+                            <MapPin className="size-4 text-text-muted shrink-0 mt-0.5" />
+                            <p className="leading-snug line-clamp-2">
+                              {isStore ? node.storeAddress : node.address}
+                            </p>
+                          </div>
+                        )}
+
+                        {hasOrder && node.orderCode && (
+                          <p><span className="font-semibold">Mã Đơn:</span> #{node.orderCode}</p>
+                        )}
+
+                        {node.items && node.items.length > 0 && (
                           <div className="space-y-xs">
-                            <p className="font-bold">Items:</p>
-                            {currentStep.items.map((item, i) => (
+                            {node.items.map((item, i) => (
                               <p key={i}>• {item.quantity}x {item.name}</p>
                             ))}
                           </div>
                         )}
-                        {currentStep.total && <p><span className="font-bold">Total:</span> {parseInt(currentStep.total).toLocaleString()} VND</p>}
-                        {currentStep.customerName && <p><span className="font-bold">Customer:</span> {currentStep.customerName} ({currentStep.customerPhone})</p>}
+
+                        {node.total && (
+                          <p><span className="font-semibold">Tổng:</span> {parseInt(node.total).toLocaleString()} VND</p>
+                        )}
                       </div>
-                    </div>
 
-                    <div className="pt-md border-t border-info/10">
-                      <Button className="w-full h-14 rounded-full bg-info hover:bg-info/90 text-white gap-md label-button-md shadow-lg shadow-info/20 active:scale-95 transition-all">
-                        <Navigation className="size-6" /> Start Navigation
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Upcoming Steps */}
-            {upcomingRouteSteps.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-md lg:gap-lg relative z-10">
-                {upcomingRouteSteps.map((stop, idx) => {
-                  const isStore = stop.type === "STORE" || stop.type === "PICKUP";
-
-                  return (
-                    <div key={idx} className="relative">
-                      {/* Connection dot for timeline (Desktop only) */}
-                      <div className={cn(
-                        "absolute -left-[32px] top-8 size-4 rounded-full border-2 border-white shadow-sm z-20 hidden lg:block",
-                        isStore ? "bg-success" : "bg-brand-primary"
-                      )} />
-
-                      <Card
-                        id={stop.orderCode ? `order-${stop.orderCode}` : `task-${idx}`}
-                        className="rounded-[24px] bg-surface-accent/60 border-none shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300"
-                      >
-                        <CardContent className="p-lg lg:p-xl space-y-lg">
-                          <div className="flex items-start justify-between gap-md">
-                            <div className="flex items-center gap-md">
-                              <div className={cn(
-                                "size-10 rounded-[12px] flex items-center justify-center shadow-md",
-                                isStore ? "bg-success/10 text-success" : "bg-brand-primary/10 text-brand-primary"
-                              )}>
-                                {isStore ? <Store className="size-5" /> : <Package className="size-5" />}
-                              </div>
-                              <div>
-                                <p className={cn(
-                                  "text-[10px] font-bold uppercase tracking-widest leading-none mb-1",
-                                  isStore ? "text-success" : "text-brand-primary"
-                                )}>
-                                  {isStore ? "Upcoming Pickup" : "Upcoming Delivery"}
-                                </p>
-                                <h3 className="text-body-md-semibold text-text-primary">
-                                  {isStore ? stop.storeName || "Store Pickup" : stop.customerName || `Order #${stop.orderCode}`}
-                                </h3>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-sm text-text-secondary text-[12px]">
-                            <div className="flex items-start gap-sm">
-                              <MapPin className="size-4 text-text-muted shrink-0 mt-0.5" />
-                              <p className="leading-snug line-clamp-1">
-                                {isStore ? stop.storeAddress || "Store Address" : stop.address}
-                              </p>
-                            </div>
-
-                            {stop.orderCode && <p>Order: #{stop.orderCode}</p>}
-                            {stop.items && stop.items.length > 0 && (
-                              <p>Items: {stop.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</p>
-                            )}
-                            {stop.total && <p>Total: {parseInt(stop.total).toLocaleString()} VND</p>}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                      {hasOrder && !isCompleted && (
+                        <div className="pt-md border-t border-border-primary-50/10">
+                          {isStore ? (
+                            <Button
+                              className={cn(
+                                "w-full rounded-full text-white gap-sm",
+                                isFirstPending
+                                  ? "h-14 bg-success hover:bg-success/90 label-button-md shadow-lg shadow-success/20 active:scale-95 transition-all"
+                                  : "h-10 bg-success hover:bg-success/90 label-button-sm text-[12px]"
+                              )}
+                              onClick={() => confirmPickup(node.orderId!, {
+                                onSuccess: () => toast.success("Đã xác nhận nhận hàng"),
+                                onError: (err: any) => toast.error(err?.response?.data?.message || "Xác nhận nhận hàng thất bại"),
+                              })}
+                              disabled={isPickupPending}
+                            >
+                              <Package className={isFirstPending ? "size-6" : "size-4"} />
+                              {isPickupPending ? "Đang xác nhận..." : "Xác Nhận Nhận Hàng"}
+                            </Button>
+                          ) : (
+                            <Button
+                              className={cn(
+                                "w-full rounded-full text-white gap-sm",
+                                isFirstPending
+                                  ? "h-14 bg-brand-primary hover:bg-brand-accent label-button-md shadow-lg shadow-brand-primary/20 active:scale-95 transition-all"
+                                  : "h-10 bg-brand-primary hover:bg-brand-accent label-button-sm text-[12px]"
+                              )}
+                              onClick={() => completeDelivery(node.orderId!, {
+                                onSuccess: () => toast.success("Đã hoàn thành giao hàng"),
+                                onError: (err: any) => toast.error(err?.response?.data?.message || "Hoàn thành giao hàng thất bại"),
+                              })}
+                              disabled={isCompletePending}
+                            >
+                              <MapPin className={isFirstPending ? "size-6" : "size-4"} />
+                              {isCompletePending ? "Đang hoàn tất..." : "Hoàn Tất Giao Hàng"}
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
           </div>
 
           {/* Quick Support / Support Button */}
           <Button
             variant="ghost"
             className="w-full h-14 rounded-[24px] border-2 border-dashed border-text-muted/20 text-text-muted hover:border-brand-primary hover:text-brand-primary hover:bg-brand-primary/5 transition-all gap-md label-button-md">
-            <Timer className="size-5" /> Need Assistance? Contact Dispatch
+            <Timer className="size-5" /> Cần Hỗ Trợ? Liên Hệ Điều Phối
           </Button>
         </div>
       </div>

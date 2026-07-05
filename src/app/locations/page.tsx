@@ -171,16 +171,29 @@ export default function LocationsPage() {
                     <MapPin className={cn("size-5", isSelected || isHovered ? "text-white" : "text-brand-primary")} />
                   </div>
                 </MarkerContent>
-                <MarkerPopup className="w-56 p-md">
-                  <div className="space-y-sm">
-                    <h4 className="text-body-md-bold text-text-primary">{store.name}</h4>
-                    <p className="text-body-sm-reg text-text-secondary">{store.address}</p>
-                    <button
-                      onClick={() => handleSelectStore(store)}
-                      className="w-full mt-sm py-xs bg-brand-primary text-white text-xs font-bold rounded-md hover:bg-brand-primary/90 transition-colors"
-                    >
-                      CHỌN CỬA HÀNG
-                    </button>
+                <MarkerPopup className="w-72 p-0 overflow-hidden shadow-xl border border-border-primary-50/20 bg-white">
+                  <div className="flex flex-col">
+                    <div className="bg-brand-primary px-md py-sm">
+                      <h4 className="text-body-md-bold text-white">{store.name}</h4>
+                    </div>
+                    <div className="flex flex-col gap-sm p-md">
+                      <div className="flex items-start gap-sm text-text-secondary">
+                        <MapPin className="mt-0.5 size-4 shrink-0 text-brand-primary" />
+                        <p className="text-body-sm-reg leading-snug">{store.address}</p>
+                      </div>
+                      {store.hotline && (
+                        <div className="flex items-center gap-sm text-text-secondary">
+                          <Phone className="size-4 shrink-0 text-brand-primary" />
+                          <p className="text-body-sm-reg">{store.hotline}</p>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => handleSelectStore(store)}
+                        className="w-full mt-xs py-sm bg-brand-primary text-white text-body-sm-bold rounded-md hover:bg-brand-accent transition-all active:scale-[0.98] shadow-sm"
+                      >
+                        CHỌN CỬA HÀNG
+                      </button>
+                    </div>
                   </div>
                 </MarkerPopup>
               </MapMarker>

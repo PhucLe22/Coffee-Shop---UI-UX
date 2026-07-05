@@ -85,7 +85,7 @@ export function CreateAddressDialog({ onCreated, trigger }: CreateAddressDialogP
             <Label
               htmlFor="receiverName"
               className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">
-              RECEIVER NAME
+              TÊN NGƯỜI NHẬN
             </Label>
             <Input
               id="receiverName"
@@ -109,7 +109,7 @@ export function CreateAddressDialog({ onCreated, trigger }: CreateAddressDialogP
             <Label
               htmlFor="receiverPhone"
               className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">
-              RECEIVER PHONE
+              SỐ ĐIỆN THOẠI NGƯỜI NHẬN
             </Label>
             <Input
               id="receiverPhone"
@@ -133,7 +133,7 @@ export function CreateAddressDialog({ onCreated, trigger }: CreateAddressDialogP
             <Label
               htmlFor="addressLine"
               className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">
-              ADDRESS LINE
+              ĐỊA CHỈ
             </Label>
             <Input
               id="addressLine"
@@ -157,11 +157,11 @@ export function CreateAddressDialog({ onCreated, trigger }: CreateAddressDialogP
             <Label
               htmlFor="label"
               className="text-secondary text-[11px] font-bold uppercase tracking-[0.1em]">
-              LABEL
+              NHÃN
             </Label>
             <Input
               id="label"
-              placeholder="e.g. Home, Work, Gym"
+              placeholder="VD: Nhà riêng, Cơ quan, Phòng Gym"
               {...register("label")}
               className={cn(
                 "h-14 px-md rounded-md transition-all bg-surface-accent",

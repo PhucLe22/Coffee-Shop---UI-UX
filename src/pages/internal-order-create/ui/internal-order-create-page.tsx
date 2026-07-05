@@ -34,7 +34,7 @@ import { useRouter } from "next/navigation";
 import { OrderType } from "@/shared/api";
 
 // Temporary mock data for categories
-const CATEGORIES = ["ALL", "COFFEE", "TEA", "BAKERY", "NON-COFFEE"];
+const CATEGORIES = ["TẤT CẢ", "CÀ PHÊ", "TRÀ", "BÁNH", "KHÔNG CÀ PHÊ"];
 
 interface CartContentItemsProps {
   items: InternalCartItem[];
@@ -46,7 +46,7 @@ const CartContentItems = ({ items, updateQuantity }: CartContentItemsProps) => (
     {items.length === 0 ? (
       <div className="flex-1 flex flex-col items-center justify-center text-text-muted gap-md opacity-50">
         <ShoppingBag className="size-16 stroke-[1]" />
-        <p className="text-body-md-semibold">Your cart is empty</p>
+        <p className="text-body-md-semibold">Giỏ hàng trống</p>
       </div>
     ) : (
       items.map((item) => (
@@ -120,16 +120,16 @@ const OrderSummaryFooter = ({
   <div className="p-lg flex flex-col gap-md bg-surface-accent border-t border-border-primary-50/10">
     <div className="flex flex-col gap-sm">
       <div className="flex justify-between text-body-sm-reg text-text-primary">
-        <span>Subtotal</span>
+        <span>Tạm Tính</span>
         <span>{formatToVND(getSubtotal())}</span>
       </div>
       <div className="flex justify-between text-body-sm-reg text-text-secondary">
-        <span>Discount</span>
+        <span>Giảm Giá</span>
         <span>-{formatToVND(getDiscount())}</span>
       </div>
       <Separator className="my-sm opacity-10" />
       <div className="flex justify-between items-end">
-        <span className="text-h3-bold text-text-secondary">Total</span>
+        <span className="text-h3-bold text-text-secondary">Tổng Cộng</span>
         <span className="text-h2-bold text-text-primary">
           {formatToVND(getTotal())}
         </span>
@@ -139,17 +139,17 @@ const OrderSummaryFooter = ({
     <div className="flex flex-col gap-sm mt-md">
       <div className="flex flex-col gap-2">
         <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">
-          Promo Code
+          Mã Giảm Giá
         </label>
         <div className="flex gap-2">
           <Input
-            placeholder="Enter code"
+            placeholder="Nhập mã"
             className="bg-white border-none rounded-md"
           />
           <Button
             variant="outline"
             className="rounded-md px-lg font-bold text-xs">
-            APPLY
+            ÁP DỤNG
           </Button>
         </div>
       </div>
@@ -158,7 +158,7 @@ const OrderSummaryFooter = ({
         disabled={isPending}
         className="w-full h-14 bg-brand-primary text-white font-extrabold text-[13px] tracking-widest shadow-lg shadow-brand-primary/20 rounded-full mt-md"
       >
-        {isPending ? "CREATING ORDER..." : "CREATE ORDER"}
+        {isPending ? "ĐANG TẠO ĐƠN..." : "TẠO ĐƠN HÀNG"}
       </Button>
     </div>
   </div>
@@ -208,17 +208,17 @@ export default function InternalOrderCreatePage() {
 
   const handlePlaceOrder = () => {
     if (items.length === 0) {
-      toast.error("Cart is empty");
+      toast.error("Giỏ hàng trống");
       return;
     }
 
     if (!selectedCustomer) {
-      toast.error("Please select a customer");
+      toast.error("Vui lòng chọn khách hàng");
       return;
     }
 
     if (orderType === OrderType.DINE_IN && !tableNumber) {
-      toast.error("Please enter table number");
+      toast.error("Vui lòng nhập số bàn");
       return;
     }
 
@@ -242,7 +242,7 @@ export default function InternalOrderCreatePage() {
 
     createStaffOrder(orderData, {
       onSuccess: (response) => {
-        toast.success("Order created successfully!");
+        toast.success("Tạo đơn hàng thành công!");
         clearCart();
         queryClient.invalidateQueries({ queryKey: ["internal-orders"] });
         if (response.data.orderCode) {
@@ -250,7 +250,7 @@ export default function InternalOrderCreatePage() {
         }
       },
       onError: (error: any) => {
-        toast.error(error.response?.data?.message || "Failed to create order");
+        toast.error(error.response?.data?.message || "Tạo đơn hàng thất bại");
       },
     });
   };
@@ -274,10 +274,10 @@ export default function InternalOrderCreatePage() {
         <div className="flex-1 flex flex-col min-w-0 bg-surface-main">
           <div className="flex-1 overflow-y-auto no-scrollbar p-md md:p-xl flex flex-col gap-lg">
             <div className="flex flex-col gap-md p-md bg-surface-accent/50 rounded-md border border-border-primary-50/10 shadow-sm">
-              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Order Configuration</span>
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Cấu Hình Đơn Hàng</span>
               
               <div className="flex flex-col gap-sm">
-                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Order Type</span>
+                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Loại Đơn</span>
                 <div className="flex gap-md">
                   <Button
                     variant={orderType === OrderType.DINE_IN ? "default" : "outline"}
@@ -287,7 +287,7 @@ export default function InternalOrderCreatePage() {
                       orderType === OrderType.DINE_IN ? "bg-brand-primary text-white" : "border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5"
                     )}
                   >
-                    DINE IN
+                    TẠI QUÁN
                   </Button>
                   <Button
                     variant={orderType === OrderType.TAKEAWAY ? "default" : "outline"}
@@ -297,16 +297,16 @@ export default function InternalOrderCreatePage() {
                       orderType === OrderType.TAKEAWAY ? "bg-brand-primary text-white" : "border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5"
                     )}
                   >
-                    TAKEAWAY
+                    MANG ĐI
                   </Button>
                 </div>
               </div>
 
               {orderType === OrderType.DINE_IN && (
                 <div className="flex flex-col gap-sm animate-in fade-in slide-in-from-top-1 duration-200">
-                  <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Table Number</span>
+                  <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Số Bàn</span>
                   <Input 
-                    placeholder="Enter table number..." 
+                    placeholder="Nhập số bàn..." 
                     className="h-10 bg-white border-none rounded-md text-sm shadow-none focus-visible:ring-1 focus-visible:ring-brand-primary/20"
                     value={tableNumber}
                     onChange={(e) => setTableNumber(e.target.value)}
@@ -315,12 +315,12 @@ export default function InternalOrderCreatePage() {
               )}
 
               <div className="flex flex-col gap-sm">
-                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Customer Selection</span>
+                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Chọn Khách Hàng</span>
                 <div className="flex gap-md">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-text-muted" />
                     <Input
-                      placeholder="Search by phone..."
+                      placeholder="Tìm kiếm theo số điện thoại..."
                       className="pl-9 h-10 bg-white border-none rounded-md text-sm shadow-none focus-visible:ring-1 focus-visible:ring-brand-primary/20"
                       value={customerSearch}
                       onChange={(e) => setCustomerSearch(e.target.value)}
@@ -347,7 +347,7 @@ export default function InternalOrderCreatePage() {
                     variant="outline"
                     className="h-10 px-md text-xs font-bold rounded-md border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5"
                     onClick={() => setShowCreateModal(true)}>
-                    NEW CUSTOMER
+                    KHÁCH MỚI
                   </Button>
                 </div>
                 {selectedCustomer && (
@@ -358,9 +358,9 @@ export default function InternalOrderCreatePage() {
               </div>
 
               <div className="flex flex-col gap-sm">
-                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Order Note</span>
+                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Ghi Chú Đơn Hàng</span>
                 <Textarea 
-                  placeholder="Enter a note for the entire order..." 
+                  placeholder="Nhập ghi chú cho đơn hàng..." 
                   className="bg-white border-none rounded-md text-sm shadow-none focus-visible:ring-1 focus-visible:ring-brand-primary/20 min-h-[80px]"
                   value={orderNote}
                   onChange={(e) => setOrderNote(e.target.value)}
@@ -380,12 +380,12 @@ export default function InternalOrderCreatePage() {
             {/* Search and Filters */}
             <div className="flex flex-col gap-md">
               <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
-                Product Selection
+                Chọn Sản Phẩm
               </span>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-text-muted" />
                 <Input
-                  placeholder="Search products..."
+                  placeholder="Tìm kiếm sản phẩm..."
                   className="pl-10 h-12 bg-white border-none rounded-full shadow-sm focus-visible:ring-2 focus-visible:ring-brand-primary/10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -454,7 +454,7 @@ export default function InternalOrderCreatePage() {
         {!isMobile && (
           <aside className="w-[400px] xl:w-[450px] bg-surface-accent border-l border-border-primary-50/10 flex flex-col sticky top-0 h-screen shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
             <div className="p-lg flex items-center justify-between border-b border-border-primary-50/10 bg-surface-accent/50 backdrop-blur-md">
-              <h2 className="text-h4-bold text-text-primary">Order Summary</h2>
+              <h2 className="text-h4-bold text-text-primary">Tóm Tắt Đơn Hàng</h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -481,7 +481,7 @@ export default function InternalOrderCreatePage() {
             <div className="fixed bottom-[87px] left-0 right-0 p-md bg-surface-accent border-t border-border-primary-50/10 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] flex items-center justify-between z-[50] animate-in slide-in-from-bottom duration-300">
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
-                  Total Amount
+                  Tổng Tiền
                 </span>
                 <span className="text-h3-bold text-text-primary">
                   {formatToVND(totalValue)}
@@ -490,7 +490,7 @@ export default function InternalOrderCreatePage() {
               <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
                 <SheetTrigger asChild>
                   <Button className="rounded-full px-xl h-12 bg-brand-primary text-white font-bold tracking-widest text-[12px] shadow-lg shadow-brand-primary/20">
-                    VIEW CART ({items.length})
+                    XEM GIỎ ({items.length})
                   </Button>
                 </SheetTrigger>
                 <SheetContent
@@ -499,7 +499,7 @@ export default function InternalOrderCreatePage() {
                   <SheetHeader className="p-lg border-b border-border-primary-50/5">
                     <div className="flex items-center justify-between">
                       <SheetTitle className="text-h3-bold text-text-primary">
-                        Order Summary
+                        Tóm Tắt Đơn Hàng
                       </SheetTitle>
                       <Button
                         variant="ghost"

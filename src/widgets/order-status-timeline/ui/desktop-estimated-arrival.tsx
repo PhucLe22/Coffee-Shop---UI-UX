@@ -19,7 +19,7 @@ export function DesktopEstimatedArrival({ order }: DesktopEstimatedArrivalProps)
     <Card className="bg-surface-accent border border-border-primary-50 shadow-none rounded-md">
       <CardContent className="p-xl flex flex-col items-center justify-center gap-sm">
         <span className="text-body-sm-reg text-text-secondary uppercase tracking-widest font-bold">
-          ESTIMATED ARRIVAL
+          THỜI GIAN DỰ KIẾN
         </span>
         <span className="text-display-lg text-brand-primary leading-none">
           {formatEstimatedArrival(order.estimatedArrival)}

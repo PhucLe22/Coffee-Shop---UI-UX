@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const createVoucherSchema = z.object({
-  code: z.string().min(1, "Code is required").max(20, "Code must be at most 20 characters"),
+  code: z.string().min(1, "Vui lòng nhập mã").max(20, "Mã không được vượt quá 20 ký tự"),
   discountType: z.enum(["PERCENT", "FIXED"]),
-  discountValue: z.coerce.number().min(1, "Discount value must be at least 1"),
+  discountValue: z.coerce.number().min(1, "Giá trị giảm giá phải ít nhất là 1"),
   maxUsage: z.string().optional(),
   minOrderAmount: z.string().optional(),
   maxDiscount: z.string().optional(),

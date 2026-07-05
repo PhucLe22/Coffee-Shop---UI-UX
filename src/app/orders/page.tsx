@@ -248,7 +248,7 @@ export default function OrdersPage() {
                 <div className="flex-1 rounded-[20px] bg-[#f0660a] p-8 text-inverse-text shadow-sm flex flex-col justify-between min-h-[200px]">
                   <div>
                     <span className="text-[14px] font-bold uppercase tracking-widest opacity-80 font-inter">
-                      COLLECTIVE POINTS
+                      ĐIỂM TÍCH LŨY
                     </span>
                     <h3 className="text-[36px] font-extrabold leading-tight font-plus-jakarta mt-1">
                       2,450 pts
@@ -259,8 +259,8 @@ export default function OrdersPage() {
                       <div className="h-full bg-white rounded-full w-[78%]" />
                     </div>
                     <div className="flex items-center justify-between text-[12px] font-bold font-inter opacity-90">
-                      <span>GOLD MEMBER</span>
-                      <span>550 pts to Platinum</span>
+                      <span>HỘI VIÊN VÀNG</span>
+                      <span>550 điểm nữa lên Bạch Kim</span>
                     </div>
                   </div>
                 </div>

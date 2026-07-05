@@ -30,7 +30,7 @@ export const CreateCustomerModal = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
-      toast.error("Please fill in both name and phone number");
+      toast.error("Vui lòng nhập tên và số điện thoại");
       return;
     }
 
@@ -38,13 +38,13 @@ export const CreateCustomerModal = ({
       { name, phone },
       {
         onSuccess: (response) => {
-          toast.success("Customer created successfully!");
+          toast.success("Tạo khách hàng thành công!");
           onCreated(response.data);
           onClose();
         },
         onError: (error: any) => {
           toast.error(
-            error.response?.data?.message || "Failed to create customer",
+            error.response?.data?.message || "Tạo khách hàng thất bại",
           );
         },
       },
@@ -67,9 +67,9 @@ export const CreateCustomerModal = ({
               <UserPlus className="size-5" />
             </div>
             <div className="flex flex-col text-left">
-              <DialogTitle>Create New Customer</DialogTitle>
+              <DialogTitle>Tạo Khách Hàng Mới</DialogTitle>
               <DialogDescription>
-                Enter details to add a new guest
+                Nhập thông tin để thêm khách hàng mới
               </DialogDescription>
             </div>
           </DialogHeader>
@@ -79,11 +79,11 @@ export const CreateCustomerModal = ({
               <Label
                 htmlFor="cust-name"
                 className="text-[11px] font-bold text-text-muted uppercase">
-                Customer Name
+                Tên Khách Hàng
               </Label>
               <Input
                 id="cust-name"
-                placeholder="e.g. John Doe"
+                placeholder="VD: Nguyễn Văn A"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -95,7 +95,7 @@ export const CreateCustomerModal = ({
               <Label
                 htmlFor="cust-phone"
                 className="text-[11px] font-bold text-text-muted uppercase">
-                Phone Number
+                Số Điện Thoại
               </Label>
               <Input
                 id="cust-phone"
@@ -115,13 +115,13 @@ export const CreateCustomerModal = ({
               variant="ghost"
               onClick={onClose}
               className="flex-1 h-12 rounded-full font-bold text-text-muted hover:bg-white/50">
-              CANCEL
+              HỦY
             </Button>
             <Button
               type="submit"
               disabled={isPending}
               className="flex-1 h-12 bg-brand-primary text-white font-extrabold tracking-widest rounded-full shadow-lg shadow-brand-primary/20 hover:bg-brand-primary/90 transition-all active:scale-[0.98]">
-              {isPending ? "CREATING..." : "CREATE CUSTOMER"}
+              {isPending ? "ĐANG TẠO..." : "TẠO KHÁCH HÀNG"}
             </Button>
           </DialogFooter>
         </form>

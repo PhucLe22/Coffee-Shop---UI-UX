@@ -22,7 +22,7 @@ export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
     <Card className="bg-surface-accent border border-border-primary-50 shadow-none rounded-md">
       <CardHeader className="p-xl pb-md">
         <CardTitle className="text-h3-bold text-text-primary">
-          Order Summary
+          Tóm Tắt Đơn Hàng
         </CardTitle>
       </CardHeader>
       <CardContent className="p-xl pt-0 flex flex-col gap-lg">
@@ -55,17 +55,17 @@ export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
 
       <div className="p-xl flex flex-col gap-md">
         <div className="flex justify-between items-center text-body-md-bold text-text-muted">
-          <span>Subtotal</span>
+          <span>Tạm Tính</span>
           <span>{formatToVND(subtotal)}</span>
         </div>
         <div className="flex justify-between items-center text-body-md-bold text-text-muted">
-          <span>Delivery Fee</span>
+          <span>Phí Giao Hàng</span>
           <span>{formatToVND(deliveryFee)}</span>
         </div>
       </div>
 
       <CardFooter className="p-xl flex justify-between items-center">
-        <span className="text-h3-bold text-text-primary">Total</span>
+        <span className="text-h3-bold text-text-primary">Tổng Cộng</span>
         <span className="text-h3-bold text-brand-primary">
           {formatToVND(total)}
         </span>

@@ -3,13 +3,14 @@
 import React from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { AppButton } from "@/shared/ui/app-button";
-import { Trash2, AlertTriangle } from "lucide-react";
+import { Trash2, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -48,55 +49,64 @@ export const UpdateVoucherDialog = ({ voucher, open, onOpenChange }: UpdateVouch
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-md border-0 p-xl"
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-md border-0 p-lg sm:p-xl"
         onCloseAutoFocus={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="mb-6 flex flex-row items-start justify-between">
-          <div className="flex flex-col gap-1">
-            <DialogTitle className="text-h3-bold text-text-primary text-left">
-              Update Voucher
-            </DialogTitle>
-            <DialogDescription className="text-overline text-text-muted text-left uppercase tracking-widest">
-              MODIFY VOUCHER DETAILS OR REMOVE FROM SYSTEM.
-            </DialogDescription>
+        <DialogHeader className="mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+            <div className="flex items-start justify-between gap-2 flex-1">
+              <div className="flex flex-col gap-1">
+                <DialogTitle className="text-h3-bold text-text-primary text-left">
+                  Update Voucher
+                </DialogTitle>
+                <DialogDescription className="text-[10px] text-text-muted text-left uppercase tracking-widest leading-tight">
+                  MODIFY VOUCHER DETAILS OR REMOVE FROM SYSTEM.
+                </DialogDescription>
+              </div>
+              <DialogClose asChild>
+                <button className="rounded-full p-1.5 hover:bg-surface-muted transition-colors">
+                  <X className="size-5" />
+                </button>
+              </DialogClose>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <AppButton
+                    variant="outline"
+                    className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 h-8 sm:h-10 px-2 sm:px-md text-[11px] sm:text-sm"
+                  >
+                    <Trash2 className="size-3 sm:size-4 mr-1 sm:mr-2" />
+                    DELETE
+                  </AppButton>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-md border-0">
+                  <AlertDialogHeader>
+                    <div className="flex items-center gap-3 text-red-500 mb-2">
+                      <AlertTriangle className="size-6" />
+                      <AlertDialogTitle className="text-h4-bold">Are you absolutely sure?</AlertDialogTitle>
+                    </div>
+                    <AlertDialogDescription className="text-body-md-reg">
+                      This action cannot be undone. This will permanently delete voucher
+                      <strong> {voucher.code} </strong> and remove its data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="mt-6">
+                    <AlertDialogCancel className="rounded-md border-border-primary-50">Cancel</AlertDialogCancel>
+                    <AppButton
+                      onClick={handleDelete}
+                      isLoading={isDeleting}
+                      className="bg-red-500 text-white hover:bg-red-600 rounded-md h-10"
+                    >
+                      DELETE VOUCHER
+                    </AppButton>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <AppButton
-                variant="outline"
-                className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 h-10 px-md"
-              >
-                <Trash2 className="size-4 mr-2" />
-                DELETE
-              </AppButton>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="rounded-md border-0">
-              <AlertDialogHeader>
-                <div className="flex items-center gap-3 text-red-500 mb-2">
-                  <AlertTriangle className="size-6" />
-                  <AlertDialogTitle className="text-h4-bold">Are you absolutely sure?</AlertDialogTitle>
-                </div>
-                <AlertDialogDescription className="text-body-md-reg">
-                  This action cannot be undone. This will permanently delete voucher
-                  <strong> {voucher.code} </strong> and remove its data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter className="mt-6">
-                <AlertDialogCancel className="rounded-md border-border-primary-50">Cancel</AlertDialogCancel>
-                <AppButton
-                  onClick={handleDelete}
-                  isLoading={isDeleting}
-                  className="bg-red-500 text-white hover:bg-red-600 rounded-md h-10"
-                >
-                  DELETE VOUCHER
-                </AppButton>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </DialogHeader>
 
         <UpdateVoucherForm voucher={voucher} onSuccess={() => onOpenChange(false)} />

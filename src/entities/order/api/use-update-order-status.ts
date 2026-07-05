@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { OrderService } from "./order.service";
 import { OrderResponse } from "../model/types";
@@ -37,8 +38,13 @@ export const useUpdateOrderStatus = () => {
       return { previousOrders };
     },
 
+    onSuccess: () => {
+      toast.success("Cập nhật trạng thái đơn hàng thành công");
+    },
+
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (err, variables, context) => {
+      toast.error("Không thể cập nhật trạng thái đơn hàng");
       if (context?.previousOrders) {
         queryClient.setQueriesData({ queryKey: ["internal-orders"] }, context.previousOrders);
       }

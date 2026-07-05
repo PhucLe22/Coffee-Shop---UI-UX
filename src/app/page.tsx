@@ -47,7 +47,7 @@ export default function HomePage() {
 
         {/* Featured Rituals */}
         <section className="flex flex-col gap-lg">
-          <h2 className="text-h1-bold text-text-secondary">Featured Rituals</h2>
+          <h2 className="text-h1-bold text-text-secondary">Nghi Thức Nổi Bật</h2>
           <div className="flex flex-col gap-lg">
             {/* Large Featured Card */}
             <div className="relative min-h-[400px] w-full overflow-hidden rounded-lg bg-text-primary shadow-lg">
@@ -55,16 +55,15 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-linear-to-t from-text-primary/95 via-text-primary/20 to-transparent" />
               <div className="absolute inset-0 flex flex-col justify-end p-xl gap-md">
                 <div className="flex w-fit items-center rounded-full bg-brand-primary px-lg py-1 text-overline-inter text-inverse-text uppercase">
-                  NEW SEASON
+                  MÙA MỚI
                 </div>
                 <h3 className="text-display-md text-brand-primary leading-tight">
                   The Honey- Oak Flat White
                 </h3>
                 <p className="text-body-md-bold text-inverse-text">
-                  Sourced from the highlands of Ethiopia, infused with
-                  sustainable forest honey.
+                  Được tuyển chọn từ vùng cao nguyên Ethiopia, kết hợp với mật ong rừng bền vững.
                 </p>
-                <AppButton variant="secondary" className="w-fit">Try it now</AppButton>
+                <AppButton variant="secondary" className="w-fit">Thử ngay</AppButton>
               </div>
             </div>
 
@@ -75,11 +74,11 @@ export default function HomePage() {
                   Monday Roast
                 </h3>
                 <span className="text-h3-bold text-inverse-text">
-                  50% Off
+                  Giảm 50%
                 </span>
               </div>
               <p className="text-body-sm-semibold">
-                Exclusive for rewards members every first day of the week.
+                Dành riêng cho thành viên rewards vào mỗi đầu tuần.
               </p>
             </div>
           </div>

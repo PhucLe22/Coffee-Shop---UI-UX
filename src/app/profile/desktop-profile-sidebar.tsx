@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { User, ClipboardList, MapPin, CreditCard, LogOut } from "lucide-react";
+import { User, ClipboardList, LogOut } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { AppButton } from "@/shared/ui";
 import { useRouter } from "next/navigation";
@@ -52,8 +52,6 @@ export function DesktopProfileSidebar() {
   const navItems = [
     { icon: User, label: "Thông tin cá nhân", onClick: () => setActiveTab("Thông tin cá nhân") },
     { icon: ClipboardList, label: "Lịch sử đơn hàng", onClick: () => router.push("/orders") },
-    { icon: MapPin, label: "Địa chỉ đã lưu", onClick: () => setActiveTab("Địa chỉ đã lưu") },
-    { icon: CreditCard, label: "Phương thức thanh toán", onClick: () => setActiveTab("Phương thức thanh toán") },
   ];
 
   return (
@@ -73,7 +71,7 @@ export function DesktopProfileSidebar() {
         {/* Points Display (Simplified from mobile version) */}
         <div className="mt-4 flex w-full flex-col gap-2 rounded-lg bg-white/5 p-4 z-10">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-inverse-text/60">COLLECTIVE POINTS</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-inverse-text/60">ĐIỂM TÍCH LŨY</span>
             <span className="text-lg font-bold text-brand-primary">{user?.points?.toLocaleString() ?? 0} pts</span>
           </div>
         </div>
@@ -87,7 +85,7 @@ export function DesktopProfileSidebar() {
             icon={item.icon}
             label={item.label}
             isActive={activeTab === item.label}
-            onClick={() => setActiveTab(item.label)}
+            onClick={item.onClick ?? (() => setActiveTab(item.label))}
           />
         ))}
       </nav>

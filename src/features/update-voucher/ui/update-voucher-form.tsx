@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useUpdateVoucher } from "../api/use-update-voucher-actions";
 import { Input } from "@/shared/ui/input";
 import { AppButton } from "@/shared/ui/app-button";
 import { Label } from "@/shared/ui/label";
+import { DatePicker } from "@/shared/ui/date-picker";
 import { toast } from "sonner";
 import { VoucherOutput } from "@/entities/voucher";
 
@@ -33,6 +34,7 @@ export const UpdateVoucherForm = ({ voucher, onSuccess }: UpdateVoucherFormProps
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<UpdateVoucherFormValues>({
     resolver: zodResolver(updateVoucherSchema as any),
@@ -84,7 +86,7 @@ export const UpdateVoucherForm = ({ voucher, onSuccess }: UpdateVoucherFormProps
       </div>
 
       <div className="space-y-2">
-        <Label className="text-text-secondary font-bold">TYPE</Label>
+        <Label className="text-text-secondary font-bold">LOẠI</Label>
         <Input
           value={voucher.discountType || "N/A"}
           disabled
@@ -95,20 +97,20 @@ export const UpdateVoucherForm = ({ voucher, onSuccess }: UpdateVoucherFormProps
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="discountValue" className="text-text-secondary font-bold">
-            {voucher.discountType === "PERCENT" ? "DISCOUNT (%)" : "DISCOUNT AMOUNT"}
+            {voucher.discountType === "PERCENT" ? "GIẢM GIÁ (%)" : "SỐ TIỀN GIẢM"}
           </Label>
           <Input
             id="discountValue"
             type="number"
             {...register("discountValue")}
-            placeholder="Leave blank to keep current"
+            placeholder="Để trống nếu giữ nguyên"
             className="bg-surface-muted border-0 rounded-md h-14"
           />
           {errors.discountValue && <p className="text-red-500 text-xs">{errors.discountValue.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="maxUsage" className="text-text-secondary font-bold">MAX USAGE</Label>
+          <Label htmlFor="maxUsage" className="text-text-secondary font-bold">SỬ DỤNG TỐI ĐA</Label>
           <Input
             id="maxUsage"
             type="number"
@@ -121,7 +123,7 @@ export const UpdateVoucherForm = ({ voucher, onSuccess }: UpdateVoucherFormProps
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="minOrderAmount" className="text-text-secondary font-bold">MIN ORDER AMOUNT</Label>
+          <Label htmlFor="minOrderAmount" className="text-text-secondary font-bold">ĐƠN HÀNG TỐI THIỂU</Label>
           <Input
             id="minOrderAmount"
             type="number"
@@ -132,7 +134,7 @@ export const UpdateVoucherForm = ({ voucher, onSuccess }: UpdateVoucherFormProps
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="maxDiscount" className="text-text-secondary font-bold">MAX DISCOUNT</Label>
+          <Label htmlFor="maxDiscount" className="text-text-secondary font-bold">GIẢM GIÁ TỐI ĐA</Label>
           <Input
             id="maxDiscount"
             type="number"
@@ -144,18 +146,24 @@ export const UpdateVoucherForm = ({ voucher, onSuccess }: UpdateVoucherFormProps
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="expiresAt" className="text-text-secondary font-bold">EXPIRES AT</Label>
-        <Input
-          id="expiresAt"
-          type="date"
-          {...register("expiresAt")}
-          className="bg-surface-muted border-0 rounded-md h-14"
+        <Label htmlFor="expiresAt" className="text-text-secondary font-bold">NGÀY HẾT HẠN</Label>
+        <Controller
+          name="expiresAt"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              id="expiresAt"
+              value={field.value}
+              onChange={field.onChange}
+              placeholder="Chọn ngày hết hạn"
+            />
+          )}
         />
         {errors.expiresAt && <p className="text-red-500 text-xs">{errors.expiresAt.message}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="isActive" className="text-text-secondary font-bold">STATUS</Label>
+        <Label htmlFor="isActive" className="text-text-secondary font-bold">TRẠNG THÁI</Label>
         <select
           id="isActive"
           {...register("isActive")}

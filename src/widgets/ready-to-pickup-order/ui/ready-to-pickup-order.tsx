@@ -32,7 +32,7 @@ export const ReadyToPickUpOrder = ({ order }: ReadyToPickUpOrderProps) => {
         <div className="flex items-center gap-2">
           <MapPin className="size-4 text-text-primary" />
           <span className="text-[14px] font-bold font-plus-jakarta text-text-primary uppercase tracking-wide">
-            IN-STORE PICKUP
+            MUA TẠI CỬA HÀNG
           </span>
         </div>
         <Badge className="h-[28px] rounded-full bg-[#10b981] px-4 text-[12px] font-bold text-inverse-text border-none shadow-sm">
@@ -59,7 +59,7 @@ export const ReadyToPickUpOrder = ({ order }: ReadyToPickUpOrderProps) => {
                   {displayItems[0]?.name || `Order from ${order.store?.name}`}
                 </span>
                 <span className="text-[12px] font-bold font-plus-jakarta text-text-muted uppercase tracking-wider opacity-70">
-                  {displayItems[0]?.options?.join(", ") || "Regular Pack"}
+                  {displayItems[0]?.options?.join(", ") || "Gói Tiêu Chuẩn"}
                 </span>
               </>
             )}
@@ -68,7 +68,7 @@ export const ReadyToPickUpOrder = ({ order }: ReadyToPickUpOrderProps) => {
         
         <div className="flex items-center justify-between border-t border-text-primary/5 pt-4 mt-2">
           <span className="text-[14px] font-bold font-plus-jakarta text-text-primary uppercase tracking-wide opacity-80">
-            Total
+            Tổng Cộng
           </span>
           <span className="text-[20px] font-extrabold font-plus-jakarta text-[#f0660a] leading-none">
             {formatToVND(order.total)}

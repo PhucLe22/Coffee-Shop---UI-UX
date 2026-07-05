@@ -86,7 +86,7 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
           
           <div className="flex items-center justify-end gap-4 pt-6 border-t border-text-primary/10 mt-auto">
             <span className="text-[20px] font-bold font-plus-jakarta text-text-primary">
-              Total:
+              Tổng Cộng:
             </span>
             <span className="text-[48px] font-extrabold font-plus-jakarta text-[#f0660a] leading-none tracking-tighter">
               {formatToVND(order.total)}

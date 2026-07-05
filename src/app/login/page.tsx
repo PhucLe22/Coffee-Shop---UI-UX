@@ -7,6 +7,13 @@ import { ChevronLeft } from "lucide-react";
 import { useCustomerAuthStore, useStaffAuthStore } from "@/shared/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { StaffRole } from "@/shared/api";
+
+const getStaffRedirect = (role?: string) => {
+  if (role === StaffRole.ADMIN) return "/internal/dashboard";
+  if (role === StaffRole.SHIPPER) return "/internal/delivery";
+  return "/internal/orders";
+};
 
 export default function LoginPage() {
   const customerAuth = useCustomerAuthStore();
@@ -15,7 +22,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (staffAuth._hasHydrated && staffAuth.user) {
-      router.replace("/internal/dashboard");
+      router.replace(getStaffRedirect(staffAuth.user.role));
       return;
     }
     
@@ -34,7 +41,7 @@ export default function LoginPage() {
           className="absolute left-md top-md z-20 flex items-center gap-xs text-body-sm-semibold text-inverse-text opacity-70 hover:opacity-100 transition-opacity lg:left-2xl lg:top-xl"
         >
           <ChevronLeft className="size-4" />
-          Back to Home
+          Về trang chủ
         </Link>
         <div className="absolute inset-0 overflow-hidden">
           <Image
@@ -56,13 +63,12 @@ export default function LoginPage() {
           </div>
           
           <h1 className="font-plus-jakarta text-h2-bold text-inverse-text leading-[1.2] lg:text-h1-bold">
-            Crafting Rituals,<br />
-            One Bean at a<br />
-            Time.
+            Tạo Nên Những Nghi Thức,<br />
+            Từng Hạt Một.
           </h1>
           
           <p className="max-w-[320px] text-body-lg-reg text-inverse-text opacity-90 leading-relaxed">
-            Join our community of artisans and access exclusive roasts and rewards.
+            Tham gia cộng đồng của chúng tôi và nhận các ưu đãi độc quyền.
           </p>
         </div>
       </div>

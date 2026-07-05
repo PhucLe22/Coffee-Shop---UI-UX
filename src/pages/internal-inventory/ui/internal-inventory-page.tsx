@@ -32,6 +32,7 @@ import { UpdateProductDialog } from "@/features/update-product/ui/update-product
 import { useInfiniteProducts, Product, ProductService } from "@/entities/product";
 import { useCategories } from "@/entities/category";
 import { useIntersectionObserver } from "@/shared/lib/use-intersection-observer";
+import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useStaffAuthStore } from "@/shared/auth";
 
@@ -50,15 +51,19 @@ export default function InternalInventoryPage() {
   const toggleMutation = useMutation({
     mutationFn: (productId: string) => ProductService.toggleActive(productId),
     onSuccess: () => {
+      toast.success("Cập nhật trạng thái sản phẩm thành công");
       queryClient.invalidateQueries({ queryKey: ["products-infinite"] });
     },
+    onError: () => toast.error("Không thể cập nhật trạng thái sản phẩm"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (productId: string) => ProductService.deleteAdminProduct(productId),
     onSuccess: () => {
+      toast.success("Xóa sản phẩm thành công");
       queryClient.invalidateQueries({ queryKey: ["products-infinite"] });
     },
+    onError: () => toast.error("Không thể xóa sản phẩm"),
   });
 
   // Debounce search
@@ -133,13 +138,13 @@ export default function InternalInventoryPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-md">
         <div className="flex flex-col gap-xs">
-          <h1 className="text-h2-bold text-text-primary">Inventory Control</h1>
-          <p className="text-body-md-reg text-text-secondary">Update real-time availability for the boutique floor.</p>
+          <h1 className="text-h2-bold text-text-primary">Quản Lý Kho Hàng</h1>
+          <p className="text-body-md-reg text-text-secondary">Cập nhật tình trạng tồn kho theo thời gian thực.</p>
         </div>
         <div className="flex items-center gap-md">
           <div className="relative w-full max-w-xs hidden md:block">
             <Input 
-              placeholder="Search inventory..." 
+              placeholder="Tìm kiếm trong kho..." 
               className="pl-xl h-10 bg-white/50 border-border-primary-50 rounded-md focus:bg-white transition-colors"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -170,7 +175,7 @@ export default function InternalInventoryPage() {
                 : "bg-surface-muted text-text-secondary hover:bg-surface-muted/80"
             )}
           >
-            {status === "ALL" ? "ALL" : status === "ACTIVE" ? "ACTIVE" : "INACTIVE"}
+            {status === "ALL" ? "TẤT CẢ" : status === "ACTIVE" ? "HOẠT ĐỘNG" : "NGỪNG HOẠT ĐỘNG"}
           </Button>
         ))}
       </div>
@@ -186,7 +191,7 @@ export default function InternalInventoryPage() {
               : "bg-surface-muted text-text-secondary hover:bg-surface-muted/80"
           )}
         >
-          ALL
+          TẤT CẢ
         </Button>
         {categoriesData?.data.map((cat) => (
           <Button
@@ -212,7 +217,7 @@ export default function InternalInventoryPage() {
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-md">
-            <p className="text-text-secondary">No products found.</p>
+            <p className="text-text-secondary">Không tìm thấy sản phẩm.</p>
           </div>
         ) : (
           groupedProducts.map((group) => (
@@ -297,7 +302,7 @@ function InventoryCard({ item, onEdit, onToggle, onDelete, isDeleting, canDelete
               <AlertDialogTrigger asChild>
                 <button
                   className="text-text-muted hover:text-error transition-colors"
-                  title="Delete product"
+                  title="Xóa sản phẩm"
                 >
                   <Trash2 className="size-4" />
                 </button>
@@ -306,19 +311,19 @@ function InventoryCard({ item, onEdit, onToggle, onDelete, isDeleting, canDelete
                 <AlertDialogHeader>
                   <div className="flex items-center gap-3 text-red-500 mb-2">
                     <AlertTriangle className="size-6 shrink-0" />
-                    <AlertDialogTitle className="text-h4-bold">Delete product?</AlertDialogTitle>
+                    <AlertDialogTitle className="text-h4-bold">Xóa sản phẩm?</AlertDialogTitle>
                   </div>
                   <AlertDialogDescription className="text-body-md-reg">
-                    This action cannot be undone. This will permanently delete <strong>{item.name}</strong> and remove its data from our servers.
+                    Hành động này không thể hoàn tác. Sản phẩm <strong>{item.name}</strong> sẽ bị xóa vĩnh viễn.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="mt-6">
                   <AlertDialogCancel asChild>
-                    <AppButton variant="outline" size="sm">Cancel</AppButton>
+                    <AppButton variant="outline" size="sm">Hủy</AppButton>
                   </AlertDialogCancel>
                   <AlertDialogAction asChild onClick={onDelete}>
                     <AppButton size="sm" isLoading={isDeleting} className="bg-red-500 text-white hover:bg-red-600">
-                      DELETE PRODUCT
+                      XÓA SẢN PHẨM
                     </AppButton>
                   </AlertDialogAction>
                 </AlertDialogFooter>

@@ -20,10 +20,10 @@ export default function NotFound() {
         {/* Message */}
         <div className="flex flex-col gap-md max-w-[600px]">
           <h2 className="text-h2-bold text-text-primary">
-            Oops! This cup is empty.
+            Rất tiếc! Trang này không tồn tại.
           </h2>
           <p className="text-body-lg-reg text-text-muted">
-            The coffee you&apos;re looking for has already been roasted and gone, or the page has moved to a new blend.
+            Trang bạn đang tìm kiếm có thể đã được di chuyển hoặc không còn tồn tại.
           </p>
         </div>
 
@@ -31,12 +31,12 @@ export default function NotFound() {
         <div className="mt-xl flex flex-col sm:flex-row gap-md">
           <Link href="/">
             <AppButton variant="primary" size="lg" className="min-w-[200px] rounded-full text-inverse-text">
-              BACK TO HOME
+              VỀ TRANG CHỦ
             </AppButton>
           </Link>
           <Link href="/menu">
             <AppButton variant="outline" size="lg" className="min-w-[200px] rounded-full">
-              BROWSE MENU
+              XEM THỰC ĐƠN
             </AppButton>
           </Link>
         </div>

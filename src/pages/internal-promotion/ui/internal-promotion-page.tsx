@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { Ticket, Calendar, Percent, DollarSign, Hash, Repeat } from "lucide-react";
 import { Badge } from "@/shared/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
@@ -16,18 +16,12 @@ export default function PromotionsPage() {
   const {
     data,
     isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
   } = useInfiniteVouchers({ limit: 10 });
 
-  useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  const vouchers = data?.pages?.flatMap((p) => p?.data ?? []).filter(Boolean) ?? [];
+  const vouchers = useMemo(
+    () => data?.pages?.flatMap((p) => p?.data ?? []).filter(Boolean) ?? [],
+    [data],
+  );
 
   const getDiscountLabel = (voucher: VoucherOutput) => {
     if (voucher.discountType === "PERCENT") return `${voucher.discountValue}%`;
@@ -37,12 +31,12 @@ export default function PromotionsPage() {
 
   const getStatusBadge = (voucher: VoucherOutput) => {
     if (!voucher.isActive) {
-      return <Badge variant="destructive" className="text-[10px] uppercase tracking-widest">Inactive</Badge>;
+      return <Badge variant="destructive" className="text-[10px] uppercase tracking-widest">Ngừng Hoạt Động</Badge>;
     }
     if (voucher.expiresAt && new Date(voucher.expiresAt) < new Date()) {
-      return <Badge variant="outline" className="text-[10px] uppercase tracking-widest text-text-muted border-border">Expired</Badge>;
+      return <Badge variant="outline" className="text-[10px] uppercase tracking-widest text-text-muted border-border">Đã Hết Hạn</Badge>;
     }
-    return <Badge className="bg-green-100 text-green-700 border-0 text-[10px] uppercase tracking-widest">Active</Badge>;
+    return <Badge className="bg-green-100 text-green-700 border-0 text-[10px] uppercase tracking-widest">Đang Hoạt Động</Badge>;
   };
 
   return (
@@ -50,8 +44,8 @@ export default function PromotionsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-md">
         <div>
-          <h1 className="text-body-md-bold md:text-h3-bold text-text-primary">Voucher Management</h1>
-          <p className="text-[12px] md:text-body-sm-reg text-text-secondary">Create and manage discount vouchers</p>
+          <h1 className="text-body-md-bold md:text-h3-bold text-text-primary">Quản Lý Voucher</h1>
+          <p className="text-[12px] md:text-body-sm-reg text-text-secondary">Tạo và quản lý mã giảm giá</p>
         </div>
         <div className="flex items-center gap-sm md:gap-md">
           <CreateVoucherDialog />
@@ -75,7 +69,7 @@ export default function PromotionsPage() {
       ) : vouchers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-md">
           <Ticket className="size-16 text-text-muted/30" />
-          <p className="text-body-md-reg text-text-secondary">No vouchers found</p>
+          <p className="text-body-md-reg text-text-secondary">Không tìm thấy voucher</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md md:gap-lg">

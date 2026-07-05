@@ -3,9 +3,6 @@
 import React from "react";
 import {
   User,
-  MapPin,
-  CreditCard,
-  Bell,
   HelpCircle,
   ShieldCheck,
   ChevronRight,
@@ -43,7 +40,7 @@ const CustomerCard = () => {
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             <span className="font-inter text-sm font-semibold uppercase tracking-wider text-inverse-text">
-              COLLECTIVE POINTS
+              ĐIỂM TÍCH LŨY
             </span>
             <div className="flex items-baseline gap-1">
               <span className="font-plus-jakarta text-[24px] font-bold text-brand-primary">
@@ -123,9 +120,6 @@ export function MobileProfileView() {
   const accountOptions = [
     { icon: User, label: "Thông tin cá nhân" },
     { icon: ClipboardList, label: "Lịch sử đơn hàng", onClick: () => router.push("/orders") },
-    { icon: MapPin, label: "Địa chỉ đã lưu" },
-    { icon: CreditCard, label: "Phương thức thanh toán" },
-    { icon: Bell, label: "Cài đặt thông báo" },
   ];
 
   const supportOptions = [
@@ -150,8 +144,8 @@ export function MobileProfileView() {
 
       {/* Menu Groups */}
       <div className="mt-8 flex flex-col gap-8">
-        <SettingsGroup title="ACCOUNT & SECURITY" options={accountOptions} />
-        <SettingsGroup title="SUPPORT & LEGAL" options={supportOptions} />
+        <SettingsGroup title="TÀI KHOẢN & BẢO MẬT" options={accountOptions} />
+        <SettingsGroup title="HỖ TRỢ & PHÁP LÝ" options={supportOptions} />
       </div>
 
       {/* Logout Button */}

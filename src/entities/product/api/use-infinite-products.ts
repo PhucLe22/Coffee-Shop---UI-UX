@@ -8,7 +8,7 @@ export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "lim
   return useInfiniteQuery({
     queryKey: ["products-infinite", query],
     queryFn: ({ pageParam = 1 }) => 
-      ProductService.getAdminProducts({ 
+      ProductService.getProducts({ 
         ...query, 
         page: pageParam, 
         limit: 100

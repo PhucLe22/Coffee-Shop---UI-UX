@@ -21,7 +21,7 @@ export function OrderItemsSummary({ order }: OrderItemsSummaryProps) {
     <Card className="bg-surface-muted border-none shadow-none rounded-md mx-md mt-lg">
       <CardHeader className="p-md">
         <CardTitle className="text-body-md-bold text-text-primary">
-          Order Items
+          Sản Phẩm Đã Đặt
         </CardTitle>
       </CardHeader>
       <CardContent className="p-md pt-0 flex flex-col gap-md">
@@ -52,7 +52,7 @@ export function OrderItemsSummary({ order }: OrderItemsSummaryProps) {
       </CardContent>
       <Separator className="bg-border-primary-50" />
       <CardFooter className="p-md flex justify-between items-center">
-        <span className="text-body-md-bold text-text-primary">Total</span>
+        <span className="text-body-md-bold text-text-primary">Tổng Cộng</span>
         <span className="text-body-md-bold text-brand-primary">
           {formatToVND(total)}
         </span>
