@@ -1,5 +1,5 @@
 import { axiosInstance, API_ENDPOINTS } from "@/shared/api";
-import { VoucherOutput, CreateVoucherBody, UpdateVoucherBody, ApiResponse, PaginatedResponse, GetVouchersQuery, GetPromotionsQuery } from "../model/types";
+import { VoucherOutput, CreateVoucherBody, UpdateVoucherBody, ApiResponse, PaginatedResponse, GetVouchersQuery, GetPromotionsQuery, ValidateVoucherBody, ValidateVoucherResponse } from "../model/types";
 
 export const VoucherService = {
   getVouchers: async (query?: GetVouchersQuery): Promise<PaginatedResponse<VoucherOutput>> => {
@@ -27,6 +27,11 @@ export const VoucherService = {
     const response = await axiosInstance.get(API_ENDPOINTS.PROMOTIONS.BASE, {
       params: query,
     });
+    return response.data;
+  },
+
+  validateVoucher: async (body: ValidateVoucherBody): Promise<ApiResponse<ValidateVoucherResponse>> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.PROMOTIONS.VALIDATE, body);
     return response.data;
   },
 };

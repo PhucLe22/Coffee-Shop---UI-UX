@@ -118,6 +118,12 @@ export function AIChat({ className, onClose }: AIChatProps) {
                 total: `${total.toLocaleString()}đ`
               }
             };
+          } else if (skillName === "checkPromotions" && output) {
+            const vouchers = Array.isArray(output) ? output : (output.vouchers || output.data || []);
+            attachment = {
+              type: "promotion",
+              data: { vouchers }
+            };
           }
         }
         
@@ -175,21 +181,21 @@ export function AIChat({ className, onClose }: AIChatProps) {
 
       {/* Quick Actions */}
       <div className="px-lg pb-md">
-        <div className="flex gap-sm overflow-x-auto no-scrollbar pb-1">
+        <div className="flex gap-sm overflow-x-auto pb-1">
           <QuickActionButton 
             icon={<Tag size={16} />} 
             label="Khuyến Mãi" 
-            onClick={() => handleSend("Show me special offers")}
+            onClick={() => handleSend("Cho tôi xem các chương trình khuyến mãi")}
           />
           <QuickActionButton 
             icon={<PackageSearch size={16} />} 
             label="Trạng Thái Đơn" 
-            onClick={() => handleSend("Check my order status")}
+            onClick={() => handleSend("Kiểm tra trạng thái đơn hàng của tôi")}
           />
           <QuickActionButton 
             icon={<Info size={16} />} 
             label="Thông Tin Cửa Hàng" 
-            onClick={() => handleSend("Tell me about Verdant Roastery")}
+            onClick={() => handleSend("Cho tôi biết thông tin về cửa hàng")}
           />
           <QuickActionButton 
             icon={<ShoppingCart size={16} />} 

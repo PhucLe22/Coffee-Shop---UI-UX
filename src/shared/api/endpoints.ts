@@ -64,6 +64,7 @@ export const API_ENDPOINTS = {
   },
   PROMOTIONS: {
     BASE: '/promotions',
+    VALIDATE: '/promotions/validate',
   },
   STAFF: {
     REGISTER: '/internal/auth/register/staff',

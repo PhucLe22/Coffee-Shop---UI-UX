@@ -8,6 +8,7 @@ import { AICart } from "./ai-cart";
 import { AIOrderStatus } from "./ai-order-status";
 import { AIStoreCard } from "./ai-store-card";
 import { AIClosetStoreCard } from "./ai-closet-store-card";
+import { AIPromotion } from "./ai-promotion";
 
 interface ChatMessageProps {
   message: Message;
@@ -75,6 +76,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
             )}
 
 
+
+            {message.attachment.type === "promotion" && (
+              <AIPromotion vouchers={message.attachment.data.vouchers} />
+            )}
 
             {message.attachment.type === "product" && (
               <div className="w-[208px] bg-surface-main rounded-md border border-text-primary/20 overflow-hidden flex flex-col shadow-sm">

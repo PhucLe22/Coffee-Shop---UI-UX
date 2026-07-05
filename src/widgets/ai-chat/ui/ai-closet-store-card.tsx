@@ -15,7 +15,7 @@ export function AIClosetStoreCard({ name, address, distance, className, onClick 
     <div className={cn("bg-[#ebe0d9] rounded-[16px] p-lg flex flex-col gap-md", className)}>
       <div className="flex justify-between items-center">
         <span className="bg-[#386661] text-[#f0ecec] text-[10px] font-bold px-md py-xs rounded-full">
-          CLOSET TO YOU
+          GẦN BẠN NHẤT
         </span>
         <span className="text-[12px] font-bold text-[#594237]">{distance}</span>
       </div>

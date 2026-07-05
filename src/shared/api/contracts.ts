@@ -427,6 +427,7 @@ export interface StaffCreateOrderBody {
   type: OrderType;
   tableNumber?: string;
   note?: string;
+  voucherCode?: string;
   items: Array<{
     productId: string;
     quantity: number;

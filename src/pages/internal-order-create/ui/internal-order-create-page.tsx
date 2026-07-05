@@ -30,8 +30,8 @@ import {
   SheetTrigger,
 } from "@/shared/ui/sheet";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { OrderType } from "@/shared/api";
+import { VoucherService, ValidateVoucherResponse } from "@/entities/voucher";
 
 // Temporary mock data for categories
 const CATEGORIES = ["TẤT CẢ", "CÀ PHÊ", "TRÀ", "BÁNH", "KHÔNG CÀ PHÊ"];
@@ -108,6 +108,13 @@ interface OrderSummaryFooterProps {
   getTotal: () => number;
   onPlaceOrder: () => void;
   isPending: boolean;
+  voucherInput: string;
+  onVoucherInputChange: (value: string) => void;
+  appliedVoucher: ValidateVoucherResponse | null;
+  isValidating: boolean;
+  voucherError: string;
+  onApplyVoucher: () => void;
+  onRemoveVoucher: () => void;
 }
 
 const OrderSummaryFooter = ({
@@ -116,6 +123,13 @@ const OrderSummaryFooter = ({
   getTotal,
   onPlaceOrder,
   isPending,
+  voucherInput,
+  onVoucherInputChange,
+  appliedVoucher,
+  isValidating,
+  voucherError,
+  onApplyVoucher,
+  onRemoveVoucher,
 }: OrderSummaryFooterProps) => (
   <div className="p-lg flex flex-col gap-md bg-surface-accent border-t border-border-primary-50/10">
     <div className="flex flex-col gap-sm">
@@ -141,17 +155,44 @@ const OrderSummaryFooter = ({
         <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">
           Mã Giảm Giá
         </label>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Nhập mã"
-            className="bg-white border-none rounded-md"
-          />
-          <Button
-            variant="outline"
-            className="rounded-md px-lg font-bold text-xs">
-            ÁP DỤNG
-          </Button>
-        </div>
+        {appliedVoucher ? (
+          <div className="flex items-center justify-between bg-success/20 border border-success/20 rounded-[8px] px-md py-sm">
+            <div className="flex flex-col">
+              <span className="text-[14px] font-bold text-success">{appliedVoucher.code}</span>
+              <span className="text-[12px] text-success">
+                Giảm {formatToVND(appliedVoucher.discountAmount)}
+                {appliedVoucher.discountType === 'PERCENT' && ` (${appliedVoucher.discountValue}%)`}
+              </span>
+            </div>
+            <button
+              onClick={onRemoveVoucher}
+              className="text-[12px] font-bold text-red-500 hover:underline"
+            >
+              HỦY
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-md">
+            <Input
+              placeholder="Nhập mã"
+              value={voucherInput}
+              onChange={(e) => onVoucherInputChange(e.target.value)}
+              className="h-[49px] rounded-[8px] bg-surface-accent border-none"
+              onKeyDown={(e) => e.key === 'Enter' && onApplyVoucher()}
+            />
+            <Button
+              variant="outline"
+              className="w-full h-[49px] rounded-[8px] font-bold text-xs"
+              onClick={onApplyVoucher}
+              disabled={isValidating}
+            >
+              {isValidating ? "..." : "ÁP DỤNG"}
+            </Button>
+          </div>
+        )}
+        {voucherError && (
+          <span className="text-[11px] text-error font-medium">{voucherError}</span>
+        )}
       </div>
       <Button 
         onClick={onPlaceOrder}
@@ -184,6 +225,10 @@ export default function InternalOrderCreatePage() {
   const [orderType, setOrderType] = useState<OrderType>(OrderType.TAKEAWAY);
   const [tableNumber, setTableNumber] = useState("");
   const [orderNote, setOrderNote] = useState("");
+  const [voucherInput, setVoucherInput] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState<ValidateVoucherResponse | null>(null);
+  const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
+  const [voucherError, setVoucherError] = useState("");
 
   const { data: productsData, isLoading } = useProducts({});
   const products = productsData?.data || [];
@@ -200,11 +245,44 @@ export default function InternalOrderCreatePage() {
     (sum, item) => sum + Number(item.price || 0) * item.quantity,
     0,
   );
-  const discountValue = 0;
+  const discountValue = appliedVoucher?.discountAmount ?? 0;
   const totalValue = subtotalValue - discountValue;
 
   const { mutate: createStaffOrder, isPending: isCreatingOrder } =
     useCreateStaffOrder();
+
+  const handleApplyVoucher = async () => {
+    const code = voucherInput.trim();
+    if (!code) {
+      setVoucherError("Vui lòng nhập mã giảm giá");
+      return;
+    }
+
+    setIsValidatingVoucher(true);
+    setVoucherError("");
+
+    try {
+      const res = await VoucherService.validateVoucher({
+        code,
+        orderAmount: subtotalValue,
+      });
+      setAppliedVoucher(res.data);
+      setVoucherError("");
+      toast.success(`Áp dụng mã ${code} thành công!`);
+    } catch (err: any) {
+      setAppliedVoucher(null);
+      setVoucherError(err.response?.data?.message || "Mã giảm giá không hợp lệ");
+      toast.error(err.response?.data?.message || "Mã giảm giá không hợp lệ");
+    } finally {
+      setIsValidatingVoucher(false);
+    }
+  };
+
+  const handleRemoveVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherInput("");
+    setVoucherError("");
+  };
 
   const handlePlaceOrder = () => {
     if (items.length === 0) {
@@ -226,7 +304,7 @@ export default function InternalOrderCreatePage() {
       ? `Customer is sitting at table ${tableNumber}` 
       : "Staff creating order for customer";
 
-    const orderData = {
+    const orderData: any = {
       type: orderType,
       tableNumber: orderType === OrderType.DINE_IN ? tableNumber : undefined,
       phone: selectedCustomer.phone,
@@ -238,16 +316,25 @@ export default function InternalOrderCreatePage() {
       })),
     };
 
+    if (appliedVoucher) {
+      orderData.voucherCode = appliedVoucher.code;
+    }
+
     console.log("Order Payload:", orderData);
 
     createStaffOrder(orderData, {
       onSuccess: (response) => {
         toast.success("Tạo đơn hàng thành công!");
         clearCart();
+        setSelectedCustomer(null);
+        setCustomerSearch("");
+        setAppliedVoucher(null);
+        setVoucherInput("");
+        setVoucherError("");
+        setOrderNote("");
+        setTableNumber("");
+        setOrderType(OrderType.TAKEAWAY);
         queryClient.invalidateQueries({ queryKey: ["internal-orders"] });
-        if (response.data.orderCode) {
-          router.push(`/internal/orders`);
-        }
       },
       onError: (error: any) => {
         toast.error(error.response?.data?.message || "Tạo đơn hàng thất bại");
@@ -471,6 +558,13 @@ export default function InternalOrderCreatePage() {
               getTotal={() => totalValue}
               onPlaceOrder={handlePlaceOrder}
               isPending={isCreatingOrder}
+              voucherInput={voucherInput}
+              onVoucherInputChange={setVoucherInput}
+              appliedVoucher={appliedVoucher}
+              isValidating={isValidatingVoucher}
+              voucherError={voucherError}
+              onApplyVoucher={handleApplyVoucher}
+              onRemoveVoucher={handleRemoveVoucher}
             />
           </aside>
         )}
@@ -520,6 +614,13 @@ export default function InternalOrderCreatePage() {
                     getTotal={() => totalValue}
                     onPlaceOrder={handlePlaceOrder}
                     isPending={isCreatingOrder}
+                    voucherInput={voucherInput}
+                    onVoucherInputChange={setVoucherInput}
+                    appliedVoucher={appliedVoucher}
+                    isValidating={isValidatingVoucher}
+                    voucherError={voucherError}
+                    onApplyVoucher={handleApplyVoucher}
+                    onRemoveVoucher={handleRemoveVoucher}
                   />
                 </SheetContent>
               </Sheet>

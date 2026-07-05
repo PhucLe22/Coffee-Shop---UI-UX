@@ -11,10 +11,10 @@ export function AICart({ items, total }: AICartProps) {
     <div className="bg-surface-accent rounded-lg border border-text-primary/10 p-md flex flex-col gap-md">
       <div className="flex items-center justify-between border-b border-text-primary/10 pb-sm">
         <span className="text-body-sm-semibold text-text-secondary">
-          Your Cart ({items.length} items)
+          Giỏ Hàng ({items.length} sản phẩm)
         </span>
         <span className="text-body-md-bold text-text-primary">
-          Total: {total}
+          Tổng: {total}
         </span>
       </div>
       <div className="flex flex-col gap-sm">
@@ -41,7 +41,7 @@ export function AICart({ items, total }: AICartProps) {
       <Link
         href="/cart"
         className="w-full py-2 bg-brand-primary text-inverse-text rounded-full text-center text-body-sm-bold hover:bg-brand-primary/90 transition-colors mt-1">
-        Checkout Now
+        Thanh Toán Ngay
       </Link>
     </div>
   );

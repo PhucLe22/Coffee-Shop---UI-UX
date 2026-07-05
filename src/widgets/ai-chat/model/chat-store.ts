@@ -21,6 +21,18 @@ export interface ProductAttachment {
   image?: string;
 }
 
+export interface PromotionVoucher {
+  code: string;
+  discountType: "PERCENT" | "FIXED";
+  discountValue: number;
+  maxDiscount?: number;
+  minOrderAmount?: number;
+  maxUsage?: number;
+  usedCount?: number;
+  expiresAt?: string;
+  isActive?: boolean;
+}
+
 export interface Message {
   id: string;
   role: "assistant" | "user";
@@ -42,6 +54,11 @@ export interface Message {
   } | {
     type: "product";
     data: ProductAttachment;
+  } | {
+    type: "promotion";
+    data: {
+      vouchers: PromotionVoucher[];
+    };
   };
 }
 
@@ -58,7 +75,7 @@ export const useChatStore = create<ChatState>((set) => ({
     {
       id: "1",
       role: "assistant",
-      content: "Welcome! I'm your AI assistant. How can I help you today?",
+      content: "Chào bạn! Tôi là trợ lý AI của Amber Roast. Tôi có thể giúp gì cho bạn hôm nay?",
       timestamp: Date.now(),
     },
   ],

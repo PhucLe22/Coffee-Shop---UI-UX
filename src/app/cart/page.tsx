@@ -19,139 +19,36 @@ import { useCreateOrder } from "@/entities/order";
 import { OrderType } from "@/shared/api";
 import { useStores } from "@/entities/store";
 import { useAddresses } from "@/entities/customer";
+import { VoucherService } from "@/entities/voucher";
 import { toast } from "sonner";
 import Link from "next/link";
 import { CreateAddressDialog } from "../profile/create-address-dialog";
+import type { Address } from "@/entities/customer/model/address";
+import type { LoginOutput } from "@/shared/api";
 
-export default function CartPage() {
-  const isMobile = useIsMobile();
-  const router = useRouter();
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { items, updateQuantity, removeItem, clearCart } = useCartStore();
-  const { user } = useCustomerAuthStore();
-  const { data: storesResponse } = useStores();
-  const { data: addressesResponse } = useAddresses();
-  const { selectedStore, setSelectedStore } = useStoreStore();
-  const { mutate: createOrder, isPending } = useCreateOrder();
-
-  const stores = storesResponse?.data || [];
-  const addresses = addressesResponse?.data || [];
-
-  const [orderType, setOrderType] = useState<OrderType>(OrderType.DELIVERY);
-  const [deliveryInfo, setDeliveryInfo] = useState({
-    receiverName: "",
-    receiverPhone: "",
-    addressLine: "",
-  });
-
-  // Auto-select first store if none selected, or if stored store no longer exists in API
-  useEffect(() => {
-    if (stores.length > 0) {
-      const stillExists = selectedStore && stores.some(s => s.id === selectedStore.id);
-      if (!stillExists) {
-        setSelectedStore(stores[0]);
-      }
-    }
-  }, [stores, selectedStore, setSelectedStore]);
-
-  // Prefill default address
-  useEffect(() => {
-    if (user && addresses.length > 0) {
-      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
-      setDeliveryInfo({
-        receiverName: defaultAddr.receiverName,
-        receiverPhone: defaultAddr.receiverPhone,
-        addressLine: defaultAddr.addressLine,
-      });
-    } else if (user) {
-      setDeliveryInfo((prev) => ({
-        ...prev,
-        receiverName: prev.receiverName || user.name || "",
-        receiverPhone: prev.receiverPhone || user.phone || "",
-      }));
-    }
-  }, [user, addresses]);
-
-  const handleUpdateQuantity = (id: string, delta: number) => {
-    const item = items.find((i) => i.id === id);
-    if (item) {
-      updateQuantity(id, item.quantity + delta);
-    }
+interface AddressSelectionSectionProps {
+  isMobile: boolean;
+  user: Omit<LoginOutput, 'accessToken' | 'refreshToken'> | null;
+  addresses: Address[];
+  deliveryInfo: {
+    receiverName: string;
+    receiverPhone: string;
+    addressLine: string;
   };
+  setDeliveryInfo: (info: {
+    receiverName: string;
+    receiverPhone: string;
+    addressLine: string;
+  }) => void;
+}
 
-  const handleCheckout = () => {
-    if (!user) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-
-    if (items.length === 0) {
-      toast.error("Giỏ hàng đang trống");
-      return;
-    }
-
-    if (orderType === OrderType.DELIVERY) {
-      if (
-        !deliveryInfo.receiverName ||
-        !deliveryInfo.receiverPhone ||
-        !deliveryInfo.addressLine
-      ) {
-        toast.error("Vui lòng nhập đầy đủ thông tin giao hàng");
-        return;
-      }
-    }
-
-    if (!selectedStore) {
-      toast.error("Vui lòng chọn cửa hàng phục vụ");
-      return;
-    }
-
-    const orderData = {
-      storeId: selectedStore.id,
-      type: orderType,
-      deliveryInfo:
-        orderType === OrderType.DELIVERY ? deliveryInfo : undefined,
-      note: "Customer order from web cart",
-      items: items.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        note: item.note,
-        options: item.options.map((opt) => ({
-          optionId: opt.optionId,
-        })),
-      })),
-    };
-
-    createOrder(orderData, {
-      onSuccess: (response) => {
-        toast.success("Đặt hàng thành công!");
-        clearCart();
-        if (response.data.orderCode) {
-          router.push(`/orders/detail/${response.data.orderCode}`);
-        } else {
-          router.push("/orders");
-        }
-      },
-      onError: (error) => {
-        toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
-        console.error("Order creation failed:", error);
-      },
-    });
-  };
-
-  const handleNavigate = (path: string) => {
-    setIsAuthModalOpen(false);
-    router.push(path);
-  };
-
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const shipping = orderType === OrderType.DELIVERY ? 15000 : 0;
-  const tax = subtotal * 0.08; // 8% VAT
-  const total = subtotal + shipping + tax;
-
+function AddressSelectionSection({
+  isMobile,
+  user,
+  addresses,
+  deliveryInfo,
+  setDeliveryInfo,
+}: AddressSelectionSectionProps) {
   const handleSelectSavedInfo = (addressId: string) => {
     const selected = addresses.find((addr) => addr.id === addressId);
     if (selected) {
@@ -163,7 +60,7 @@ export default function CartPage() {
     }
   };
 
-  const AddressSelectionSection = () => (
+  return (
     <div className={cn(
       "p-xl rounded-md flex flex-col gap-md",
       !isMobile ? "bg-surface-muted" : "bg-surface-muted"
@@ -237,7 +134,7 @@ export default function CartPage() {
                 placeholder="Nhập địa chỉ của bạn..."
                 value={deliveryInfo.addressLine}
                 onChange={(e) => setDeliveryInfo({ ...deliveryInfo, addressLine: e.target.value })}
-                className="h-14 pl-11 bg-surface-accent border-none"
+                className="h-12 pl-11 bg-surface-accent border-none"
               />
            </div>
            <p className="text-overline text-text-muted italic">Đăng nhập để chọn địa chỉ đã lưu</p>
@@ -245,6 +142,172 @@ export default function CartPage() {
       )}
     </div>
   );
+}
+
+export default function CartPage() {
+  const isMobile = useIsMobile();
+  const router = useRouter();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { items, updateQuantity, removeItem, clearCart } = useCartStore();
+  const { user } = useCustomerAuthStore();
+  const { data: storesResponse } = useStores();
+  const { data: addressesResponse } = useAddresses();
+  const { selectedStore, setSelectedStore } = useStoreStore();
+  const { mutate: createOrder, isPending } = useCreateOrder();
+
+  const stores = storesResponse?.data || [];
+  const addresses = addressesResponse?.data || [];
+
+  const [orderType, setOrderType] = useState<OrderType>(OrderType.DELIVERY);
+  const [deliveryInfo, setDeliveryInfo] = useState({
+    receiverName: "",
+    receiverPhone: "",
+    addressLine: "",
+  });
+
+  const [voucherCode, setVoucherCode] = useState<string | null>(null);
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
+
+  // Auto-select first store if none selected, or if stored store no longer exists in API
+  useEffect(() => {
+    if (stores.length > 0) {
+      const stillExists = selectedStore && stores.some(s => s.id === selectedStore.id);
+      if (!stillExists) {
+        setSelectedStore(stores[0]);
+      }
+    }
+  }, [stores, selectedStore, setSelectedStore]);
+
+  // Prefill default address
+  useEffect(() => {
+    if (user && addresses.length > 0) {
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+      setDeliveryInfo({
+        receiverName: defaultAddr.receiverName,
+        receiverPhone: defaultAddr.receiverPhone,
+        addressLine: defaultAddr.addressLine,
+      });
+    } else if (user) {
+      setDeliveryInfo((prev) => ({
+        ...prev,
+        receiverName: prev.receiverName || user.name || "",
+        receiverPhone: prev.receiverPhone || user.phone || "",
+      }));
+    }
+  }, [user, addresses]);
+
+  const handleUpdateQuantity = (id: string, delta: number) => {
+    const item = items.find((i) => i.id === id);
+    if (item) {
+      updateQuantity(id, item.quantity + delta);
+    }
+  };
+
+  const handleCheckout = () => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    if (items.length === 0) {
+      toast.error("Giỏ hàng đang trống");
+      return;
+    }
+
+    if (orderType === OrderType.DELIVERY) {
+      if (
+        !deliveryInfo.receiverName ||
+        !deliveryInfo.receiverPhone ||
+        !deliveryInfo.addressLine
+      ) {
+        toast.error("Vui lòng nhập đầy đủ thông tin giao hàng");
+        return;
+      }
+    }
+
+    if (!selectedStore) {
+      toast.error("Vui lòng chọn cửa hàng phục vụ");
+      return;
+    }
+
+    const orderData = {
+      storeId: selectedStore.id,
+      type: orderType,
+      deliveryInfo:
+        orderType === OrderType.DELIVERY ? deliveryInfo : undefined,
+      note: "Customer order from web cart",
+      voucherCode: voucherCode || undefined,
+      items: items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        note: item.note,
+        options: item.options.map((opt) => ({
+          optionId: opt.optionId,
+        })),
+      })),
+    };
+
+    createOrder(orderData, {
+      onSuccess: (response) => {
+        toast.success("Đặt hàng thành công!");
+        clearCart();
+        if (response.data.orderCode) {
+          router.push(`/orders/detail/${response.data.orderCode}`);
+        } else {
+          router.push("/orders");
+        }
+      },
+      onError: (error) => {
+        toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
+        console.error("Order creation failed:", error);
+      },
+    });
+  };
+
+  const handleApplyPromo = async (code: string) => {
+    if (!code.trim()) return;
+    setIsValidatingVoucher(true);
+    setVoucherError(null);
+    try {
+      const res = await VoucherService.validateVoucher({
+        code: code.trim(),
+        orderAmount: subtotal,
+        storeId: selectedStore?.id,
+        customerId: user?.id,
+      });
+      setVoucherCode(code.trim());
+      setVoucherDiscount(res.data.discountAmount);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message || "Mã khuyến mãi không hợp lệ";
+      setVoucherError(message);
+      setVoucherCode(null);
+      setVoucherDiscount(0);
+    } finally {
+      setIsValidatingVoucher(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setVoucherCode(null);
+    setVoucherDiscount(0);
+    setVoucherError(null);
+  };
+
+  const handleNavigate = (path: string) => {
+    setIsAuthModalOpen(false);
+    router.push(path);
+  };
+
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const shipping = orderType === OrderType.DELIVERY ? 15000 : 0;
+  const tax = subtotal * 0.08; // 8% VAT
+  const total = subtotal + shipping + tax - voucherDiscount;
 
   return (
     <>
@@ -259,7 +322,13 @@ export default function CartPage() {
           <div className="container mx-auto px-2xl py-xl">
             <div className="grid grid-cols-12 gap-xl">
               <div className="col-span-8 flex flex-col gap-lg">
-                <AddressSelectionSection />
+                <AddressSelectionSection
+                  isMobile={isMobile}
+                  user={user}
+                  addresses={addresses}
+                  deliveryInfo={deliveryInfo}
+                  setDeliveryInfo={setDeliveryInfo}
+                />
 
                 <div className={cn(
                   "p-xl rounded-md flex flex-col gap-lg bg-surface-muted"
@@ -372,10 +441,15 @@ export default function CartPage() {
                     subtotal={subtotal}
                     shipping={shipping}
                     tax={tax}
+                    discount={voucherDiscount}
                     total={total}
                     onCheckout={handleCheckout}
-                    onApplyPromo={(code) => console.log("Apply promo", code)}
+                    onApplyPromo={handleApplyPromo}
+                    onRemovePromo={handleRemovePromo}
                     isLoading={isPending}
+                    isValidatingPromo={isValidatingVoucher}
+                    appliedVoucherCode={voucherCode || undefined}
+                    voucherError={voucherError || undefined}
                   />
                 </div>
               </div>
@@ -387,7 +461,13 @@ export default function CartPage() {
         <main className="min-h-screen bg-surface-accent pb-40 px-md pt-md flex flex-col gap-lg">
           <h1 className="text-h2-bold text-text-primary px-1">Giỏ hàng</h1>
           
-          <AddressSelectionSection />
+          <AddressSelectionSection
+            isMobile={isMobile}
+            user={user}
+            addresses={addresses}
+            deliveryInfo={deliveryInfo}
+            setDeliveryInfo={setDeliveryInfo}
+          />
 
           <div className={cn(
             "p-xl rounded-md flex flex-col gap-lg bg-surface-muted"
@@ -502,13 +582,62 @@ export default function CartPage() {
             )}
           </div>
 
+          {/* Mobile Promo Section */}
+          <div className="bg-surface-muted rounded-md p-xl flex flex-col gap-md">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
+              MÃ KHUYẾN MÃI
+            </label>
+            {voucherCode ? (
+              <div className="flex items-center justify-between bg-success/20 rounded-[8px] px-md py-sm border border-success/20">
+                <div className="flex flex-col">
+                  <span className="text-[14px] font-bold text-success">{voucherCode}</span>
+                  <span className="text-[12px] text-success">Đã áp dụng</span>
+                </div>
+                <button
+                  onClick={handleRemovePromo}
+                  className="text-[12px] font-bold text-red-500 hover:underline"
+                >
+                  HỦY
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-sm">
+                <input
+                  type="text"
+                  placeholder="Nhập mã"
+                  id="mobile-promo-input"
+                  className="flex-1 h-[49px] rounded-[8px] bg-surface-accent px-md text-[14px] font-normal font-inter text-text-primary outline-none border border-transparent focus:border-brand-primary/20"
+                />
+                <AppButton
+                  variant="secondary"
+                  className="h-[49px] whitespace-nowrap"
+                  onClick={() => {
+                    const input = document.getElementById("mobile-promo-input") as HTMLInputElement;
+                    if (input) handleApplyPromo(input.value);
+                  }}
+                  isLoading={isValidatingVoucher}
+                >
+                  ÁP DỤNG
+                </AppButton>
+              </div>
+            )}
+            {voucherError && !voucherCode && (
+              <span className="text-[12px] text-red-500">{voucherError}</span>
+            )}
+          </div>
+
           <SuggestionSection className="mt-md" />
 
           {/* Sticky Mobile Summary */}
           {items.length > 0 && (
             <div className="fixed bottom-[67px] left-0 right-0 bg-surface-main p-md border-t border-border-primary-50 flex flex-col gap-md z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl">
               <div className="flex items-center justify-between px-1">
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1">
+                  {voucherDiscount > 0 && (
+                    <span className="text-body-sm-reg text-success">
+                      Giảm giá: -{formatToVND(voucherDiscount)}
+                    </span>
+                  )}
                   <span className="text-overline text-text-muted">TỔNG CỘNG</span>
                   <span className="text-h3-bold text-brand-primary">
                     {formatToVND(total)}
