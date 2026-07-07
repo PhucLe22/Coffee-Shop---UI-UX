@@ -16,13 +16,13 @@ export function Footer() {
 
       <nav className="flex items-center gap-xl">
         <Link href="/privacy" className="text-overline-inter text-text-muted hover:text-inverse-text transition-colors">
-          PRIVACY POLICY
+          CHÍNH SÁCH BẢO MẬT
         </Link>
         <Link href="/sustainability" className="text-overline-inter text-text-muted hover:text-inverse-text transition-colors">
-          SUSTAINABILITY
+          PHÁT TRIỂN BỀN VỮNG
         </Link>
         <Link href="/careers" className="text-overline-inter text-text-muted hover:text-inverse-text transition-colors">
-          CAREERS
+          TUYỂN DỤNG
         </Link>
       </nav>
 

@@ -1,155 +1,93 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { AppButton } from "@/shared/ui";
-import { ProductCard } from "@/entities/product";
 import { useIsMobile } from "@/shared/lib";
 
 import { HomeHero } from "@/widgets/home-hero";
 import { HomeRituals } from "@/widgets/home-rituals";
 import { HomePopularChoices } from "@/widgets/home-popular-choices";
+import { AIChatButton } from "@/widgets/ai-chat-button";
 
-export default function Home() {
+export default function HomePage() {
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
+
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
-  if (!isMobile) {
-    return (
-      <div className="flex flex-col bg-surface-main">
-        <HomeHero />
-        <HomeRituals />
-        <HomePopularChoices />
-      </div>
-    );
+  if (!mounted) {
+    return null;
   }
 
   return (
-    <div className="flex flex-col bg-surface-main">
-      <main className="flex flex-col gap-xl px-md pt-md">
-        {/* Branch Selector & Search */}
-        <section className="flex flex-col gap-md">
-          <div className="flex flex-col gap-1">
-            <span className="font-inter text-body-sm-semibold text-text-secondary">
-              Currently Serving At
-            </span>
-            <button className="flex items-center justify-between gap-2">
-              <h2 className="text-h2-bold text-text-primary">
-                Greenwich Village
-              </h2>
-              <ChevronDown className="size-4 text-text-primary" />
-            </button>
-          </div>
-
+    <div className="flex flex-col bg-surface-main min-h-screen relative">
+      {!isMobile ? (
+        <div className="flex flex-col">
+          <HomeHero />
+          <HomePopularChoices />
+          <HomeRituals />
+        </div>
+      ) : (
+        <main className="flex flex-col gap-xl px-md py-md">
+        {/* Search */}
+        <section className="flex flex-col gap-lg">
           <div className="relative">
-            <Search className="absolute top-1/2 left-4 size-6 -translate-y-1/2 text-text-muted/50" />
+            <Search className="absolute top-1/2 left-lg size-6 -translate-y-1/2 text-text-muted/50" />
             <input
               type="text"
-              placeholder="Search your ritual..."
-              className="h-14 w-full rounded-full bg-surface-muted pl-12 pr-4 font-plus-jakarta text-[16px] font-bold text-text-primary placeholder:text-text-muted/50 focus:outline-none"
+              placeholder="Tìm kiếm món uống của bạn..."
+              className="h-14 w-full rounded-full bg-inverse-text pl-12 pr-4 text-body-md-bold text-text-primary placeholder:text-text-muted/50 focus:outline-none shadow-sm"
             />
           </div>
         </section>
 
         {/* Featured Rituals */}
         <section className="flex flex-col gap-lg">
-          <h2 className="text-h2-bold text-text-secondary">Featured Rituals</h2>
+          <h2 className="text-h1-bold text-text-secondary">Nghi Thức Nổi Bật</h2>
           <div className="flex flex-col gap-lg">
             {/* Large Featured Card */}
-            <div className="relative aspect-357/400 w-full overflow-hidden rounded-lg bg-text-primary">
-              <div className="absolute inset-0 bg-linear-to-t from-text-primary/90 via-text-primary/20 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-end p-lg">
-                <div className="mb-sm flex w-fit items-center rounded-full bg-brand-primary px-3 py-1 text-[10px] font-bold text-inverse-text">
-                  NEW SEASON
+            <div className="relative min-h-[400px] w-full overflow-hidden rounded-lg bg-text-primary shadow-lg">
+              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center opacity-60" />
+              <div className="absolute inset-0 bg-linear-to-t from-text-primary/95 via-text-primary/20 to-transparent" />
+              <div className="absolute inset-0 flex flex-col justify-end p-xl gap-md">
+                <div className="flex w-fit items-center rounded-full bg-brand-primary px-lg py-1 text-overline-inter text-inverse-text uppercase">
+                  MÙA MỚI
                 </div>
-                <h3 className="mb-sm font-plus-jakarta text-[48px] font-extrabold leading-[1.2] text-brand-primary">
+                <h3 className="text-display-md text-brand-primary leading-tight">
                   The Honey- Oak Flat White
                 </h3>
-                <p className="mb-md font-inter text-[16px] font-bold text-inverse-text">
-                  Sourced from the highlands of Ethiopia, infused with
-                  sustainable forest honey.
+                <p className="text-body-md-bold text-inverse-text">
+                  Được tuyển chọn từ vùng cao nguyên Ethiopia, kết hợp với mật ong rừng bền vững.
                 </p>
-                <AppButton className="w-fit">Try it now</AppButton>
+                <AppButton variant="secondary" className="w-fit">Thử ngay</AppButton>
               </div>
             </div>
 
             {/* Accent Promo Card */}
-            <div className="flex flex-col gap-md rounded-lg bg-brand-primary p-lg text-inverse-text">
+            <div className="flex flex-col gap-lg rounded-lg bg-brand-primary p-xl text-inverse-text shadow-lg">
               <div className="flex flex-col gap-1">
-                <h3 className="font-plus-jakarta text-[36px] font-extrabold leading-tight">
+                <h3 className="text-display-md text-inverse-text leading-tight">
                   Monday Roast
                 </h3>
-                <span className="font-plus-jakarta text-[18px] font-bold">
-                  50% Off
+                <span className="text-h3-bold text-inverse-text">
+                  Giảm 50%
                 </span>
               </div>
-              <p className="font-inter text-body-sm-semibold">
-                Exclusive for rewards members every first day of the week.
+              <p className="text-body-sm-semibold">
+                Dành riêng cho thành viên rewards vào mỗi đầu tuần.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Popular Choices */}
-        <section className="flex flex-col gap-lg pb-10">
-          <div className="flex items-end justify-between">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-h2-bold text-text-secondary leading-tight">
-                Popular
-                <br />
-                Choices
-              </h2>
-              <p className="font-inter text-[16px] text-text-muted">
-                Hand-picked favorites by our
-                <br />
-                local baristas.
-              </p>
-            </div>
-            <button className="flex h-14 w-21 items-center justify-center border-b border-brand-primary px-2 text-center font-inter text-[16px] font-bold text-text-primary leading-tight">
-              View full
-              <br />
-              menu
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8">
-            <ProductCard
-              name="Cold Brew Nitro"
-              size="350ml"
-              price="$5.50"
-              slug="cold-brew-nitro"
-              imageUrl="https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=1974&auto=format&fit=crop"
-            />
-            <ProductCard
-              name="Double Espresso"
-              size="350ml"
-              price="$5.50"
-              slug="double-espresso"
-              imageUrl="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=1970&auto=format&fit=crop"
-            />
-            <ProductCard
-              name="Caramel Macchiato"
-              size="350ml"
-              price="$5.50"
-              slug="caramel-macchiato"
-              imageUrl="https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=1974&auto=format&fit=crop"
-            />
-            <ProductCard
-              name="Oatmilk Latte"
-              size="350ml"
-              price="$5.50"
-              slug="oatmilk-latte"
-              imageUrl="https://images.unsplash.com/photo-1485808191679-5f86510681a2?q=80&w=1974&auto=format&fit=crop"
-            />
-          </div>
-        </section>
+        <HomePopularChoices />
       </main>
+      )}
+      <AIChatButton />
     </div>
   );
 }

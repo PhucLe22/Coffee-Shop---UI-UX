@@ -2,49 +2,104 @@
 
 import { useState } from 'react';
 import { Leaf, Minus, Plus, ShoppingCart } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
+import { cn, formatToVND } from '@/shared/lib';
 import { AppButton } from '@/shared/ui';
-import { SizeSelector, OptionButton, OptionCard } from '@/entities/product';
-
-interface Product {
-  name: string;
-  category: string;
-  description: string;
-  basePrice: number;
-  image: string;
-  sizes: { id: string; label: string; volume: string; price: number }[];
-  sweetness: string[];
-  toppings: { id: number; name: string; description: string; price: number; selected: boolean }[];
-}
+import { SizeSelector, OptionButton, OptionCard, Product } from '@/entities/product';
+import { useCartStore } from '@/entities/cart';
+import { toast } from 'sonner';
 
 interface DesktopProductDetailProps {
   product: Product;
 }
 
 export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0].id);
-  const [selectedSweetness, setSelectedSweetness] = useState(product.sweetness[1]);
-  const [toppings, setToppings] = useState(product.toppings);
+  const addItem = useCartStore((state) => state.addItem);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>(() => {
+    const initial: Record<string, string[]> = {};
+    product.optionGroups?.forEach(group => {
+      if (group.isRequired && group.options.length > 0) {
+        initial[group.id] = [group.options[0].id];
+      } else {
+        initial[group.id] = [];
+      }
+    });
+    return initial;
+  });
   const [quantity, setQuantity] = useState(1);
 
-  const toggleTopping = (id: number) => {
-    setToppings((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, selected: !t.selected } : t))
-    );
+  const toggleOption = (groupId: string, optionId: string, isMultiple: boolean) => {
+    setSelectedOptions((prev) => {
+      const current = prev[groupId] || [];
+      if (isMultiple) {
+        return {
+          ...prev,
+          [groupId]: current.includes(optionId)
+            ? current.filter((id) => id !== optionId)
+            : [...current, optionId],
+        };
+      } else {
+        return {
+          ...prev,
+          [groupId]: [optionId],
+        };
+      }
+    });
   };
 
-  const totalPrice = (
-    product.basePrice + 
-    (product.sizes.find(s => s.id === selectedSize)?.price || 0) +
-    toppings.filter(t => t.selected).reduce((acc, t) => acc + t.price, 0)
-  ) * quantity;
+  const getSelectedOptionsFormatted = () => {
+    const formatted: { optionId: string; name: string; price: number }[] = [];
+    Object.entries(selectedOptions).forEach(([groupId, optionIds]) => {
+      const group = product.optionGroups?.find((g) => g.id === groupId);
+      if (group) {
+        optionIds.forEach((optionId) => {
+          const option = group.options.find((o) => o.id === optionId);
+          if (option) {
+            formatted.push({
+              optionId: option.id,
+              name: option.name,
+              price: Number(option.price || 0),
+            });
+          }
+        });
+      }
+    });
+    return formatted;
+  };
+
+  const handleAddToCart = () => {
+    const formattedOptions = getSelectedOptionsFormatted();
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    const itemPrice = Number(product.basePrice) + extraPrice;
+    
+    const cartId = `${product.id}-${formattedOptions.map(o => o.optionId).sort().join('-')}`;
+    
+    addItem({
+      id: cartId,
+      productId: product.id,
+      name: product.name,
+      price: itemPrice,
+      quantity,
+      imageUrl: product.thumbnail || undefined,
+      options: formattedOptions,
+    });
+    
+    toast.success("Đã thêm vào giỏ hàng");
+  };
+
+  const calculateTotalPrice = () => {
+    const formattedOptions = getSelectedOptionsFormatted();
+    const extraPrice = formattedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    return (Number(product.basePrice) + extraPrice) * quantity;
+  };
+
+  const totalPrice = calculateTotalPrice();
 
   return (
     <div className="flex min-h-[calc(100vh-102px)] bg-surface-main">
       {/* Left Side: Image */}
       <div className="w-[50%] sticky top-[102px] h-[calc(100vh-102px)] overflow-hidden bg-surface-accent">
         <img 
-          src={product.image} 
+          src={product.thumbnail || "/placeholder-product.jpg"} 
           alt={product.name} 
           className="w-full h-full object-cover"
         />
@@ -57,7 +112,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
           <div className="flex flex-col gap-md">
             <div className="flex items-center gap-sm text-text-secondary">
               <Leaf className="size-4 fill-text-secondary" />
-              <span className="text-body-sm-semibold uppercase tracking-wider">{product.category}</span>
+              <span className="text-body-sm-semibold uppercase tracking-wider">{product.category.name}</span>
             </div>
             <h1 className="text-display-md text-text-primary leading-tight">
               {product.name}
@@ -67,93 +122,76 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
             </p>
           </div>
 
-          {/* Size Selection */}
-          <div className="flex flex-col gap-md">
-            <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-              CHOOSE SIZE
-            </h3>
-            <div className="flex gap-md">
-              {product.sizes.map((size) => (
-                <SizeSelector
-                  key={size.id}
-                  label={size.label}
-                  volume={size.volume}
-                  isActive={selectedSize === size.id}
-                  onClick={() => setSelectedSize(size.id)}
-                  className="h-[83px] rounded-md"
-                />
-              ))}
-            </div>
-          </div>
+          {/* Dynamic Option Groups */}
+          {product.optionGroups?.sort((a, b) => a.sortOrder - b.sortOrder).map((group) => (
+            <div key={group.id} className="flex flex-col gap-md">
+              <div className="flex justify-between items-center">
+                <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
+                  {group.name}
+                </h3>
+                {group.isRequired && (
+                  <span className="text-body-sm-semibold text-text-secondary">
+                    BẮT BUỘC
+                  </span>
+                )}
+              </div>
 
-          {/* Sweetness */}
-          <div className="flex flex-col gap-md">
-            <div className="flex justify-between items-center">
-              <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-                SWEETNESS LEVEL
-              </h3>
-              <span className="text-body-sm-semibold text-text-secondary">
-                {selectedSweetness} Honey Blend
-              </span>
-            </div>
-            <div className="flex gap-sm overflow-x-auto no-scrollbar">
-              {product.sweetness.map((level) => (
-                <OptionButton
-                  key={level}
-                  label={level}
-                  isSelected={selectedSweetness === level}
-                  onClick={() => setSelectedSweetness(level)}
-                  className="rounded-md h-[52px] min-w-[120px]"
-                />
-              ))}
-            </div>
-          </div>
+              {group.isMultiple ? (
+                <div className="flex flex-col gap-sm">
+                  {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => (
+                    <OptionCard
+                      key={option.id}
+                      name={option.name}
+                      price={Number(option.price || 0)}
+                      isSelected={selectedOptions[group.id]?.includes(option.id)}
+                      onToggle={() => toggleOption(group.id, option.id, true)}
+                      className="rounded-md border-border-primary-50"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex gap-sm overflow-x-auto no-scrollbar">
+                  {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => {
+                    // Check if it's a size group by name (heuristic)
+                    const isSizeGroup = group.name.toLowerCase().includes('size');
+                    
+                    if (isSizeGroup) {
+                      return (
+                        <SizeSelector
+                          key={option.id}
+                          label={option.name}
+                          volume="" // volume not available in backend yet
+                          isActive={selectedOptions[group.id]?.includes(option.id)}
+                          onClick={() => toggleOption(group.id, option.id, false)}
+                          className="h-[83px] rounded-md"
+                        />
+                      );
+                    }
 
-          {/* Milk Options */}
-          <div className="flex flex-col gap-md">
-            <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-              MILK CHOICE
-            </h3>
-            <div className="grid grid-cols-4 gap-sm">
-              {['Oat milk', 'Almond', 'Whole milk', 'Macadamia'].map((milk) => (
-                <OptionButton
-                  key={milk}
-                  label={milk}
-                  isSelected={milk === 'Oat milk'}
-                  className="rounded-md h-[52px]"
-                />
-              ))}
+                    return (
+                      <OptionButton
+                        key={option.id}
+                        label={option.name}
+                        isSelected={selectedOptions[group.id]?.includes(option.id)}
+                        onClick={() => toggleOption(group.id, option.id, false)}
+                        className="rounded-md h-[52px] min-w-[120px]"
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </div>
-
-          {/* Toppings */}
-          <div className="flex flex-col gap-md">
-            <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-              ELEVATE YOUR BREW
-            </h3>
-            <div className="flex flex-col gap-sm">
-              {toppings.map((topping) => (
-                <OptionCard
-                  key={topping.id}
-                  name={topping.name}
-                  price={topping.price}
-                  isSelected={topping.selected}
-                  onToggle={() => toggleTopping(topping.id)}
-                  className="rounded-md border-border-primary-50"
-                />
-              ))}
-            </div>
-          </div>
+          ))}
 
           {/* Summary & CTA */}
           <div className="flex flex-col gap-lg pt-xl border-t border-border-primary-50">
             <div className="flex justify-between items-end">
               <div className="flex flex-col gap-1">
                 <span className="text-body-sm-semibold text-text-muted uppercase tracking-widest">
-                  TOTAL AMOUNT
+                  TỔNG TIỀN
                 </span>
                 <span className="text-display-md text-text-secondary leading-none">
-                  ${totalPrice.toFixed(2)}
+                  {formatToVND(totalPrice)}
                 </span>
               </div>
               
@@ -175,9 +213,13 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
               </div>
             </div>
 
-            <AppButton variant="primary" className="w-full h-14 gap-md">
+            <AppButton 
+              variant="primary" 
+              className="w-full h-14 gap-md"
+              onClick={handleAddToCart}
+            >
               <ShoppingCart className="size-6" />
-              ADD TO CART
+              THÊM VÀO GIỎ
             </AppButton>
           </div>
         </div>

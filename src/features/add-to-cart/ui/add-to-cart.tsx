@@ -51,7 +51,7 @@ const AddToCart = ({ product, className }: AddToCartProps) => {
         <button
           onClick={handleAdd}
           className="flex h-auto py-4 px-4 w-full items-center justify-between rounded-md bg-brand-primary text-inverse-text">
-          <span className="label-button-lg">Add to cart</span>
+          <span className="label-button-lg">Thêm vào giỏ hàng</span>
           <span className="text-body-md-bold">${product.price}</span>
         </button>
       </div>

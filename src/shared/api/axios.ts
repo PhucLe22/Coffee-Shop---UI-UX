@@ -1,12 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 import { API_ENDPOINTS } from "./endpoints";
-
-// This should ideally come from an auth store/hook
-let accessToken: string | null = null;
-
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
-};
+import { useCustomerAuthStore, useStaffAuthStore } from "../auth/auth.store";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -19,8 +14,14 @@ const axiosInstance = axios.create({
 // Request interceptor: Attach Access Token as Bearer
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (accessToken && config.headers) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    // Determine which token to use based on the URL
+    const isInternal = config.url?.startsWith('/internal') || config.url?.includes('/internal/');
+    const token = isInternal 
+      ? useStaffAuthStore.getState().accessToken 
+      : useCustomerAuthStore.getState().accessToken;
+
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -28,44 +29,108 @@ axiosInstance.interceptors.request.use(
 );
 
 // Response interceptor: Handle 401 and Refresh Token
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve(token!);
+    }
+  });
+  failedQueue = [];
+}
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // If 401 error and not already retrying
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // Call refresh endpoint - Refresh token is automatically sent via cookie
-        // The backend should return the new access token in the body
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
-          {},
-          { withCredentials: true }
-        );
-
-        const newAccessToken = response.data.accessToken;
-        setAccessToken(newAccessToken);
-
-        // Update header and retry original request
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        }
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, clear token and redirect to login
-        setAccessToken(null);
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-        return Promise.reject(refreshError);
-      }
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    if (isRefreshing) {
+      return new Promise<string>((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then((newToken) => {
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        }
+        return axiosInstance(originalRequest);
+      });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
+        {},
+        { withCredentials: true }
+      );
+
+      const data = response.data?.data || response.data;
+      
+      let newAccessToken: string;
+      let newRefreshToken: string;
+
+      if (data.tokens) {
+        newAccessToken = data.tokens.accessToken;
+        newRefreshToken = data.tokens.refreshToken;
+      } else {
+        newAccessToken = data.accessToken;
+        newRefreshToken = data.refreshToken;
+      }
+
+      const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
+      if (isInternal) {
+        const { user, setAuth } = useStaffAuthStore.getState();
+        if (user) {
+          setAuth({ ...user, accessToken: newAccessToken, refreshToken: newRefreshToken } as any);
+        }
+      } else {
+        const { user, setAuth } = useCustomerAuthStore.getState();
+        if (user) {
+          setAuth({ ...user, accessToken: newAccessToken, refreshToken: newRefreshToken } as any);
+        }
+      }
+
+      processQueue(null, newAccessToken);
+
+      if (originalRequest.headers) {
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      }
+      return axiosInstance(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+
+      const isInternal = originalRequest.url?.startsWith('/internal') || originalRequest.url?.includes('/internal/');
+      if (isInternal) {
+        useStaffAuthStore.getState().logout();
+      } else {
+        useCustomerAuthStore.getState().logout();
+      }
+      
+      if (typeof window !== "undefined") {
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        window.location.href = "/login";
+      }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
+
+// Exporting dummy setAccessToken for backward compatibility during migration
+export const setAccessToken = (_token: string | null) => {};
+
 
 export default axiosInstance;

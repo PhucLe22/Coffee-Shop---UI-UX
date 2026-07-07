@@ -34,11 +34,11 @@ export interface MobileNavBarProps {
 
 const MobileNavBar = ({ activeTab = "home", className }: MobileNavBarProps) => {
   const navItems = [
-    { id: "home", label: "HOME", icon: House, href: "/" },
-    { id: "menu", label: "MENU", icon: Coffee, href: "/menu" },
-    { id: "orders", label: "ORDERS", icon: ScrollText, href: "/orders" },
-    { id: "profile", label: "PROFILE", icon: User, href: "/profile" },
-    { id: "cart", label: "CART", icon: ShoppingCart, href: "/cart" },
+    { id: "home", label: "TRANG CHỦ", icon: House, href: "/" },
+    { id: "menu", label: "THỰC ĐƠN", icon: Coffee, href: "/menu" },
+    { id: "orders", label: "ĐƠN HÀNG", icon: ScrollText, href: "/orders" },
+    { id: "profile", label: "HỒ SƠ", icon: User, href: "/profile" },
+    { id: "cart", label: "GIỎ HÀNG", icon: ShoppingCart, href: "/cart" },
   ];
 
   return (

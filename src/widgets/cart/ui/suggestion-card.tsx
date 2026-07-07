@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/shared/lib";
+import { cn, formatToVND } from "@/shared/lib";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -33,7 +33,7 @@ export function SuggestionCard({
         </Link>
         <button
           className="absolute right-2 bottom-2 flex size-10 items-center justify-center rounded-2xl bg-brand-primary text-inverse-text shadow-smeffect transition-all hover:bg-brand-accent active:scale-90"
-          aria-label="Add to cart"
+          aria-label="Thêm vào giỏ hàng"
         >
           <Plus className="size-6" />
         </button>
@@ -44,7 +44,7 @@ export function SuggestionCard({
           {name}
         </h4>
         <span className="text-body-md-bold text-brand-primary">
-          ${price.toFixed(2)}
+          {formatToVND(price)}
         </span>
       </div>
     </div>

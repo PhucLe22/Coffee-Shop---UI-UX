@@ -2,6 +2,8 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { ProductService } from "./product.service";
 import { GetProductsQuery } from "../model/types";
 
+import { AxiosError } from "axios";
+
 export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "limit">) => {
   return useInfiniteQuery({
     queryKey: ["products-infinite", query],
@@ -9,14 +11,21 @@ export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "lim
       ProductService.getProducts({ 
         ...query, 
         page: pageParam, 
-        limit: 6 
+        limit: 100
       }),
     getNextPageParam: (lastPage) => {
-      if (lastPage.meta && lastPage.meta.page < lastPage.meta.totalPages) {
-        return lastPage.meta.page + 1;
+      const meta = lastPage.meta;
+      if (meta && meta.hasNext) {
+        return meta.currentPage + 1;
       }
       return undefined;
     },
     initialPageParam: 1,
+    retry: (failureCount, error) => {
+      if (error instanceof AxiosError && error.response?.status === 403) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 };

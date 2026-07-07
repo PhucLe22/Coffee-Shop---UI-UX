@@ -17,7 +17,7 @@ export const OptionButton = ({
     <button
       onClick={onClick}
       className={cn(
-        "h-fit py-sm px-lg rounded-full border transition-all text-body-md-bold whitespace-nowrap",
+        "h-fit py-sm px-lg rounded-full border transition-all text-body-md-bold whitespace-nowrap truncate max-w-[180px]",
         isSelected
           ? "bg-text-primary text-inverse-text border-text-primary shadow-sm"
           : "bg-inverse-text text-text-secondary border-text-muted/50 hover:bg-surface-muted",

@@ -24,7 +24,7 @@ export function OrderDriverCard({ order }: OrderDriverCardProps) {
             {order.driver.name}
           </span>
           <span className="text-caption-inter text-text-secondary">
-            Driver
+Tài xế
           </span>
         </div>
       </div>
@@ -34,7 +34,7 @@ export function OrderDriverCard({ order }: OrderDriverCardProps) {
           <Phone className="size-4 text-text-secondary" />
         </AppButton>
         <AppButton variant="primary">
-          Help Center
+          Trung Tâm Hỗ Trợ
         </AppButton>
       </div>
     </div>

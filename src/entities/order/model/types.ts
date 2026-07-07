@@ -1,4 +1,27 @@
-export type OrderStatus = 'placed' | 'preparing' | 'on_the_way' | 'delivered' | 'cancelled' | 'in_process';
+import { OrderOutput, GetOrdersQuery, OrderStatus as SharedOrderStatus, CustomerTier } from "@/shared/api";
+
+export type { GetOrdersQuery };
+
+export interface OrderResponse {
+  success: boolean;
+  message: string;
+  data: OrderOutput[];
+  meta?: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
+}
+
+export type OrderStatus = 
+  | SharedOrderStatus
+  | 'placed' 
+  | 'preparing' 
+  | 'on_the_way' 
+  | 'delivered' 
+  | 'cancelled' 
+  | 'in_process';
 
 export interface OrderItem {
   id: string;
@@ -8,20 +31,30 @@ export interface OrderItem {
   options?: string[];
 }
 
-export interface Order {
-  id: string;
-  orderNumber: string;
+export interface Order extends Omit<Partial<OrderOutput>, 'status'> {
+  id?: string;
   status: OrderStatus;
-  estimatedArrival: string;
-  estimatedArrivalText: string;
+  createdAt: string;
+  
+  // Compatibility fields for old UI and internal logic
+  orderNumber?: string;
+  totalPrice?: number;
+  items?: OrderItem[];
+  estimatedArrival?: string;
   driver?: {
     name: string;
     avatarUrl?: string;
     phoneNumber?: string;
   };
-  items: OrderItem[];
-  totalPrice: number;
-  createdAt: string;
+}
+
+export interface OrderActivity {
+  status: string;
+  label: string;
+  time: string | null;
+  isPast: boolean;
+  description?: string;
+  isEstimate?: boolean;
 }
 
 export interface OrderStep {

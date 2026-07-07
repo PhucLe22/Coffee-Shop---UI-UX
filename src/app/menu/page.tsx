@@ -39,11 +39,10 @@ export default function MenuPage() {
       {/* Hero Section */}
       <div className="flex flex-col gap-4">
         <h2 className="text-h2-bold text-text-primary whitespace-pre-line">
-          The Brew{"\n"}Catalogue
+          Danh Mục{"\n"}Đồ Uống
         </h2>
         <p className="text-body-md-reg text-text-secondary whitespace-pre-line">
-          Sourced from volcanic soils, roasted in{"\n"}small batches for the
-          ultimate profile.
+          Được tuyển chọn từ những vùng đất núi lửa, rang{"\n"}thủ công từng mẻ nhỏ để đạt hương vị tối ưu.
         </p>
       </div>
 
@@ -71,11 +70,11 @@ export default function MenuPage() {
           ))
         ) : isError ? (
           <div className="col-span-full py-20 text-center text-text-secondary">
-            Failed to load products. Please try again later.
+            Không thể tải sản phẩm. Vui lòng thử lại sau.
           </div>
         ) : allProducts.length === 0 ? (
           <div className="col-span-full py-20 text-center text-text-secondary">
-            No products found in this category.
+            Không có sản phẩm nào trong danh mục này.
           </div>
         ) : (
           <>
@@ -83,13 +82,13 @@ export default function MenuPage() {
               <ProductCardDetailed
                 key={product.id}
                 name={product.name}
-                price={formatToVND(product.price)}
+                price={formatToVND(product.basePrice)}
                 description={product.description}
-                calories={product.calories || "0"}
-                size={product.size || "0"}
+                calories={"0"}
+                size={"Medium"}
                 slug={product.slug || product.id}
                 imageUrl={product.thumbnail || undefined}
-                badge={product.badge}
+                badge={undefined}
               />
             ))}
           </>

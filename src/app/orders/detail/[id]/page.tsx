@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchOrderById } from '@/entities/order';
+import { fetchOrderById, useOrderActivities } from '@/entities/order';
 import { 
   OrderHero, 
   DesktopOrderHero 
@@ -23,6 +23,7 @@ import {
 } from '@/widgets/order-driver-card';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { useIsMobile } from '@/shared/lib';
+import { LiveTrackingMap } from './live-tracking-map';
 
 interface OrderDetailPageProps {
   params: Promise<{ id: string }>;
@@ -37,6 +38,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
     queryFn: () => fetchOrderById(id),
   });
 
+  const { data: activities } = useOrderActivities(order?.id);
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-lg p-md">
@@ -50,7 +53,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   if (!order) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <span className="text-h3-bold text-text-primary">Order not found</span>
+        <span className="text-h3-bold text-text-primary">Không tìm thấy đơn hàng</span>
       </div>
     );
   }
@@ -64,20 +67,21 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
           <div className="grid grid-cols-12 gap-xl mt-lg">
             {/* Left Column: Map, Driver, and Status */}
             <div className="col-span-7 flex flex-col gap-lg">
-              <div className="h-[500px] bg-surface-muted rounded-lg relative overflow-hidden flex items-center justify-center border border-border-primary-50 shadow-smeffect">
-                <div className="text-h3-bold text-text-muted">Live Tracking Map</div>
-              </div>
+              <LiveTrackingMap 
+                order={order} 
+                className="h-[500px] rounded-lg overflow-hidden border border-border-primary-50 shadow-smeffect" 
+              />
               
               <DesktopOrderDriverCard order={order} />
 
-              <DesktopOrderStatusTimeline order={order} />
+              <DesktopOrderStatusTimeline order={order} activities={activities} />
             </div>
 
             {/* Right Column: Arrival, Destination, and Summary */}
             <div className="col-span-5 flex flex-col gap-lg">
               <DesktopEstimatedArrival order={order} />
               
-              <DesktopDestination />
+              <DesktopDestination order={order} />
 
               <div className="sticky top-[120px]">
                 <DesktopOrderSummary order={order} />
@@ -95,8 +99,11 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
 
       <section className="flex flex-col gap-lg -mt-md">
         {/* Map Placeholder */}
-        <div className="mx-md h-[450px] bg-surface-muted rounded-md relative overflow-hidden flex items-center justify-center">
-          <div className="text-body-md-bold text-text-muted">Map goes here</div>
+        <div className="mx-md h-[450px] relative">
+          <LiveTrackingMap 
+            order={order} 
+            className="w-full h-full rounded-md overflow-hidden" 
+          />
           
           {/* Driver Card Overlay */}
           <div className="absolute bottom-md left-0 right-0 z-20">
@@ -104,7 +111,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
           </div>
         </div>
 
-        <OrderStatusTimeline order={order} />
+        <OrderStatusTimeline order={order} activities={activities} />
         
         <OrderItemsSummary order={order} />
       </section>

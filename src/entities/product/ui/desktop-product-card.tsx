@@ -22,7 +22,7 @@ export const DesktopProductCard = ({
 }: DesktopProductCardProps) => {
   return (
     <div className={cn("flex w-full flex-col gap-md", className)}>
-      <div className="relative aspect-[230/282] w-full overflow-hidden rounded-lg bg-surface-muted group">
+      <div className="relative w-full overflow-hidden rounded-lg bg-surface-muted group" style={{ aspectRatio: '230/282' }}>
         <Link href={`/products/${slug}`} className="block h-full w-full">
           {imageUrl && (
             <img
@@ -33,26 +33,28 @@ export const DesktopProductCard = ({
           )}
           {!imageUrl && <div className="h-full w-full bg-surface-muted" />}
         </Link>
-        <AppButton
-          variant="primary"
-          size="icon"
-          className="absolute right-md bottom-md size-14 shadow-lg"
-          aria-label="Add to cart"
-        >
-          <Plus className="size-8" />
-        </AppButton>
+        <Link href={`/products/${slug}`} className="absolute right-md bottom-md">
+          <AppButton
+            variant="primary"
+            size="icon"
+            className="size-14 shadow-lg"
+            aria-label="Thêm vào giỏ hàng"
+          >
+            <Plus className="size-8" />
+          </AppButton>
+        </Link>
       </div>
 
       <div className="flex justify-between items-start">
         <Link href={`/products/${slug}`} className="flex flex-col gap-1">
-          <h4 className="text-h4-bold text-text-primary">
+          <h4 className="text-body-md-bold text-text-primary leading-tight">
             {name}
           </h4>
-          <span className="text-body-sm-reg text-text-secondary">
+          <span className="text-xs text-text-secondary line-clamp-2">
             {description}
           </span>
         </Link>
-        <span className="text-body-md-bold text-brand-primary pt-1">
+        <span className="text-body-sm-bold text-brand-primary pt-1 shrink-0">
           {price}
         </span>
       </div>

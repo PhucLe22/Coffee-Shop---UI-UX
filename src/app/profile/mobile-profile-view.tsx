@@ -3,26 +3,36 @@
 import React from "react";
 import {
   User,
-  MapPin,
-  CreditCard,
-  Bell,
   HelpCircle,
   ShieldCheck,
   ChevronRight,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 import { AppButton } from "@/shared/ui";
+import { useRouter } from "next/navigation";
+import { useCustomerAuthStore, AuthService } from "@/shared/auth";
+import { useProfile } from "./use-profile";
+import { PersonalInfoSection } from "./personal-info-section";
+import { AddressSection } from "./address-section";
+import { toast } from "sonner";
 
 const CustomerCard = () => {
+  const { user } = useCustomerAuthStore();
+
+  const tierLabel = user?.tier
+    ? user.tier.charAt(0) + user.tier.slice(1).toLowerCase() + " Member"
+    : "Member";
+
   return (
     <div className="flex h-auto w-full flex-col justify-between rounded-[32px] bg-surface-inverse p-6 text-inverse-text shadow-lg">
       <div className="flex flex-col gap-2">
         <h2 className="font-plus-jakarta text-[24px] font-bold leading-tight">
-          Julian Estévez
+          {user?.name ?? "Customer"}
         </h2>
         <div className="flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-1">
           <div className="size-2 rounded-full bg-brand-primary" />
-          <span className="font-inter text-sm font-semibold">Gold Member</span>
+          <span className="font-inter text-sm font-semibold">{tierLabel}</span>
         </div>
       </div>
 
@@ -30,31 +40,15 @@ const CustomerCard = () => {
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             <span className="font-inter text-sm font-semibold uppercase tracking-wider text-inverse-text">
-              COLLECTIVE POINTS
+              ĐIỂM TÍCH LŨY
             </span>
             <div className="flex items-baseline gap-1">
               <span className="font-plus-jakarta text-[24px] font-bold text-brand-primary">
-                2,450
+                {user?.points?.toLocaleString() ?? 0}
               </span>
               <span className="font-inter text-sm text-inverse-text">pts</span>
             </div>
           </div>
-          <div className="flex flex-col items-end">
-            <span className="font-plus-jakarta text-[11px] text-inverse-text">
-              Next Tier: Platinum
-            </span>
-            <span className="font-inter text-sm font-semibold text-text-muted">
-              550 pts to go
-            </span>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-brand-primary"
-            style={{ width: "78%" }}
-          />
         </div>
       </div>
     </div>
@@ -105,11 +99,27 @@ const SettingsGroup = ({
 );
 
 export function MobileProfileView() {
+  const router = useRouter();
+  const { logout, accessToken, refreshToken } = useCustomerAuthStore();
+  useProfile();
+
+  const handleLogout = async () => {
+    try {
+      if (accessToken && refreshToken) {
+        await AuthService.logout(accessToken, refreshToken);
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      logout();
+      toast.success('Đã đăng xuất');
+      router.push('/');
+    }
+  };
+
   const accountOptions = [
     { icon: User, label: "Thông tin cá nhân" },
-    { icon: MapPin, label: "Địa chỉ đã lưu" },
-    { icon: CreditCard, label: "Phương thức thanh toán" },
-    { icon: Bell, label: "Cài đặt thông báo" },
+    { icon: ClipboardList, label: "Lịch sử đơn hàng", onClick: () => router.push("/orders") },
   ];
 
   const supportOptions = [
@@ -122,15 +132,25 @@ export function MobileProfileView() {
       {/* Customer Card */}
       <CustomerCard />
 
+      {/* Personal Information */}
+      <div className="mt-6">
+        <PersonalInfoSection />
+      </div>
+
+      {/* Saved Addresses */}
+      <div className="mt-6">
+        <AddressSection />
+      </div>
+
       {/* Menu Groups */}
       <div className="mt-8 flex flex-col gap-8">
-        <SettingsGroup title="ACCOUNT & SECURITY" options={accountOptions} />
-        <SettingsGroup title="SUPPORT & LEGAL" options={supportOptions} />
+        <SettingsGroup title="TÀI KHOẢN & BẢO MẬT" options={accountOptions} />
+        <SettingsGroup title="HỖ TRỢ & PHÁP LÝ" options={supportOptions} />
       </div>
 
       {/* Logout Button */}
       <div className="mt-8">
-        <AppButton variant="danger" className="w-full font-bold">
+        <AppButton variant="danger" className="w-full font-bold" onClick={handleLogout}>
           <LogOut className="size-5" />
           Đăng xuất
         </AppButton>

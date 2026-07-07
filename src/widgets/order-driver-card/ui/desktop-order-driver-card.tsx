@@ -24,7 +24,7 @@ export function DesktopOrderDriverCard({ order }: DesktopOrderDriverCardProps) {
             {order.driver.name}
           </span>
           <span className="text-body-sm-reg text-text-muted">
-            Your Dedicated Artisan Courier
+            Tài xế giao hàng của bạn
           </span>
         </div>
       </div>
@@ -38,7 +38,7 @@ export function DesktopOrderDriverCard({ order }: DesktopOrderDriverCardProps) {
           <Phone className="size-6 text-inverse-text" />
         </AppButton>
         <AppButton variant="primary" className="h-14 px-xl label-button-md">
-          HELP CENTER
+          TRUNG TÂM HỖ TRỢ
         </AppButton>
       </div>
     </div>
