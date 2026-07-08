@@ -236,34 +236,7 @@ export default function OrdersPage() {
                   </div>
                 ) : readyOrder ? (
                   <ReadyToPickUpOrder order={readyOrder as any} />
-                ) : (
-                  <div className="flex-1 rounded-[20px] border border-dashed border-text-primary/20 bg-surface-muted/30 p-8 flex items-center justify-center">
-                    <p className="text-text-muted font-bold text-center">
-                      Không có đơn hàng nào sẵn sàng nhận
-                    </p>
-                  </div>
-                )}
-
-                {/* Points Card */}
-                <div className="flex-1 rounded-[20px] bg-[#f0660a] p-8 text-inverse-text shadow-sm flex flex-col justify-between min-h-[200px]">
-                  <div>
-                    <span className="text-[14px] font-bold uppercase tracking-widest opacity-80 font-inter">
-                      ĐIỂM TÍCH LŨY
-                    </span>
-                    <h3 className="text-[36px] font-extrabold leading-tight font-plus-jakarta mt-1">
-                      2,450 pts
-                    </h3>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-white rounded-full w-[78%]" />
-                    </div>
-                    <div className="flex items-center justify-between text-[12px] font-bold font-inter opacity-90">
-                      <span>HỘI VIÊN VÀNG</span>
-                      <span>550 điểm nữa lên Bạch Kim</span>
-                    </div>
-                  </div>
-                </div>
+                ) : null}
               </div>
             </div>
           )}

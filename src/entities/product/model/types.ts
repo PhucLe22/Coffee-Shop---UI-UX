@@ -58,6 +58,11 @@ export interface GetProductsQuery {
   page?: number;
 }
 
+export interface SearchProductQuery {
+  q: string;
+  limit?: number;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;

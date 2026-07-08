@@ -39,9 +39,9 @@ export function DesktopOrderSummary({ order }: DesktopOrderSummaryProps) {
                 <span className="text-h4-bold text-text-primary">
                   {item.name}
                 </span>
-                {item.options && (
+                {item.options && item.options.length > 0 && (
                   <span className="text-body-sm-reg text-text-secondary">
-                    {item.options.join(" • ")}
+                    {item.options.map((o: any) => typeof o === 'string' ? o : o.name).join(" • ")}
                   </span>
                 )}
               </div>

@@ -52,6 +52,15 @@ export const OrderService = {
     return response.data;
   },
 
+  getOrdersByPhone: async (
+    phone: string
+  ): Promise<OrderResponse> => {
+    const response = await axiosInstance.get<OrderResponse>(
+      API_ENDPOINTS.ORDERS.BY_PHONE(phone)
+    );
+    return response.data;
+  },
+
   createStaffOrder: async (
     body: StaffCreateOrderBody
   ): Promise<BaseResponse<OrderOutput>> => {

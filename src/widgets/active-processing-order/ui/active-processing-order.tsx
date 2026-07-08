@@ -69,7 +69,7 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
                       {item.name}
                     </h3>
                     <p className="text-[14px] font-medium font-inter text-text-muted italic opacity-80">
-                      {item.options?.join(", ") || "Regular"}
+                      {item.options?.map((o: any) => typeof o === 'string' ? o : o.name).join(", ") || "Regular"}
                     </p>
                   </div>
                   <span className="text-[18px] font-bold font-plus-jakarta text-text-primary">

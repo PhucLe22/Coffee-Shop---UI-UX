@@ -1,6 +1,6 @@
 "use client";
 
-import { useProducts, ProductCardDetailed } from "@/entities/product";
+import { useNewProducts, ProductCardDetailed } from "@/entities/product";
 import { cn, formatToVND } from "@/shared/lib";
 
 interface SuggestionSectionProps {
@@ -8,7 +8,7 @@ interface SuggestionSectionProps {
 }
 
 export function SuggestionSection({ className }: SuggestionSectionProps) {
-  const { data, isLoading } = useProducts({ limit: 4 });
+  const { data, isLoading } = useNewProducts(4);
   const products = data?.data ?? [];
 
   if (isLoading) return null;
@@ -16,7 +16,7 @@ export function SuggestionSection({ className }: SuggestionSectionProps) {
 
   return (
     <section className={cn("flex flex-col gap-xl", className)}>
-      <h2 className="text-h3-bold text-text-primary">Complete the Ritual</h2>
+      <h2 className="text-h3-bold text-text-primary">Sản phẩm mới</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-xl">
         {products.map((product) => (
           <ProductCardDetailed

@@ -11,6 +11,9 @@ export const API_ENDPOINTS = {
   },
   PRODUCTS: {
     BASE: '/products',
+    NEW: '/products/new',
+    HOT: '/products/hot',
+    SEARCH: '/products/search',
     INTERNAL: '/internal/products',
     ADMIN: '/internal/admin/products',
     ADMIN_BY_ID: (id: string) => `/internal/admin/products/${id}`,
@@ -29,6 +32,7 @@ export const API_ENDPOINTS = {
     INTERNAL: "/internal/orders",
     BY_ID: (id: string) => `/orders/${id}`,
     BY_CODE: (code: string) => `/orders/code/${code}`,
+    BY_PHONE: (phone: string) => `/orders/phone/${phone}`,
     STATUS: (id: string) => `/internal/orders/${id}/status`,
     PICKUP: (id: string) => `/internal/orders/${id}/pickup`,
     COMPLETE: (id: string) => `/internal/orders/${id}/complete`,
@@ -53,6 +57,7 @@ export const API_ENDPOINTS = {
   ADDRESSES: {
     BASE: '/addresses',
     BY_ID: (id: string) => `/addresses/${id}`,
+    AUTOCOMPLETE: '/addresses/autocomplete',
   },
   VOUCHERS: {
     INTERNAL: '/internal/vouchers',
@@ -65,6 +70,7 @@ export const API_ENDPOINTS = {
   PROMOTIONS: {
     BASE: '/promotions',
     VALIDATE: '/promotions/validate',
+    SUGGEST: '/promotions/suggest',
   },
   STAFF: {
     REGISTER: '/internal/auth/register/staff',

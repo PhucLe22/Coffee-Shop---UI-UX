@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AppButton } from "@/shared/ui";
 import { cn, formatToVND } from "@/shared/lib";
+import type { SuggestVoucherItem } from "@/entities/voucher";
 
 interface DesktopCartSummaryProps {
   subtotal: number;
@@ -18,6 +19,8 @@ interface DesktopCartSummaryProps {
   isValidatingPromo?: boolean;
   appliedVoucherCode?: string;
   voucherError?: string;
+  suggestedVouchers?: SuggestVoucherItem[];
+  isSuggestingVouchers?: boolean;
 }
 
 export function DesktopCartSummary({
@@ -34,11 +37,17 @@ export function DesktopCartSummary({
   isValidatingPromo,
   appliedVoucherCode,
   voucherError,
+  suggestedVouchers,
+  isSuggestingVouchers,
 }: DesktopCartSummaryProps) {
   const [promoInput, setPromoInput] = useState("");
 
   const handleApply = () => {
     onApplyPromo(promoInput);
+  };
+
+  const handleApplySuggested = (code: string) => {
+    onApplyPromo(code);
   };
 
   const handleRemove = () => {
@@ -138,6 +147,35 @@ export function DesktopCartSummary({
             >
               ÁP DỤNG
             </AppButton>
+          </div>
+        )}
+
+        {suggestedVouchers && suggestedVouchers.length > 0 && !appliedVoucherCode && (
+          <div className="flex flex-col gap-sm mt-md">
+            <label className="text-[11px] font-bold font-plus-jakarta text-text-muted leading-[13.86px]">
+              GỢI Ý CHO BẠN
+            </label>
+            <div className="flex flex-col gap-sm">
+              {suggestedVouchers.slice(0, 3).map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => handleApplySuggested(v.code)}
+                  className="flex items-center justify-between bg-surface-accent hover:bg-brand-primary/10 rounded-[8px] px-md py-sm border border-border-primary-50 transition-colors text-left w-full"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] font-bold text-text-primary">{v.code}</span>
+                    <span className="text-[11px] text-text-muted">
+                      {v.discountType === "FIXED"
+                        ? `Giảm ${formatToVND(Number(v.discountValue))}`
+                        : `Giảm ${v.discountValue}%${v.maxDiscount ? ` (tối đa ${formatToVND(Number(v.maxDiscount))})` : ""}`}
+                    </span>
+                  </div>
+                  <span className="text-[13px] font-bold text-brand-primary whitespace-nowrap">
+                    -{formatToVND(v.estimatedDiscount)}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

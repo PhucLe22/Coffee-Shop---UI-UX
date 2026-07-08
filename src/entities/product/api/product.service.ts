@@ -1,10 +1,31 @@
 import { axiosInstance, API_ENDPOINTS } from "@/shared/api";
-import { GetProductsQuery, Product, ApiResponse, PaginatedResponse } from "../model/types";
+import { GetProductsQuery, Product, ApiResponse, PaginatedResponse, SearchProductQuery } from "../model/types";
 
 export const ProductService = {
   getProducts: async (query?: GetProductsQuery): Promise<PaginatedResponse<Product>> => {
     const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.BASE, {
       params: query,
+    });
+    return response.data;
+  },
+
+  getSearchProducts: async (query?: SearchProductQuery): Promise<ApiResponse<Product[]>> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.SEARCH, {
+      params: query,
+    });
+    return response.data;
+  },
+
+  getNewProducts: async (limit = 5): Promise<ApiResponse<Product[]>> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.NEW, {
+      params: { limit },
+    });
+    return response.data;
+  },
+
+  getHotProducts: async (limit = 5): Promise<ApiResponse<Product[]>> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.HOT, {
+      params: { limit },
     });
     return response.data;
   },

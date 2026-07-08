@@ -38,3 +38,11 @@ export const useDeleteAddress = () => {
     },
   });
 };
+
+export const useAddressAutocomplete = (text: string) => {
+  return useQuery({
+    queryKey: ["address-autocomplete", text],
+    queryFn: () => AddressService.autocompleteAddress({ text, limit: 5 }),
+    enabled: text.trim().length >= 2,
+  });
+};

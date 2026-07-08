@@ -37,9 +37,9 @@ export function OrderItemsSummary({ order }: OrderItemsSummaryProps) {
                 <span className="text-body-sm-semibold text-text-primary">
                   {item.name}
                 </span>
-                {item.options && (
+                {item.options && item.options.length > 0 && (
                   <span className="text-overline-inter text-text-secondary uppercase font-bold">
-                    {item.options.join(" • ")}
+                    {item.options.map((o: any) => typeof o === 'string' ? o : o.name).join(" • ")}
                   </span>
                 )}
               </div>

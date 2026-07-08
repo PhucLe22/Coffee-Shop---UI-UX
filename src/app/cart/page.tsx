@@ -19,17 +19,48 @@ import { useCreateOrder } from "@/entities/order";
 import { OrderType } from "@/shared/api";
 import { useStores } from "@/entities/store";
 import { useAddresses } from "@/entities/customer";
-import { VoucherService } from "@/entities/voucher";
+import { VoucherService, useSuggestVouchers } from "@/entities/voucher";
 import { toast } from "sonner";
 import Link from "next/link";
 import { CreateAddressDialog } from "../profile/create-address-dialog";
 import type { Address } from "@/entities/customer/model/address";
-import type { LoginOutput } from "@/shared/api";
+import type { LoginOutput, StoreOutput } from "@/shared/api";
+
+function getDistanceFromLatLng(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function findClosestStore(stores: StoreOutput[], lat: number, lng: number): StoreOutput | null {
+  if (stores.length === 0) return null;
+  let closest = stores[0];
+  let minDist = Infinity;
+  for (const store of stores) {
+    if (store.lat && store.lng) {
+      const dist = getDistanceFromLatLng(lat, lng, store.lat, store.lng);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = store;
+      }
+    }
+  }
+  return closest;
+}
 
 interface AddressSelectionSectionProps {
   isMobile: boolean;
   user: Omit<LoginOutput, 'accessToken' | 'refreshToken'> | null;
   addresses: Address[];
+  stores: StoreOutput[];
   deliveryInfo: {
     receiverName: string;
     receiverPhone: string;
@@ -40,14 +71,17 @@ interface AddressSelectionSectionProps {
     receiverPhone: string;
     addressLine: string;
   }) => void;
+  setSelectedStore: (store: StoreOutput) => void;
 }
 
 function AddressSelectionSection({
   isMobile,
   user,
   addresses,
+  stores,
   deliveryInfo,
   setDeliveryInfo,
+  setSelectedStore,
 }: AddressSelectionSectionProps) {
   const handleSelectSavedInfo = (addressId: string) => {
     const selected = addresses.find((addr) => addr.id === addressId);
@@ -93,6 +127,10 @@ function AddressSelectionSection({
                   receiverPhone: newAddr.receiverPhone,
                   addressLine: newAddr.addressLine,
                 });
+                if (newAddr.lat && newAddr.lng && stores.length > 0) {
+                  const closest = findClosestStore(stores, newAddr.lat, newAddr.lng);
+                  if (closest) setSelectedStore(closest);
+                }
               }}
             />
           </div>
@@ -112,9 +150,11 @@ function AddressSelectionSection({
           </div>
         </div>
       ) : user ? (
-        <div className="flex flex-col items-center gap-3 py-lg">
+        <div className="flex flex-col items-center gap-3 py-lg bg-surface-accent rounded-md">
           <MapPin className="size-10 text-text-muted" />
-          <p className="text-body-sm-reg text-text-muted">Bạn chưa có địa chỉ nào.</p>
+          <p className="text-body-sm-reg text-text-muted text-center px-4">
+            Vui lòng thêm địa chỉ giao hàng để chúng tôi có thể gợi ý cửa hàng gần bạn nhất.
+          </p>
           <CreateAddressDialog
             onCreated={(newAddr) => {
               setDeliveryInfo({
@@ -122,6 +162,10 @@ function AddressSelectionSection({
                 receiverPhone: newAddr.receiverPhone,
                 addressLine: newAddr.addressLine,
               });
+              if (newAddr.lat && newAddr.lng && stores.length > 0) {
+                const closest = findClosestStore(stores, newAddr.lat, newAddr.lng);
+                if (closest) setSelectedStore(closest);
+              }
             }}
           />
         </div>
@@ -157,6 +201,19 @@ export default function CartPage() {
 
   const stores = storesResponse?.data || [];
   const addresses = addressesResponse?.data || [];
+
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const { data: suggestVouchersData, isLoading: isSuggestingVouchers } = useSuggestVouchers({
+    storeId: selectedStore?.id,
+    orderAmount: subtotal,
+    customerId: user?.id,
+  });
+
+  const suggestedVouchers = suggestVouchersData?.data ?? [];
 
   const [orderType, setOrderType] = useState<OrderType>(OrderType.DELIVERY);
   const [deliveryInfo, setDeliveryInfo] = useState({
@@ -197,6 +254,17 @@ export default function CartPage() {
       }));
     }
   }, [user, addresses]);
+
+  // Suggest closest store based on address
+  useEffect(() => {
+    if (addresses.length > 0 && stores.length > 0) {
+      const matched = addresses.find(a => a.addressLine === deliveryInfo.addressLine);
+      if (matched && matched.lat && matched.lng) {
+        const closest = findClosestStore(stores, matched.lat, matched.lng);
+        if (closest) setSelectedStore(closest);
+      }
+    }
+  }, [deliveryInfo.addressLine, addresses, stores, setSelectedStore]);
 
   const handleUpdateQuantity = (id: string, delta: number) => {
     const item = items.find((i) => i.id === id);
@@ -301,10 +369,6 @@ export default function CartPage() {
     router.push(path);
   };
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
   const shipping = orderType === OrderType.DELIVERY ? 15000 : 0;
   const tax = subtotal * 0.08; // 8% VAT
   const total = subtotal + shipping + tax - voucherDiscount;
@@ -326,8 +390,10 @@ export default function CartPage() {
                   isMobile={isMobile}
                   user={user}
                   addresses={addresses}
+                  stores={stores}
                   deliveryInfo={deliveryInfo}
                   setDeliveryInfo={setDeliveryInfo}
+                  setSelectedStore={setSelectedStore}
                 />
 
                 <div className={cn(
@@ -383,6 +449,20 @@ export default function CartPage() {
                           ))}
                         </select>
                       </div>
+                      {deliveryInfo.addressLine && (() => {
+                        const matched = addresses.find(a => a.addressLine === deliveryInfo.addressLine);
+                        if (matched?.lat && matched?.lng) {
+                          const closest = findClosestStore(stores, matched.lat, matched.lng);
+                          if (closest) {
+                            return (
+                              <p className="text-[11px] text-brand-primary font-medium mt-1">
+                                Gợi ý: {closest.name} — cửa hàng gần bạn nhất
+                              </p>
+                            );
+                          }
+                        }
+                        return null;
+                      })()}
                     </div>
                   )}
 
@@ -450,6 +530,8 @@ export default function CartPage() {
                     isValidatingPromo={isValidatingVoucher}
                     appliedVoucherCode={voucherCode || undefined}
                     voucherError={voucherError || undefined}
+                    suggestedVouchers={suggestedVouchers}
+                    isSuggestingVouchers={isSuggestingVouchers}
                   />
                 </div>
               </div>
@@ -465,8 +547,10 @@ export default function CartPage() {
             isMobile={isMobile}
             user={user}
             addresses={addresses}
+            stores={stores}
             deliveryInfo={deliveryInfo}
             setDeliveryInfo={setDeliveryInfo}
+            setSelectedStore={setSelectedStore}
           />
 
           <div className={cn(
@@ -522,6 +606,20 @@ export default function CartPage() {
                     ))}
                   </select>
                 </div>
+                {deliveryInfo.addressLine && (() => {
+                  const matched = addresses.find(a => a.addressLine === deliveryInfo.addressLine);
+                  if (matched?.lat && matched?.lng) {
+                    const closest = findClosestStore(stores, matched.lat, matched.lng);
+                    if (closest) {
+                      return (
+                        <p className="text-[11px] text-brand-primary font-medium">
+                          Gợi ý: {closest.name} — cửa hàng gần bạn nhất
+                        </p>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
               </div>
             )}
 
@@ -623,6 +721,35 @@ export default function CartPage() {
             )}
             {voucherError && !voucherCode && (
               <span className="text-[12px] text-red-500">{voucherError}</span>
+            )}
+
+            {suggestedVouchers.length > 0 && !voucherCode && (
+              <div className="flex flex-col gap-sm mt-sm">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                  GỢI Ý CHO BẠN
+                </span>
+                <div className="flex flex-col gap-sm">
+                  {suggestedVouchers.slice(0, 3).map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => handleApplyPromo(v.code)}
+                      className="flex items-center justify-between bg-surface-accent hover:bg-brand-primary/10 rounded-[8px] px-md py-sm border border-border-primary-50 transition-colors text-left w-full"
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[13px] font-bold text-text-primary">{v.code}</span>
+                        <span className="text-[11px] text-text-muted">
+                          {v.discountType === "FIXED"
+                            ? `Giảm ${formatToVND(Number(v.discountValue))}`
+                            : `Giảm ${v.discountValue}%${v.maxDiscount ? ` (tối đa ${formatToVND(Number(v.maxDiscount))})` : ""}`}
+                        </span>
+                      </div>
+                      <span className="text-[13px] font-bold text-brand-primary whitespace-nowrap">
+                        -{formatToVND(v.estimatedDiscount)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 

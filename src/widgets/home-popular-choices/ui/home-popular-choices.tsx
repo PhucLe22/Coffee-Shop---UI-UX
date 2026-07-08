@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { useProducts, DesktopProductCard, ProductCard } from "@/entities/product";
+import { useHotProducts, DesktopProductCard, ProductCard } from "@/entities/product";
 import { AppButton } from "@/shared/ui";
 import { useIsMobile, formatToVND } from "@/shared/lib";
 
 export function HomePopularChoices() {
   const isMobile = useIsMobile();
-  const { data, isLoading } = useProducts({ limit: 4 });
+  const { data, isLoading } = useHotProducts(4);
   const products = data?.data ?? [];
 
   if (isLoading) {
