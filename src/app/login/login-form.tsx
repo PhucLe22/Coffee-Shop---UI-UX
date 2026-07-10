@@ -19,26 +19,27 @@ export function LoginForm() {
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
       keepLoggedIn: false,
     },
   });
 
   const onSubmit = (data: LoginSchema) => {
+    console.log("[LoginForm] onSubmit data:", { ...data, password: "***" });
     login(data);
   };
 
   const errorMessage = error instanceof AxiosError 
     ? error.response?.data?.message 
-    : "Invalid email or password";
+    : "Email, số điện thoại hoặc mật khẩu không hợp lệ";
 
   return (
     <div className="flex w-full flex-col gap-lg">
       <div className="flex flex-col gap-sm">
-        <h2 className="text-h3-bold text-text-primary">Welcome Back</h2>
+        <h2 className="text-h3-bold text-text-primary">Chào Mừng Trở Lại</h2>
         <p className="text-body-md-reg text-text-secondary leading-normal">
-          Log in to your artisan account to manage<br className="hidden lg:block" /> your subscription and journal entries.
+          Đăng nhập để quản lý đơn hàng và thông tin cá nhân của bạn.
         </p>
       </div>
 
@@ -50,21 +51,21 @@ export function LoginForm() {
         )}
 
         <div className="flex flex-col gap-xs">
-          <Label htmlFor="email" className="text-text-secondary">EMAIL ADDRESS</Label>
+          <Label htmlFor="identifier" className="text-text-secondary">EMAIL HOẶC SỐ ĐIỆN THOẠI</Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="email@example.com"
-            {...register("email")}
-            className={errors.email ? "border-error focus-visible:ring-error" : "border-none"}
+            id="identifier"
+            type="text"
+            placeholder="email@example.com or 0917..."
+            {...register("identifier")}
+            className={errors.identifier ? "border-error focus-visible:ring-error" : "border-none"}
           />
-          {errors.email && (
-            <span className="text-overline text-error">{errors.email.message}</span>
+          {errors.identifier && (
+            <span className="text-overline text-error">{errors.identifier.message}</span>
           )}
         </div>
 
         <div className="flex flex-col gap-xs">
-          <Label htmlFor="password" className="text-text-secondary">PASSWORD</Label>
+          <Label htmlFor="password" className="text-text-secondary">MẬT KHẨU</Label>
           <div className="relative">
             <Input
               id="password"
@@ -80,36 +81,42 @@ export function LoginForm() {
           )}
         </div>
 
+        <div className="flex justify-end -mt-sm">
+          <Link href="/forgot-password" className="text-body-sm-semibold text-text-primary hover:underline">
+            Quên mật khẩu?
+          </Link>
+        </div>
+
         <div className="flex items-center gap-sm h-9">
-          <Checkbox id="keepLoggedIn" {...register("keepLoggedIn")} className="border-text-primary/50 bg-[#faf2eb] rounded-md" />
+          <Checkbox id="keepLoggedIn" {...register("keepLoggedIn")} className="border-text-primary/50 bg-surface-accent rounded-md" />
           <Label htmlFor="keepLoggedIn" className="normal-case font-medium text-body-sm-reg text-text-primary">
-            Keep me logged in for 30 days
+            Duy trì đăng nhập trong 30 ngày
           </Label>
         </div>
 
         <AppButton type="submit" isLoading={isPending} className="w-full text-inverse-text">
-          SIGN IN
+          ĐĂNG NHẬP
         </AppButton>
       </form>
 
       <div className="flex justify-center gap-xs text-body-sm-reg">
-        <span className="text-text-secondary">New to Amber Roast?</span>
+        <span className="text-text-secondary">Mới đến với Amber Roast?</span>
         <Link href="/register" className="font-semibold text-text-primary hover:underline">
-          Create an Account
+          Tạo Tài Khoản
         </Link>
       </div>
 
       <div className="mt-lg flex flex-col items-center gap-sm">
         <div className="flex gap-lg">
           <Link href="/privacy" className="text-[11px] text-text-secondary hover:text-text-primary uppercase tracking-wider">
-            PRIVACY POLICY
+            CHÍNH SÁCH BẢO MẬT
           </Link>
           <Link href="/terms" className="text-[11px] text-text-secondary hover:text-text-primary uppercase tracking-wider">
-            TERMS OF SERVICE
+            ĐIỀU KHOẢN DỊCH VỤ
           </Link>
         </div>
         <Link href="/accessibility" className="text-[11px] text-text-secondary hover:text-text-primary uppercase tracking-wider">
-          ACCESSIBILITY
+          TRỢ NĂNG
         </Link>
       </div>
     </div>

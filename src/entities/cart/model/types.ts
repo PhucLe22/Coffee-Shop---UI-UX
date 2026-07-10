@@ -1,11 +1,19 @@
-export interface CartItem {
-  id: string;
+export interface CartItemOption {
+  optionId: string;
   name: string;
-  options: string;
+  price: number;
+}
+
+export interface CartItem {
+  id: string; // unique cart item id (productId + hash of options)
+  productId: string;
+  name: string;
   price: number;
   quantity: number;
   imageUrl?: string;
   origin?: string;
+  note?: string;
+  options: CartItemOption[];
 }
 
 export interface CartState {

@@ -1,19 +1,36 @@
 import { useMutation } from "@tanstack/react-query";
 import { LoginService } from "./login.service";
-import { useAuthStore } from "@/shared/auth";
-import { setAccessToken } from "@/shared/api";
+import { useCustomerAuthStore, useStaffAuthStore } from "@/shared/auth";
 import { useRouter } from "next/navigation";
+import { StaffRole } from "@/shared/api";
+import { toast } from "sonner";
+
+const getStaffRedirect = (role?: string) => {
+  if (role === StaffRole.ADMIN) return "/internal/dashboard";
+  if (role === StaffRole.SHIPPER) return "/internal/delivery";
+  return "/internal/orders";
+};
 
 export const useLogin = () => {
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const setCustomerAuth = useCustomerAuthStore((state) => state.setAuth);
+  const setStaffAuth = useStaffAuthStore((state) => state.setAuth);
   const router = useRouter();
 
   return useMutation({
     mutationFn: LoginService.login,
     onSuccess: (data) => {
-      setAuth(data);
-      setAccessToken(data.accessToken);
-      router.push("/");
+      toast.success("Đăng nhập thành công!");
+      if (data.type === "STAFF") {
+        setStaffAuth(data);
+        router.push(getStaffRedirect(data.role));
+      } else {
+        setCustomerAuth(data);
+        router.push("/");
+      }
+    },
+    onError: (error: unknown) => {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      toast.error(axiosError?.response?.data?.message || "Email, số điện thoại hoặc mật khẩu không hợp lệ");
     },
   });
 };

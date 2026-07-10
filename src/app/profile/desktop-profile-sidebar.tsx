@@ -1,9 +1,12 @@
 "use client";
 
 import React from "react";
-import { User, ClipboardList, MapPin, CreditCard, LogOut } from "lucide-react";
+import { User, ClipboardList, LogOut } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { AppButton } from "@/shared/ui";
+import { useRouter } from "next/navigation";
+import { useCustomerAuthStore, AuthService } from "@/shared/auth";
+import { toast } from "sonner";
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -28,13 +31,27 @@ const NavItem = ({ icon: Icon, label, isActive, onClick }: NavItemProps) => (
 );
 
 export function DesktopProfileSidebar() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = React.useState("Thông tin cá nhân");
+  const { user, logout, accessToken, refreshToken } = useCustomerAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      if (accessToken && refreshToken) {
+        await AuthService.logout(accessToken, refreshToken);
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      logout();
+      toast.success('Đã đăng xuất');
+      router.push('/');
+    }
+  };
 
   const navItems = [
-    { icon: User, label: "Thông tin cá nhân" },
-    { icon: ClipboardList, label: "Lịch sử đơn hàng" },
-    { icon: MapPin, label: "Địa chỉ đã lưu" },
-    { icon: CreditCard, label: "Phương thức thanh toán" },
+    { icon: User, label: "Thông tin cá nhân", onClick: () => setActiveTab("Thông tin cá nhân") },
+    { icon: ClipboardList, label: "Lịch sử đơn hàng", onClick: () => router.push("/orders") },
   ];
 
   return (
@@ -43,22 +60,19 @@ export function DesktopProfileSidebar() {
       <div className="flex flex-col items-center gap-4 rounded-md bg-surface-inverse p-8 text-center text-inverse-text overflow-hidden relative">
         {/* Large Background Text Decoration */}
         <span className="absolute -bottom-4 -left-4 text-[60px] font-pacifico opacity-10 whitespace-nowrap pointer-events-none">
-          Verdant Amber
+          {user?.name ?? "Customer"}
         </span>
         
         <div className="flex flex-col gap-1 z-10">
-          <h2 className="text-h4-bold">Verdant Amber</h2>
-          <p className="text-body-sm-reg text-text-muted">verdant.amber@example.com</p>
+          <h2 className="text-h4-bold">{user?.name ?? "Customer"}</h2>
+          <p className="text-body-sm-reg text-text-muted">{user?.email ?? ""}</p>
         </div>
         
         {/* Points Display (Simplified from mobile version) */}
         <div className="mt-4 flex w-full flex-col gap-2 rounded-lg bg-white/5 p-4 z-10">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-inverse-text/60">COLLECTIVE POINTS</span>
-            <span className="text-lg font-bold text-brand-primary">2,450 pts</span>
-          </div>
-          <div className="h-1 w-full bg-white/10 rounded-full">
-            <div className="h-full bg-brand-primary rounded-full w-[78%]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-inverse-text/60">ĐIỂM TÍCH LŨY</span>
+            <span className="text-lg font-bold text-brand-primary">{user?.points?.toLocaleString() ?? 0} pts</span>
           </div>
         </div>
       </div>
@@ -71,13 +85,13 @@ export function DesktopProfileSidebar() {
             icon={item.icon}
             label={item.label}
             isActive={activeTab === item.label}
-            onClick={() => setActiveTab(item.label)}
+            onClick={item.onClick ?? (() => setActiveTab(item.label))}
           />
         ))}
       </nav>
 
       {/* Logout Button */}
-      <AppButton variant="danger" className="mt-auto w-full font-bold">
+      <AppButton variant="danger" className="mt-auto w-full font-bold" onClick={handleLogout}>
         <LogOut className="mr-2 size-5" />
         Đăng xuất
       </AppButton>

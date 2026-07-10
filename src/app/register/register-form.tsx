@@ -20,8 +20,9 @@ export function RegisterForm() {
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      fullName: "",
+      name: "",
       email: "",
+      phone: "",
       password: "",
       joinRewards: false,
     },
@@ -33,14 +34,14 @@ export function RegisterForm() {
 
   const errorMessage = error instanceof AxiosError 
     ? error.response?.data?.message 
-    : "Something went wrong. Please try again.";
+    : "Đã xảy ra lỗi. Vui lòng thử lại sau.";
 
   return (
     <div className="flex w-full flex-col gap-lg">
       <div className="flex flex-col gap-sm">
-        <h2 className="text-h4-bold text-text-secondary">Begin Your Journey</h2>
+        <h2 className="text-h4-bold text-text-secondary">Bắt Đầu Hành Trình</h2>
         <p className="text-body-sm-reg text-text-muted leading-relaxed">
-          Create an account to track your roasts and<br className="hidden lg:block" /> rewards.
+          Tạo tài khoản để theo dõi đơn hàng và ưu đãi của bạn.
         </p>
       </div>
 
@@ -52,20 +53,20 @@ export function RegisterForm() {
         )}
 
         <div className="flex flex-col gap-xs">
-          <Label htmlFor="fullName" className="text-text-secondary">FULL NAME</Label>
+          <Label htmlFor="name" className="text-text-secondary">HỌ VÀ TÊN</Label>
           <Input
-            id="fullName"
+            id="name"
             placeholder="Enter your full name"
-            {...register("fullName")}
-            className={errors.fullName ? "border-error focus-visible:ring-error" : "border-none"}
+            {...register("name")}
+            className={errors.name ? "border-error focus-visible:ring-error" : "border-none"}
           />
-          {errors.fullName && (
-            <span className="text-overline text-error">{errors.fullName.message}</span>
+          {errors.name && (
+            <span className="text-overline text-error">{errors.name.message}</span>
           )}
         </div>
 
         <div className="flex flex-col gap-xs">
-          <Label htmlFor="email" className="text-text-secondary">EMAIL ADDRESS</Label>
+          <Label htmlFor="email" className="text-text-secondary">ĐỊA CHỈ EMAIL</Label>
           <Input
             id="email"
             type="email"
@@ -79,7 +80,21 @@ export function RegisterForm() {
         </div>
 
         <div className="flex flex-col gap-xs">
-          <Label htmlFor="password" className="text-text-secondary">PASSWORD</Label>
+          <Label htmlFor="phone" className="text-text-secondary">SỐ ĐIỆN THOẠI</Label>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder="0933710444"
+            {...register("phone")}
+            className={errors.phone ? "border-error focus-visible:ring-error" : "border-none"}
+          />
+          {errors.phone && (
+            <span className="text-overline text-error">{errors.phone.message}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-xs">
+          <Label htmlFor="password" className="text-text-secondary">MẬT KHẨU</Label>
           <Input
             id="password"
             type="password"
@@ -93,14 +108,14 @@ export function RegisterForm() {
         </div>
 
         <div className="flex items-start gap-sm">
-          <Checkbox id="joinRewards" {...register("joinRewards")} className="mt-1 border-text-primary/50 bg-[#ebe0d9] rounded-full" />
+          <Checkbox id="joinRewards" {...register("joinRewards")} className="mt-1 border-text-primary/50 bg-surface-muted rounded-full" />
           <Label htmlFor="joinRewards" className="normal-case font-medium text-[13px] text-text-muted leading-tight">
-            Join the Roastery Rewards program to<br />earn beans on every purchase.
+            Tham gia chương trình Roastery Rewards để<br />tích điểm cho mỗi đơn hàng.
           </Label>
         </div>
 
         <AppButton type="submit" isLoading={isPending} className="w-full text-inverse-text uppercase font-bold">
-          SIGN UP
+          ĐĂNG KÝ
         </AppButton>
       </form>
 
@@ -117,9 +132,9 @@ export function RegisterForm() {
         </div>
 
         <div className="flex justify-center text-body-sm-reg">
-          <span className="text-text-muted">Already have an account? </span>
+          <span className="text-text-muted">Đã có tài khoản? </span>
           <Link href="/login" className="ml-1 text-text-primary hover:underline">
-             Log in here
+             Đăng nhập tại đây
           </Link>
         </div>
       </div>
@@ -127,11 +142,11 @@ export function RegisterForm() {
       <div className="mt-lg flex flex-col items-center gap-sm">
         <div className="flex items-center gap-md">
           <Link href="/privacy" className="text-[11px] text-text-secondary hover:text-text-primary uppercase tracking-wider">
-            PRIVACY POLICY
+            CHÍNH SÁCH BẢO MẬT
           </Link>
           <div className="size-1 rounded-full bg-text-secondary" />
           <Link href="/terms" className="text-[11px] text-text-secondary hover:text-text-primary uppercase tracking-wider">
-            TERMS OF SERVICE
+            ĐIỀU KHOẢN DỊCH VỤ
           </Link>
         </div>
       </div>

@@ -19,6 +19,9 @@ export const OrderStatus = {
   COMPLETED: "COMPLETED",
   CANCELLED: "CANCELLED",
   REFUNDED: "REFUNDED",
+  DELIVERING: "DELIVERING",
+  PICKED_UP: "PICKED_UP",
+  DELIVERED: "DELIVERED",
 } as const;
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
@@ -46,6 +49,7 @@ export const StaffRole = {
   CASHIER: "CASHIER",
   KITCHEN: "KITCHEN",
   OWNER: "OWNER",
+  SHIPPER: "SHIPPER",
 } as const;
 export type StaffRole = (typeof StaffRole)[keyof typeof StaffRole];
 
@@ -112,6 +116,18 @@ export const UserType = {
 } as const;
 export type UserType = (typeof UserType)[keyof typeof UserType];
 
+export interface BaseResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  meta?: {
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
+}
+
 // --- AUTH (auth.output.schema.js) ---
 
 export interface RegisterOutput {
@@ -120,15 +136,57 @@ export interface RegisterOutput {
   phone: string;
 }
 
-export interface LoginOutput {
+export interface ProfileOutput {
+  name: string;
+  email: string;
+  phone: string;
+  tier: CustomerTier;
+  points: number;
+  storeInfo: Record<string, unknown>;
+  userInfo: {
+    email: string;
+    phone: string;
+    name: string;
+  };
+  managerInfo: Record<string, unknown> | null;
+}
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface LoginUser {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   type: UserType;
   tier?: CustomerTier;
   points?: number;
   role?: StaffRole;
   storeName?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface LoginApiResponse {
+  user: LoginUser;
+  tokens: TokenPair;
+}
+
+export interface LoginOutput {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  type: UserType;
+  tier?: CustomerTier;
+  points?: number;
+  role?: StaffRole;
+  storeName?: string;
+  lat?: number;
+  lng?: number;
   accessToken: string;
   refreshToken: string;
 }
@@ -143,8 +201,9 @@ export interface GuestOutput {
 // --- ORDER (order.output.schema.js) ---
 
 export interface CreateOrderBody {
-  storeId: string;
+  storeId?: string;
   type: OrderType;
+  tableNumber?: string;
   note?: string;
   voucherCode?: string;
   items: Array<{
@@ -152,8 +211,7 @@ export interface CreateOrderBody {
     quantity: number;
     note?: string;
     options?: Array<{
-      name: string;
-      price: number;
+      optionId: string;
     }>;
   }>;
   deliveryInfo?: {
@@ -163,15 +221,68 @@ export interface CreateOrderBody {
   };
 }
 
-export interface GetOrderHistoryQuery {
-  status?:
-    | "NEW"
-    | "CONFIRMED"
-    | "PREPARING"
-    | "READY"
-    | "COMPLETED"
-    | "CANCELLED"
-    | "REFUNDED";
+export interface OrderOutput {
+  id?: string;
+  orderCode: string | null;
+  status: OrderStatus;
+  type: OrderType;
+  subtotal: string | number;
+  discount: string | number;
+  tax: string | number;
+  serviceFee: string | number;
+  total: string | number;
+  note: string | null;
+  address?: string | null;
+  tableNumber: string | null;
+  createdAt: string;
+  updatedAt?: string;
+  expectedReadyAt?: string | null;
+  store: {
+    id: string;
+    name?: string;
+    address?: string;
+  };
+  customer: {
+    id: string;
+    name?: string | null;
+    phone?: string;
+    address?: string;
+    tier?: CustomerTier;
+  };
+  assignedChef?: {
+    id: string;
+    user: any;
+  } | null;
+  delivery?: {
+    id: string;
+    status: string;
+    assignedShipper?: {
+      id: string;
+      user: any;
+    } | null;
+  } | null;
+  createdBy: {
+    staff_id: string;
+  } | null;
+  orderItems?: Array<{
+    name: string;
+    price: number;
+    quantity: number;
+    discount: number;
+    tax: number;
+    note: string | null;
+    options?: string[];
+  }>;
+}
+
+export interface GetOrdersQuery {
+  status?: OrderStatus;
+  startDate?: string;
+  endDate?: string;
+  minTotal?: number;
+  maxTotal?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface GetOrderDetailParams {
@@ -186,8 +297,6 @@ export interface InternalPaymentBody {
   pin: string;
 }
 
-// --- PRODUCT (product.output.schema.js) ---
-
 export interface GetProductsQuery {
   categoryId?: string;
   search?: string;
@@ -200,6 +309,66 @@ export interface GetProductsQuery {
 export interface GetAvailableVouchersQuery {
   storeId?: string;
   orderAmount?: number;
+}
+
+// --- VOUCHER (internal CRUD) ---
+
+export interface VoucherStoreRef {
+  id: string;
+  name: string;
+}
+
+export interface VoucherOutput {
+  id: string;
+  code: string;
+  scope: string | null;
+  discountType: string | null;
+  discountValue: number | null;
+  maxUsage: number | null;
+  usedCount: number | null;
+  minOrderAmount: number | null;
+  maxDiscount: number | null;
+  storeId: string | null;
+  expiresAt: string | null;
+  isActive: boolean;
+  store: VoucherStoreRef | null;
+}
+
+export interface CreateVoucherBody {
+  code: string;
+  discountType: typeof DiscountType.PERCENT | typeof DiscountType.FIXED;
+  discountValue: number;
+  maxUsage?: number;
+  minOrderAmount?: number;
+  maxDiscount?: number;
+  storeId?: string;
+  expiresAt?: string;
+}
+
+export interface UpdateVoucherBody {
+  discountValue?: number;
+  maxUsage?: number;
+  minOrderAmount?: number;
+  maxDiscount?: number;
+  storeId?: string;
+  expiresAt?: string;
+  isActive?: boolean;
+}
+
+export interface GetVouchersQuery {
+  storeId?: string;
+  isActive?: boolean;
+  discountType?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetPromotionsQuery {
+  storeId?: string;
+  discountType?: string;
+  page?: number;
+  limit?: number;
 }
 
 // --- SHIP (ship.output.schema.js) ---
@@ -254,14 +423,16 @@ export interface UpdateDeliveryLocationBody {
 
 export interface StaffCreateOrderBody {
   customerId?: string;
+  phone?: string;
   type: OrderType;
+  tableNumber?: string;
   note?: string;
+  voucherCode?: string;
   items: Array<{
     productId: string;
     quantity: number;
     options?: Array<{
-      name: string;
-      price: number;
+      optionId: string;
     }>;
   }>;
   paymentMethod?: string;
@@ -282,9 +453,44 @@ export interface UpdateOrderStatusBody {
 
 // --- STORE (store.output.schema.js) ---
 
+export interface StoreOutput {
+  id: string;
+  name: string;
+  address: string;
+  lat: number | null;
+  lng: number | null;
+  code: string;
+  hotline: string;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+
 export interface GetStoresQuery {
+  search?: string;
   lat?: number;
   lng?: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateStoreBody {
+  code: string;
+  name: string;
+  address: string;
+  hotline: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface UpdateStoreBody {
+  code?: string;
+  name?: string;
+  address?: string;
+  hotline?: string;
+  lat?: number;
+  lng?: number;
+  isActive?: boolean;
+  isDeleted?: boolean;
 }
 
 // --- USER (user.output.schema.js) ---
@@ -338,3 +544,149 @@ export interface AdminTopProductsQuery {
   limit?: number;
   storeId?: string;
 }
+
+// --- AI (ai.output.schema.js) ---
+
+export interface AIChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface AIChatInput {
+  messages: AIChatMessage[];
+}
+
+export interface ToolResult {
+  type: string;
+  toolCallId: string;
+  toolName: string;
+  input: any;
+  output: any;
+  dynamic: boolean;
+}
+
+export interface AIChatOutput {
+  text: string;
+  toolResults?: ToolResult[];
+}
+
+// --- DELIVERY (delivery.output.schema.js) ---
+
+export interface DeliveryOrderItem {
+  id: string;
+  sku?: string | null;
+  tax?: string;
+  name: string;
+  note?: string | null;
+  price: string;
+  orderId?: string;
+  discount?: string;
+  quantity: number;
+  productId: string;
+}
+
+export interface DeliveryScheduleNode {
+  shipperId: string;
+  shipperName: string;
+  type: "STORE" | "PICKUP" | "DELIVERY";
+  node: number;
+  orderId?: string | null;
+  orderCode?: string | null;
+  status?: string;
+  lat: number;
+  lng: number;
+  arrival_datetime: string | null;
+  storeId?: string;
+  storeName?: string;
+  storeAddress?: string;
+  load_after_action?: string;
+  action_amount?: number;
+  travel_time_minutes?: number;
+  lateness?: string;
+  customerName?: string;
+  customerPhone?: string;
+  items?: DeliveryOrderItem[];
+  total?: string;
+  address?: string;
+}
+
+export interface FormattedOrder {
+  id: string;
+  customer: string;
+  customerPhone: string;
+  status: string;
+  address: string;
+  items: string;
+  location: {
+    lng: number;
+    lat: number;
+  };
+  isFocused: boolean;
+}
+
+export interface Shipper {
+  shipperId: string;
+  shipperName: string;
+  routes: DeliveryScheduleNode[];
+  isPersisted: boolean;
+}
+
+// --- STAFF MANAGEMENT ---
+
+export interface StaffOutput {
+  id: string;
+  name: string | null;
+  email: string;
+  phone?: string;
+  role: StaffRole;
+  storeId: string;
+  storeName: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface RegisterStaffBody {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  storeId: string;
+  role: StaffRole;
+}
+
+export interface RegisterStaffResponse {
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+    phone: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  staff: StaffOutput;
+}
+
+export interface UpdateStaffBody {
+  name?: string;
+  role?: StaffRole;
+  isActive?: boolean;
+  email?: string;
+  storeId?: string;
+}
+
+export interface GetStaffQuery {
+  page?: number;
+  limit?: number;
+  role?: StaffRole;
+}
+
+export interface DeliveryScheduleOutput {
+  numShippers: number;
+  numOrders: number;
+  shippers: Shipper[];
+  formattedOrders: FormattedOrder[];
+}
+
+

@@ -7,14 +7,14 @@ export function HomeRituals() {
       <div className="flex justify-between items-end mb-xl">
         <div className="flex flex-col gap-sm">
           <span className="text-overline-inter text-brand-primary uppercase tracking-[0.2em] font-bold">
-            The Experience
+            Trải Nghiệm
           </span>
-          <h2 className="text-h1-bold text-text-primary">Seasonal Rituals</h2>
+          <h2 className="text-h1-bold text-text-primary">Nghi Thức Theo Mùa</h2>
         </div>
         <AppButton
           variant="outline"
           className="h-[80px] px-xl border-text-primary text-text-primary rounded-none hover:bg-text-primary hover:text-inverse-text transition-all">
-          Explore All Traditions
+          Khám Phá Tất Cả
         </AppButton>
       </div>
 
@@ -26,17 +26,16 @@ export function HomeRituals() {
 
           <div className="absolute bottom-xl left-xl flex flex-col gap-lg max-w-[404px]">
             <span className="bg-white/20 backdrop-blur-md px-md py-1 rounded-full text-overline text-inverse-text w-fit uppercase">
-              MEMBER EXCLUSIVE
+              ĐỘC QUYỀN THÀNH VIÊN
             </span>
             <h3 className="text-display-md text-inverse-text leading-tight">
-              Sunrise Cupping Sessions
+              Buổi Thử Cà Phê Bình Minh
             </h3>
             <p className="text-body-md-reg text-inverse-text opacity-80">
-              Join our lead roasters every Saturday at 7AM for an intimate
-              journey through three distinct origins.
+              Tham gia cùng các nghệ nhân rang xay mỗi thứ Bảy lúc 7 giờ sáng cho hành trình khám phá ba nguồn gốc cà phê khác biệt.
             </p>
             <AppButton variant="secondary" className="w-fit">
-              RESERVE A SEAT
+              ĐẶT CHỖ NGAY
             </AppButton>
           </div>
         </div>
@@ -45,14 +44,13 @@ export function HomeRituals() {
         <div className="col-span-6 row-span-1 bg-surface-muted rounded-lg p-xl flex gap-xl items-center group relative overflow-hidden">
           <div className="flex flex-col gap-lg flex-1 relative z-10">
             <h3 className="text-h3-bold text-text-primary">
-              Sustainable Grounds
+              Bền Vững
             </h3>
             <p className="text-body-sm-reg text-text-secondary max-w-[308px]">
-              Bring your own vessel and receive a complimentary 'Greenwich' mini
-              croissant.
+              Mang theo ly của bạn và nhận bánh croissant mini 'Greenwich' miễn phí.
             </p>
             <div className="flex items-center gap-sm text-brand-primary font-bold cursor-pointer group/link">
-              Every Wednesday
+              Mỗi Thứ Tư
               <MoveRight className="size-5 transition-transform group-hover/link:translate-x-1" />
             </div>
           </div>
@@ -69,14 +67,14 @@ export function HomeRituals() {
         {/* Bottom Right Cards - Subgrid */}
         <div className="col-span-3 row-span-1 bg-brand-primary rounded-lg p-xl flex flex-col justify-between group cursor-pointer hover:bg-brand-accent transition-colors">
           <h3 className="text-h3-bold text-inverse-text">
-            The Collective Journal
+            Tạp Chí The Collective
           </h3>
           <div className="flex flex-col gap-lg">
             <p className="text-body-sm-reg text-inverse-text opacity-80">
-              Issue #04: The High Altitude Harvest
+              Số #04: Mùa Thu Hoạch Trên Cao
             </p>
             <div className="flex items-center gap-sm text-inverse-text font-bold">
-              Read Issue
+              Đọc Ngay
               <MoveRight className="size-5 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
@@ -84,12 +82,12 @@ export function HomeRituals() {
 
         <div className="col-span-3 row-span-1 bg-text-primary rounded-lg p-xl flex flex-col justify-between group cursor-pointer hover:bg-black transition-colors">
           <h3 className="text-h3-bold text-inverse-text">
-            Flash Cold Brew Subscription
+            Đăng Ký Cold Brew
           </h3>
           <div className="flex flex-col gap-1">
-            <span className="text-overline text-text-muted">STARTING AT</span>
+            <span className="text-overline text-text-muted">BẮT ĐẦU TỪ</span>
             <span className="text-display-md text-inverse-text font-extrabold leading-none">
-              $24/mo
+              24.000đ/tháng
             </span>
           </div>
         </div>

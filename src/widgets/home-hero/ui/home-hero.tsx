@@ -1,16 +1,38 @@
+'use client';
+
 import { MapPin, Play } from "lucide-react";
 import { AppButton } from "@/shared/ui";
+import { useStoreStore, useStores } from "@/entities/store";
+import Link from "next/link";
+import { useEffect } from "react";
 
 export function HomeHero() {
+  const { selectedStore, setSelectedStore } = useStoreStore();
+  const { data: storesResponse } = useStores();
+  const stores = storesResponse?.data || [];
+
+  useEffect(() => {
+    if (stores.length > 0) {
+      const storedStore = selectedStore;
+      const stillExists = storedStore && stores.some(s => s.id === storedStore.id);
+      if (!stillExists) {
+        setSelectedStore(stores[0]);
+      }
+    }
+  }, [stores, selectedStore, setSelectedStore]);
+
   return (
     <section className="px-2xl py-2xl flex items-center justify-between min-h-[900px] gap-2xl">
       <div className="flex-1 flex flex-col gap-xl max-w-[608px]">
-        <div className="flex items-center gap-sm">
+        <Link 
+          href="/locations" 
+          className="flex items-center gap-sm hover:opacity-80 transition-opacity w-fit"
+        >
           <MapPin className="size-6 text-text-secondary" />
           <span className="text-body-md-bold text-text-secondary uppercase">
-            GREENWICH VILLAGE, NY
+            {selectedStore ? `${selectedStore.name}, ${selectedStore.address}` : "CHỌN CỬA HÀNG PHỤC VỤ"}
           </span>
-        </div>
+        </Link>
 
         <h1 className="text-display-lg text-text-primary leading-[1.1]">
           The Honey-Oak
@@ -19,15 +41,14 @@ export function HomeHero() {
         </h1>
 
         <p className="text-body-lg-reg text-text-secondary">
-          A curated micro-lot blend finished with cold pressed wildflower honey
-          and toasted oak infused milk. The morning ritual, redefined.
+          Sự kết hợp tinh tế giữa mật ong hoa dại ép lạnh và sữa phong vị gỗ sồi. Nghi thức buổi sáng được tái định nghĩa.
         </p>
 
         <div className="flex items-center gap-md">
-          <AppButton variant="primary">CUSTOMIZE YOURS</AppButton>
+          <AppButton variant="primary">TÙY CHỈNH NGAY</AppButton>
           <AppButton variant="outline" className="gap-sm">
             <Play className="size-5 fill-text-primary" />
-            The Brewing Story
+            Câu Chuyện Pha Chế
           </AppButton>
         </div>
       </div>
@@ -44,8 +65,7 @@ export function HomeHero() {
             Estate Series No. 24
           </h3>
           <p className="text-body-sm-reg text-inverse-text opacity-80">
-            Single-origin beans from the Sidama region, Ethiopia. Roasted in
-            small batches every Tuesday.
+            Hạt cà phê đơn nguồn từ vùng Sidama, Ethiopia. Được rang thủ công mỗi tuần.
           </p>
         </div>
       </div>

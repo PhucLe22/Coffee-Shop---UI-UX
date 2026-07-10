@@ -1,49 +1,45 @@
 import { Check, Bike, Ellipsis, MapPin } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { Order, OrderStep } from '@/entities/order';
+import { Order, OrderStep, OrderActivity } from '@/entities/order';
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
 
 interface DesktopOrderStatusTimelineProps {
   order: Order;
+  activities?: OrderActivity[];
 }
 
-export function DesktopOrderStatusTimeline({ order }: DesktopOrderStatusTimelineProps) {
-  const steps: OrderStep[] = [
-    {
-      status: 'placed',
-      label: 'Order Placed',
-      time: '10:15 AM • Your order has been acknowledged by the collective.',
-      isCompleted: true,
-      isActive: order.status === 'placed',
-    },
-    {
-      status: 'preparing',
-      label: 'Preparing',
-      time: '10:20 AM • Our artisans are meticulously crafting your ritual.',
-      isCompleted: order.status === 'on_the_way' || order.status === 'delivered',
-      isActive: order.status === 'preparing',
-    },
-    {
-      status: 'on_the_way',
-      label: 'Out for delivery',
-      time: '10:45 AM • Your courier is navigating the city to your doorstep.',
-      isCompleted: order.status === 'delivered',
-      isActive: order.status === 'on_the_way',
-    },
-    {
-      status: 'delivered',
-      label: 'Delivered',
-      time: 'Estimated 11:15 AM • The warmth has arrived.',
-      isCompleted: false,
-      isActive: order.status === 'delivered',
-    },
-  ];
+function formatTime(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
+function buildSteps(order: Order, activities?: OrderActivity[]): OrderStep[] {
+  if (activities && activities.length > 0) {
+    return activities.map((a) => ({
+      status: a.status.toLowerCase() as any,
+      label: a.label,
+      time: a.isEstimate
+        ? `Estimated ${formatTime(a.time)}${a.description ? ` • ${a.description}` : ""}`
+        : `${formatTime(a.time)}${a.description ? ` • ${a.description}` : ""}`,
+      isCompleted: a.isPast,
+      isActive: !a.isPast && !a.isEstimate,
+    }));
+  }
+  return [];
+}
+
+export function DesktopOrderStatusTimeline({ order, activities }: DesktopOrderStatusTimelineProps) {
+  const steps = buildSteps(order, activities);
 
   return (
     <Card className="bg-surface-accent border border-border-primary-50 shadow-none rounded-md">
       <CardHeader className="p-xl pb-md">
         <CardTitle className="text-h3-bold text-text-primary">
-          Order Status
+          Trạng Thái Đơn Hàng
         </CardTitle>
       </CardHeader>
       <CardContent className="p-xl pt-0">
