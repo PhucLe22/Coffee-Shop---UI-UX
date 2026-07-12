@@ -7,7 +7,7 @@ export const createAddressSchema = z.object({
   lat: z.number().optional(),
   lng: z.number().optional(),
   label: z.string().min(1, "Vui lòng nhập nhãn (VD: Nhà riêng, Cơ quan)"),
-  isDefault: z.boolean().default(false),
+  isDefault: z.boolean().optional(),
 });
 
 export type CreateAddressSchema = z.infer<typeof createAddressSchema>;

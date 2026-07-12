@@ -46,7 +46,7 @@ export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps
     handleSubmit,
     formState: { errors },
   } = useForm<CreateProductFormValues>({
-    resolver: zodResolver(createProductSchema),
+    resolver: zodResolver(createProductSchema) as any,
     defaultValues: {
       sku: product.sku,
       name: product.name,

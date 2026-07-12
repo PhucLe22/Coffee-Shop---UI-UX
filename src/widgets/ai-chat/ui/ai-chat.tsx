@@ -221,12 +221,12 @@ export function AIChat({ className, onClose }: AIChatProps) {
                   // Manually construct the cart attachment from store items
                   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                   const attachment = {
-                    type: "cart",
+                    type: "cart" as const,
                     data: {
                       items: items.map(item => ({
                         name: item.name,
                         price: `${(item.price * item.quantity).toLocaleString()}đ`,
-                        image: item.image,
+                        image: item.imageUrl,
                         quantity: item.quantity
                       })),
                       total: `${total.toLocaleString()}đ`

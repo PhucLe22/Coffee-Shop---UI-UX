@@ -2,6 +2,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { OrderService } from "./order.service";
 import { OrderResponse } from "../model/types";
+import { OrderStatus } from "@/shared/api";
 
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
@@ -28,7 +29,7 @@ export const useUpdateOrderStatus = () => {
             pages: old.pages.map((page) => ({
               ...page,
               data: page.data.map((order) =>
-                order.id === id ? { ...order, status } : order
+                order.id === id ? { ...order, status: status as OrderStatus } : order
               ),
             })),
           };

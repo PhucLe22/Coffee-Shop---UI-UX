@@ -32,7 +32,7 @@ export const CreateProductForm = ({ onSuccess }: CreateProductFormProps) => {
     formState: { errors },
     reset,
   } = useForm<CreateProductFormValues>({
-    resolver: zodResolver(createProductSchema),
+    resolver: zodResolver(createProductSchema) as any,
     defaultValues: {
       type: ProductType.SIMPLE,
       basePrice: 0,
