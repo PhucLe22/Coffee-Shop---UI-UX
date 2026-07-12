@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginSchema } from "./login-schema";
 import { useLogin } from "./use-login";
-import { AppButton, Input, Checkbox, Label } from "@/shared/ui";
+import { AppButton, Input, Label } from "@/shared/ui";
 import Link from "next/link";
 import { AxiosError } from "axios";
 
@@ -21,7 +21,6 @@ export function LoginForm() {
     defaultValues: {
       identifier: "",
       password: "",
-      keepLoggedIn: false,
     },
   });
 
@@ -87,12 +86,6 @@ export function LoginForm() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-sm h-9">
-          <Checkbox id="keepLoggedIn" {...register("keepLoggedIn")} className="border-text-primary/50 bg-surface-accent rounded-md" />
-          <Label htmlFor="keepLoggedIn" className="normal-case font-medium text-body-sm-reg text-text-primary">
-            Duy trì đăng nhập trong 30 ngày
-          </Label>
-        </div>
 
         <AppButton type="submit" isLoading={isPending} className="w-full text-inverse-text">
           ĐĂNG NHẬP

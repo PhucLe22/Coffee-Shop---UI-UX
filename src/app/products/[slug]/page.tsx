@@ -24,6 +24,29 @@ export default function ProductDetailPage({
   const [mounted, setMounted] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
+  const getDefaultOptionId = (group: { name: string; options: { id: string; name: string }[] }, isRequired: boolean): string | undefined => {
+    const name = group.name.toLowerCase();
+    const opts = group.options;
+    if (opts.length === 0) return undefined;
+
+    if (name.includes('size')) {
+      return opts.find(o => o.name === 'M' || o.name.startsWith('M ') || o.name.includes('(M)'))?.id
+        || opts.find(o => o.name === 'L' || o.name.startsWith('L '))?.id
+        || opts[0].id;
+    }
+    if (name.includes('ngọt') || name.includes('sugar')) {
+      return opts.find(o => o.name.includes('100%'))?.id
+        || opts[0].id;
+    }
+    if (name.includes('đá') || name.includes('ice')) {
+      return opts.find(o => o.name.toLowerCase().includes('thường'))?.id
+        || opts[0].id;
+    }
+
+    if (isRequired) return opts[0].id;
+    return undefined;
+  };
+
   const { data: response, isLoading, isError } = useProduct(slug);
   const product = response?.data;
 
@@ -40,8 +63,9 @@ export default function ProductDetailPage({
     if (product?.optionGroups) {
       const initial: Record<string, string[]> = {};
       product.optionGroups.forEach(group => {
-        if (group.isRequired && group.options.length > 0) {
-          initial[group.id] = [group.options[0].id];
+        if (group.options.length > 0) {
+          const defaultId = getDefaultOptionId(group, group.isRequired);
+          initial[group.id] = defaultId ? [defaultId] : [];
         } else {
           initial[group.id] = [];
         }
@@ -200,11 +224,14 @@ export default function ProductDetailPage({
         {product.optionGroups?.sort((a, b) => a.sortOrder - b.sortOrder).map((group) => (
           <section key={group.id} className="flex flex-col gap-4">
             <div className="flex w-full items-center justify-between">
-              <h5 className="text-h5-bold">{group.name}</h5>
-              <span className="text-label-badge text-text-secondary uppercase">
-                {group.isRequired ? "BẮT BUỘC" : "TÙY CHỌN"}
-              </span>
+              <h5 className="text-h5-bold">{({ 'Sugar Level': 'Độ ngọt', 'Ice Level': 'Lượng đá' } as Record<string, string>)[group.name] || group.name}</h5>
             </div>
+
+            {group.isMultiple && group.name.toLowerCase().includes('topping') && (
+              <p className="text-body-sm-reg text-text-muted -mt-1">
+                Chọn tối đa {group.options.length} loại Topping
+              </p>
+            )}
 
             {group.isMultiple ? (
               <div className="flex flex-col gap-3">
@@ -219,7 +246,7 @@ export default function ProductDetailPage({
                 ))}
               </div>
             ) : (
-              <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-4 flex-wrap">
                 {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => {
                   const isSizeGroup = group.name.toLowerCase().includes('size');
                   
@@ -231,7 +258,7 @@ export default function ProductDetailPage({
                         volume=""
                         isActive={selectedOptions[group.id]?.includes(option.id)}
                         onClick={() => toggleOption(group.id, option.id, false)}
-                        className="flex-1"
+                        className=""
                       />
                     );
                   }

@@ -35,6 +35,18 @@ export const useConfirmPickup = () => {
   });
 };
 
+export const useReturnDelivery = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ orderId, reason }: { orderId: string; reason?: string }) =>
+      OrderService.returnDelivery(orderId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["delivery-schedule"] });
+    },
+  });
+};
+
 export const useCompleteDelivery = () => {
   const queryClient = useQueryClient();
 

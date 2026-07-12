@@ -110,6 +110,14 @@ export const OrderService = {
     return response.data;
   },
 
+  returnDelivery: async (id: string, reason?: string): Promise<BaseResponse<OrderOutput>> => {
+    const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
+      API_ENDPOINTS.ORDERS.DELIVERY_RETURN(id),
+      reason ? { reason } : undefined
+    );
+    return response.data;
+  },
+
   completeOrder: async (id: string): Promise<BaseResponse<OrderOutput>> => {
     const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
       API_ENDPOINTS.ORDERS.COMPLETE(id)

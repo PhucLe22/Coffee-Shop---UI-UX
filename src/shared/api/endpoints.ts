@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
     PICKUP: (id: string) => `/internal/orders/${id}/pickup`,
     COMPLETE: (id: string) => `/internal/orders/${id}/complete`,
     DELIVERY_COMPLETE: (id: string) => `/internal/orders/${id}/delivery/complete`,
+    DELIVERY_RETURN: (id: string) => `/internal/orders/${id}/delivery/return`,
     INTERNAL_BY_ID: (id: string) => `/internal/orders/${id}`,
   },
   CART: {

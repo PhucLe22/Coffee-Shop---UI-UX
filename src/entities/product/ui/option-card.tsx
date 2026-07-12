@@ -35,7 +35,7 @@ export const OptionCard = ({
           <Box className="size-6" />
         </div>
         <div className="flex flex-col min-w-0">
-          <span className="text-body-sm-semibold leading-tight truncate">{name}</span>
+          <span className="text-body-sm-semibold leading-tight">{name}</span>
           <span className="label-overline-inter leading-tight">
             {formatToVND(price)}
           </span>

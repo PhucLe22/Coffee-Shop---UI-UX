@@ -10,6 +10,7 @@ import {
   Loader2,
   Store,
   Check,
+  Undo2,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
@@ -23,7 +24,7 @@ import {
   MarkerLabel,
   MarkerTooltip,
 } from "@/components/ui/map";
-import { useDeliverySchedule, useConfirmPickup, useCompleteDelivery } from "@/entities/order";
+import { useDeliverySchedule, useConfirmPickup, useCompleteDelivery, useReturnDelivery } from "@/entities/order";
 import { useStaffAuthStore } from "@/shared/auth";
 import { toast } from "sonner";
 
@@ -32,6 +33,7 @@ export default function InternalDeliveryPage() {
   const { data: scheduleResponse, isLoading, error } = useDeliverySchedule();
   const { mutate: confirmPickup, isPending: isPickupPending } = useConfirmPickup();
   const { mutate: completeDelivery, isPending: isCompletePending } = useCompleteDelivery();
+  const { mutate: returnDelivery, isPending: isReturnPending } = useReturnDelivery();
 
   const [roadCoordinates, setRoadCoordinates] = useState<[number, number][]>([]);
 
@@ -72,8 +74,8 @@ export default function InternalDeliveryPage() {
   }, [routeSteps]);
 
   const mapNodes = useMemo(() => {
-    return pendingSteps.slice(0, 5);
-  }, [pendingSteps]);
+    return sortedSchedule;
+  }, [sortedSchedule]);
 
   const waypointCoordinates = useMemo(() => {
     const coords = mapNodes.map(
@@ -519,7 +521,7 @@ export default function InternalDeliveryPage() {
                       </div>
 
                       {hasOrder && !isCompleted && (
-                        <div className="pt-md border-t border-border-primary-50/10">
+                        <div className="pt-md border-t border-border-primary-50/10 space-y-sm">
                           {isStore ? (
                             <Button
                               className={cn(
@@ -555,6 +557,27 @@ export default function InternalDeliveryPage() {
                               {isCompletePending ? "Đang hoàn tất..." : "Hoàn Tất Giao Hàng"}
                             </Button>
                           )}
+                          <Button
+                            variant="outline"
+                            className="w-full rounded-full border-error/30 text-error hover:text-error hover:bg-error/5 hover:border-error/50 gap-sm h-10 label-button-sm text-[12px]"
+                            onClick={() => {
+                              const reason = window.prompt("Lý do trả hàng (không bắt buộc):");
+                              // null means user cancelled prompt, empty string is valid (no reason)
+                              if (reason !== null) {
+                                returnDelivery(
+                                  { orderId: node.orderId!, reason: reason || undefined },
+                                  {
+                                    onSuccess: () => toast.success("Đã trả hàng về kho"),
+                                    onError: (err: any) => toast.error(err?.response?.data?.message || "Trả hàng thất bại"),
+                                  },
+                                );
+                              }
+                            }}
+                            disabled={isReturnPending}
+                          >
+                            <Undo2 className="size-4" />
+                            {isReturnPending ? "Đang trả hàng..." : "Trả Hàng"}
+                          </Button>
                         </div>
                       )}
                     </CardContent>
