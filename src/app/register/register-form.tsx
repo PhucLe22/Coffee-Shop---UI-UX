@@ -46,7 +46,7 @@ export function RegisterForm() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-lg">
-        {error && (
+        {errorMessage && (
           <div className="rounded-md bg-error/10 p-md text-body-sm-reg text-error">
             {errorMessage}
           </div>

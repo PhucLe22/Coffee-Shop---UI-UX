@@ -17,6 +17,9 @@ interface ChatMessageProps {
 export function ChatMessage({ message }: ChatMessageProps) {
   const isAssistant = message.role === "assistant";
 
+  const closestStore = message.attachment?.type === "closestStore" ? message.attachment.data : null;
+  const stores = message.attachment?.type === "stores" ? message.attachment.data : null;
+
   return (
     <div
       className={cn(
@@ -52,9 +55,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
               />
             )}
 
-            {message.attachment.type === "stores" && (
+            {stores && (
               <div className="flex flex-col gap-sm">
-                {message.attachment.data.map((store: any, idx: number) => (
+                {stores.map((store, idx) => (
                   <AIStoreCard 
                     key={idx}
                     name={store.storeName}
@@ -64,13 +67,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
               </div>
             )}
 
-            {message.attachment.type === "closestStore" && (
+            {closestStore && (
               <AIClosetStoreCard 
-                name={message.attachment.data.storeName}
-                address={message.attachment.data.address}
-                distance={message.attachment.data.distance}
+                name={closestStore.storeName}
+                address={closestStore.address}
+                distance={closestStore.distance}
                 onClick={() => {
-                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${message.attachment.data.lat},${message.attachment.data.lng}`, '_blank');
+                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${closestStore.lat},${closestStore.lng}`, '_blank');
                 }}
               />
             )}

@@ -1,6 +1,6 @@
 export interface RouteNode {
   node: string;
-  type: "PICKUP" | "DELIVERY";
+  type: "STORE" | "PICKUP" | "DELIVERY";
   status: string | null;
   orderId: string | null;
   orderCode: string | null;

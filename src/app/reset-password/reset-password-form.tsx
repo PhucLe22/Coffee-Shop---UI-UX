@@ -31,7 +31,7 @@ export function ResetPasswordForm() {
 
   const errorMessage = error instanceof AxiosError
     ? error.response?.data?.message
-    : error?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau.";
+    : "Đã xảy ra lỗi. Vui lòng thử lại sau.";
 
   return (
     <div className="flex w-full flex-col gap-lg">
@@ -43,7 +43,7 @@ export function ResetPasswordForm() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-lg">
-        {error && (
+        {errorMessage && (
           <div className="rounded-md bg-error/10 p-md text-body-sm-reg text-error">
             {errorMessage}
           </div>

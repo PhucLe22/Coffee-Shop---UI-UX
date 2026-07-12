@@ -6,7 +6,7 @@ import { InternalSidebar } from "./internal-sidebar";
 import { InternalMobileNav } from "./internal-mobile-nav";
 import { useIsMobile } from "@/shared/lib";
 import { cn } from "@/shared/lib/utils";
-import { useStaffAuthStore } from "@/shared/auth";
+import { useStaffAuthStore, AuthService } from "@/shared/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

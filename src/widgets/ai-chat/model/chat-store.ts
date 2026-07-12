@@ -59,6 +59,21 @@ export interface Message {
     data: {
       vouchers: PromotionVoucher[];
     };
+  } | {
+    type: "stores";
+    data: Array<{
+      storeName: string;
+      address: string;
+    }>;
+  } | {
+    type: "closestStore";
+    data: {
+      storeName: string;
+      address: string;
+      distance: string;
+      lat: number;
+      lng: number;
+    };
   };
 }
 
