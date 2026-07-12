@@ -2,6 +2,31 @@ import { VoucherOutput } from "@/shared/api/contracts";
 export type { VoucherOutput };
 export type { CreateVoucherBody, UpdateVoucherBody, GetVouchersQuery, GetPromotionsQuery } from "@/shared/api/contracts";
 
+export interface SuggestVoucherQuery {
+  storeId?: string;
+  orderAmount?: number;
+  customerId?: string;
+}
+
+export interface SuggestVoucherItem {
+  id: string;
+  code: string;
+  scope: string | null;
+  discountType: string;
+  discountValue: string;
+  maxUsage: number;
+  usedCount: number;
+  minOrderAmount: string | null;
+  maxDiscount: string | null;
+  storeId: string | null;
+  expiresAt: string | null;
+  isActive: boolean;
+  store: { id: string; name: string } | null;
+  customerVouchers: unknown[];
+  redemptions: unknown[];
+  estimatedDiscount: number;
+}
+
 export interface ValidateVoucherBody {
   code: string;
   orderAmount: number;

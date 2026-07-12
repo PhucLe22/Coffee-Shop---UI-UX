@@ -4,7 +4,7 @@ import { GetProductsQuery } from "../model/types";
 
 import { AxiosError } from "axios";
 
-export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "limit">) => {
+export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "limit">, options?: { enabled?: boolean }) => {
   return useInfiniteQuery({
     queryKey: ["products-infinite", query],
     queryFn: ({ pageParam = 1 }) => 
@@ -27,5 +27,6 @@ export const useInfiniteProducts = (query?: Omit<GetProductsQuery, "page" | "lim
       }
       return failureCount < 3;
     },
+    enabled: options?.enabled ?? true,
   });
 };

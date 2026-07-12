@@ -20,14 +20,14 @@ export const SizeSelector = ({
     <div
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center gap-2 px-2 py-4 rounded-md transition-all border cursor-pointer w-full min-w-[80px]",
+        "flex flex-col items-center justify-center gap-1 px-xl py-sm rounded-md transition-all border cursor-pointer min-w-[60px]",
         isActive
           ? "bg-text-primary text-inverse-text border-text-primary"
           : "bg-surface-muted text-text-primary border-text-muted",
         className,
       )}>
       <Coffee
-        className={cn("size-5", isActive ? "opacity-100" : "opacity-50")}
+        className={cn("size-4", isActive ? "opacity-100" : "opacity-50")}
       />
       <div className="flex flex-col items-center text-center">
         <span className="text-sm font-semibold whitespace-nowrap">{label}</span>

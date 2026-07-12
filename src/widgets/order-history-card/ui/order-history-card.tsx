@@ -177,7 +177,7 @@ export const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
                             {item.name}
                           </span>
                           <span className="text-[14px] font-medium font-inter text-text-muted opacity-80">
-                            {item.quantity}x • {item.options?.join(", ") || "Regular"}
+                            {item.quantity}x • {item.options?.map((o: any) => typeof o === 'string' ? o : o.name).join(", ") || "Regular"}
                           </span>
                         </div>
                         <span className="text-[18px] font-bold font-plus-jakarta text-text-primary">

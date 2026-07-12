@@ -52,6 +52,15 @@ export const OrderService = {
     return response.data;
   },
 
+  getOrdersByPhone: async (
+    phone: string
+  ): Promise<OrderResponse> => {
+    const response = await axiosInstance.get<OrderResponse>(
+      API_ENDPOINTS.ORDERS.BY_PHONE(phone)
+    );
+    return response.data;
+  },
+
   createStaffOrder: async (
     body: StaffCreateOrderBody
   ): Promise<BaseResponse<OrderOutput>> => {
@@ -97,6 +106,14 @@ export const OrderService = {
   completeDelivery: async (id: string): Promise<BaseResponse<OrderOutput>> => {
     const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
       API_ENDPOINTS.ORDERS.DELIVERY_COMPLETE(id)
+    );
+    return response.data;
+  },
+
+  returnDelivery: async (id: string, reason?: string): Promise<BaseResponse<OrderOutput>> => {
+    const response = await axiosInstance.patch<BaseResponse<OrderOutput>>(
+      API_ENDPOINTS.ORDERS.DELIVERY_RETURN(id),
+      reason ? { reason } : undefined
     );
     return response.data;
   },

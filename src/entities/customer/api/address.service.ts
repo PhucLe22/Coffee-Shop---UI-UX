@@ -1,5 +1,5 @@
 import { axiosInstance, API_ENDPOINTS, BaseResponse } from "@/shared/api";
-import { Address, CreateAddressBody, UpdateAddressBody } from "../model/address";
+import { Address, CreateAddressBody, UpdateAddressBody, AddressAutocompleteItem, AddressAutocompleteQuery } from "../model/address";
 
 export const AddressService = {
   getAddresses: async (): Promise<BaseResponse<Address[]>> => {
@@ -25,6 +25,13 @@ export const AddressService = {
   deleteAddress: async (id: string): Promise<BaseResponse<void>> => {
     const response = await axiosInstance.delete<BaseResponse<void>>(
       API_ENDPOINTS.ADDRESSES.BY_ID(id)
+    );
+    return response.data;
+  },
+  autocompleteAddress: async (query: AddressAutocompleteQuery): Promise<BaseResponse<AddressAutocompleteItem[]>> => {
+    const response = await axiosInstance.get<BaseResponse<AddressAutocompleteItem[]>>(
+      API_ENDPOINTS.ADDRESSES.AUTOCOMPLETE,
+      { params: query }
     );
     return response.data;
   },

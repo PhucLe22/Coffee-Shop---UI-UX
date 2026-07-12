@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { Search, Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
@@ -31,7 +32,7 @@ import {
 } from "@/shared/ui/sheet";
 import { toast } from "sonner";
 import { OrderType } from "@/shared/api";
-import { VoucherService, ValidateVoucherResponse } from "@/entities/voucher";
+import { VoucherService, ValidateVoucherResponse, SuggestVoucherItem } from "@/entities/voucher";
 
 // Temporary mock data for categories
 const CATEGORIES = ["TẤT CẢ", "CÀ PHÊ", "TRÀ", "BÁNH", "KHÔNG CÀ PHÊ"];
@@ -113,8 +114,10 @@ interface OrderSummaryFooterProps {
   appliedVoucher: ValidateVoucherResponse | null;
   isValidating: boolean;
   voucherError: string;
-  onApplyVoucher: () => void;
+  onApplyVoucher: (code?: string) => void;
   onRemoveVoucher: () => void;
+  suggestedVouchers: SuggestVoucherItem[];
+  isSuggestingVouchers: boolean;
 }
 
 const OrderSummaryFooter = ({
@@ -130,6 +133,8 @@ const OrderSummaryFooter = ({
   voucherError,
   onApplyVoucher,
   onRemoveVoucher,
+  suggestedVouchers,
+  isSuggestingVouchers,
 }: OrderSummaryFooterProps) => (
   <div className="p-lg flex flex-col gap-md bg-surface-accent border-t border-border-primary-50/10">
     <div className="flex flex-col gap-sm">
@@ -183,7 +188,7 @@ const OrderSummaryFooter = ({
             <Button
               variant="outline"
               className="w-full h-[49px] rounded-[8px] font-bold text-xs"
-              onClick={onApplyVoucher}
+              onClick={() => onApplyVoucher()}
               disabled={isValidating}
             >
               {isValidating ? "..." : "ÁP DỤNG"}
@@ -192,6 +197,35 @@ const OrderSummaryFooter = ({
         )}
         {voucherError && (
           <span className="text-[11px] text-error font-medium">{voucherError}</span>
+        )}
+
+        {suggestedVouchers.length > 0 && !appliedVoucher && (
+          <div className="flex flex-col gap-sm mt-sm">
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">
+              GỢI Ý CHO BẠN
+            </span>
+            <div className="flex flex-col gap-sm">
+              {suggestedVouchers.slice(0, 3).map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => onApplyVoucher(v.code)}
+                  className="flex items-center justify-between bg-surface-accent hover:bg-brand-primary/10 rounded-[8px] px-md py-sm border border-border-primary-50/10 transition-colors text-left w-full"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] font-bold text-text-primary">{v.code}</span>
+                    <span className="text-[11px] text-text-muted">
+                      {v.discountType === "FIXED"
+                        ? `Giảm ${formatToVND(Number(v.discountValue))}`
+                        : `Giảm ${v.discountValue}%${v.maxDiscount ? ` (tối đa ${formatToVND(Number(v.maxDiscount))})` : ""}`}
+                    </span>
+                  </div>
+                  <span className="text-[13px] font-bold text-brand-primary whitespace-nowrap">
+                    -{formatToVND(v.estimatedDiscount)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
       <Button 
@@ -248,12 +282,19 @@ export default function InternalOrderCreatePage() {
   const discountValue = appliedVoucher?.discountAmount ?? 0;
   const totalValue = subtotalValue - discountValue;
 
+  const { data: suggestVouchersData, isLoading: isSuggestingVouchers } = useQuery({
+    queryKey: ["suggest-vouchers-internal", subtotalValue],
+    queryFn: () => VoucherService.suggestVouchers({ orderAmount: subtotalValue }),
+    enabled: subtotalValue > 0,
+  });
+  const suggestedVouchers: SuggestVoucherItem[] = suggestVouchersData?.data ?? [];
+
   const { mutate: createStaffOrder, isPending: isCreatingOrder } =
     useCreateStaffOrder();
 
-  const handleApplyVoucher = async () => {
-    const code = voucherInput.trim();
-    if (!code) {
+  const handleApplyVoucher = async (code?: string) => {
+    const voucherCode = code || voucherInput.trim();
+    if (!voucherCode) {
       setVoucherError("Vui lòng nhập mã giảm giá");
       return;
     }
@@ -263,12 +304,12 @@ export default function InternalOrderCreatePage() {
 
     try {
       const res = await VoucherService.validateVoucher({
-        code,
+        code: voucherCode,
         orderAmount: subtotalValue,
       });
       setAppliedVoucher(res.data);
       setVoucherError("");
-      toast.success(`Áp dụng mã ${code} thành công!`);
+      toast.success(`Áp dụng mã ${voucherCode} thành công!`);
     } catch (err: any) {
       setAppliedVoucher(null);
       setVoucherError(err.response?.data?.message || "Mã giảm giá không hợp lệ");
@@ -565,6 +606,8 @@ export default function InternalOrderCreatePage() {
               voucherError={voucherError}
               onApplyVoucher={handleApplyVoucher}
               onRemoveVoucher={handleRemoveVoucher}
+              suggestedVouchers={suggestedVouchers}
+              isSuggestingVouchers={isSuggestingVouchers}
             />
           </aside>
         )}
@@ -621,6 +664,8 @@ export default function InternalOrderCreatePage() {
                     voucherError={voucherError}
                     onApplyVoucher={handleApplyVoucher}
                     onRemoveVoucher={handleRemoveVoucher}
+                    suggestedVouchers={suggestedVouchers}
+                    isSuggestingVouchers={isSuggestingVouchers}
                   />
                 </SheetContent>
               </Sheet>

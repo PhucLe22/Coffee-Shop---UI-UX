@@ -1,14 +1,25 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { ProductCardDetailed, useInfiniteProducts } from "@/entities/product";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Search, X } from "lucide-react";
+import { ProductCardDetailed, useInfiniteProducts, useSearchProducts } from "@/entities/product";
 import { CategoryChips, CategoryId } from "@/features/filter-by-category";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { formatToVND, useIntersectionObserver } from "@/shared/lib";
 
 export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const isSearching = debouncedQuery.trim().length > 0;
 
   const {
     data,
@@ -19,7 +30,12 @@ export default function MenuPage() {
     isFetchingNextPage,
   } = useInfiniteProducts({
     categoryId: activeCategory === "all" ? undefined : activeCategory,
-  });
+  }, { enabled: !isSearching });
+
+  const {
+    data: searchData,
+    isLoading: isSearchLoading,
+  } = useSearchProducts(isSearching ? { q: debouncedQuery, limit: 10 } : null);
 
   const entry = useIntersectionObserver(loadMoreRef, {
     threshold: 0.1,
@@ -27,12 +43,20 @@ export default function MenuPage() {
   });
 
   useEffect(() => {
-    if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+    if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage && !isSearching) {
       fetchNextPage();
     }
-  }, [entry?.isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [entry?.isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage, isSearching]);
 
-  const allProducts = data?.pages.flatMap((page) => page.data) || [];
+  const allProducts = isSearching
+    ? (searchData?.data ?? [])
+    : (data?.pages.flatMap((page) => page.data) || []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
+    setDebouncedQuery("");
+    inputRef.current?.focus();
+  }, []);
 
   return (
     <div className="flex flex-col gap-8 bg-surface-accent px-6 py-12 pb-24 min-h-full">
@@ -46,12 +70,35 @@ export default function MenuPage() {
         </p>
       </div>
 
+      {/* Search Box */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-text-muted" />
+        <input
+          ref={inputRef}
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Tìm kiếm sản phẩm..."
+          className="h-12 w-full rounded-xl bg-surface-main pl-12 pr-10 text-body-md-reg text-text-primary outline-none border border-border-primary-50 focus:border-brand-primary/30 transition-colors"
+        />
+        {searchQuery && (
+          <button
+            onClick={handleClearSearch}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
+          >
+            <X className="size-5" />
+          </button>
+        )}
+      </div>
+
       {/* Filter Chips */}
-      <CategoryChips activeId={activeCategory} onChange={setActiveCategory} />
+      {!isSearching && (
+        <CategoryChips activeId={activeCategory} onChange={setActiveCategory} />
+      )}
 
       {/* Product List */}
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {isLoading ? (
+        {(isLoading || isSearchLoading) ? (
           Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
@@ -68,13 +115,13 @@ export default function MenuPage() {
               </div>
             </div>
           ))
-        ) : isError ? (
+        ) : isError && !isSearching ? (
           <div className="col-span-full py-20 text-center text-text-secondary">
             Không thể tải sản phẩm. Vui lòng thử lại sau.
           </div>
         ) : allProducts.length === 0 ? (
           <div className="col-span-full py-20 text-center text-text-secondary">
-            Không có sản phẩm nào trong danh mục này.
+            {isSearching ? `Không tìm thấy sản phẩm "${debouncedQuery}".` : "Không có sản phẩm nào trong danh mục này."}
           </div>
         ) : (
           <>
@@ -95,18 +142,20 @@ export default function MenuPage() {
         )}
       </div>
 
-      {/* Lazy Loading Trigger */}
-      <div
-        ref={loadMoreRef}
-        className="h-10 w-full flex items-center justify-center">
-        {isFetchingNextPage && (
-          <div className="flex gap-2">
-            <div className="w-2 h-2 bg-brand-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-            <div className="w-2 h-2 bg-brand-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="w-2 h-2 bg-brand-primary rounded-full animate-bounce"></div>
-          </div>
-        )}
-      </div>
+      {/* Lazy Loading Trigger (only when not searching) */}
+      {!isSearching && (
+        <div
+          ref={loadMoreRef}
+          className="h-10 w-full flex items-center justify-center">
+          {isFetchingNextPage && (
+            <div className="flex gap-2">
+              <div className="w-2 h-2 bg-brand-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="w-2 h-2 bg-brand-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="w-2 h-2 bg-brand-primary rounded-full animate-bounce"></div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

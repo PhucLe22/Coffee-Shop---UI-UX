@@ -59,7 +59,7 @@ export const ReadyToPickUpOrder = ({ order }: ReadyToPickUpOrderProps) => {
                   {displayItems[0]?.name || `Order from ${order.store?.name}`}
                 </span>
                 <span className="text-[12px] font-bold font-plus-jakarta text-text-muted uppercase tracking-wider opacity-70">
-                  {displayItems[0]?.options?.join(", ") || "Gói Tiêu Chuẩn"}
+                  {displayItems[0]?.options?.map((o: any) => typeof o === 'string' ? o : o.name).join(", ") || "Gói Tiêu Chuẩn"}
                 </span>
               </>
             )}

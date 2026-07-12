@@ -8,6 +8,29 @@ import { SizeSelector, OptionButton, OptionCard, Product } from '@/entities/prod
 import { useCartStore } from '@/entities/cart';
 import { toast } from 'sonner';
 
+const getDefaultOptionId = (group: { name: string; options: { id: string; name: string }[] }, isRequired: boolean): string | undefined => {
+  const name = group.name.toLowerCase();
+  const opts = group.options;
+  if (opts.length === 0) return undefined;
+
+  if (name.includes('size')) {
+    return opts.find(o => o.name === 'M' || o.name.startsWith('M ') || o.name.includes('(M)'))?.id
+      || opts.find(o => o.name === 'L' || o.name.startsWith('L '))?.id
+      || opts[0].id;
+  }
+  if (name.includes('ngọt') || name.includes('sugar')) {
+    return opts.find(o => o.name.includes('100%'))?.id
+      || opts[0].id;
+  }
+  if (name.includes('đá') || name.includes('ice')) {
+    return opts.find(o => o.name.toLowerCase().includes('thường'))?.id
+      || opts[0].id;
+  }
+
+  if (isRequired) return opts[0].id;
+  return undefined;
+};
+
 interface DesktopProductDetailProps {
   product: Product;
 }
@@ -17,8 +40,9 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>(() => {
     const initial: Record<string, string[]> = {};
     product.optionGroups?.forEach(group => {
-      if (group.isRequired && group.options.length > 0) {
-        initial[group.id] = [group.options[0].id];
+      if (group.options.length > 0) {
+        const defaultId = getDefaultOptionId(group, group.isRequired);
+        initial[group.id] = defaultId ? [defaultId] : [];
       } else {
         initial[group.id] = [];
       }
@@ -107,7 +131,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
 
       {/* Right Side: Customization */}
       <div className="w-[50%] p-2xl overflow-y-auto no-scrollbar bg-surface-main">
-        <div className="max-w-[512px] flex flex-col gap-xl">
+        <div className="w-full flex flex-col gap-xl">
           {/* Header */}
           <div className="flex flex-col gap-md">
             <div className="flex items-center gap-sm text-text-secondary">
@@ -127,14 +151,15 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
             <div key={group.id} className="flex flex-col gap-md">
               <div className="flex justify-between items-center">
                 <h3 className="text-body-sm-reg text-text-primary/60 font-bold uppercase tracking-widest">
-                  {group.name}
+                  {({ 'Sugar Level': 'Độ ngọt', 'Ice Level': 'Lượng đá' } as Record<string, string>)[group.name] || group.name}
                 </h3>
-                {group.isRequired && (
-                  <span className="text-body-sm-semibold text-text-secondary">
-                    BẮT BUỘC
-                  </span>
-                )}
               </div>
+
+              {group.isMultiple && group.name.toLowerCase().includes('topping') && (
+                <span className="text-body-sm-reg text-text-muted">
+                  Chọn tối đa {group.options.length} loại Topping
+                </span>
+              )}
 
               {group.isMultiple ? (
                 <div className="flex flex-col gap-sm">
@@ -150,7 +175,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                   ))}
                 </div>
               ) : (
-                <div className="flex gap-sm overflow-x-auto no-scrollbar">
+                <div className="flex gap-4 flex-wrap">
                   {group.options.sort((a, b) => a.sortOrder - b.sortOrder).map((option) => {
                     // Check if it's a size group by name (heuristic)
                     const isSizeGroup = group.name.toLowerCase().includes('size');
@@ -163,7 +188,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                           volume="" // volume not available in backend yet
                           isActive={selectedOptions[group.id]?.includes(option.id)}
                           onClick={() => toggleOption(group.id, option.id, false)}
-                          className="h-[83px] rounded-md"
+                          className="h-[56px] rounded-md"
                         />
                       );
                     }
@@ -174,7 +199,7 @@ export function DesktopProductDetail({ product }: DesktopProductDetailProps) {
                         label={option.name}
                         isSelected={selectedOptions[group.id]?.includes(option.id)}
                         onClick={() => toggleOption(group.id, option.id, false)}
-                        className="rounded-md h-[52px] min-w-[120px]"
+                        className="rounded-md h-[52px]"
                       />
                     );
                   })}

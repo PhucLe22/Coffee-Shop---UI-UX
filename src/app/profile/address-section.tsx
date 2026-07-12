@@ -75,7 +75,7 @@ export function AddressSection() {
         <CreateAddressDialog />
       </div>
       
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4 p-6 max-h-[320px] overflow-y-auto">
         {addresses.length === 0 && <p className="text-text-muted text-body-sm-reg">No addresses saved.</p>}
         {addresses.map((addr) => (
           <AddressCard 
