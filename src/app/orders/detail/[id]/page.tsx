@@ -34,7 +34,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   const { id } = use(params);
 
   const { data: order, isLoading } = useQuery({
-    queryKey: ['order', id],
+    queryKey: ['order-detail', id],
     queryFn: () => fetchOrderById(id),
   });
 

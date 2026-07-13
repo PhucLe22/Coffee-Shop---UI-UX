@@ -15,7 +15,7 @@ export const ActiveProcessingOrder = ({ order }: ActiveProcessingOrderProps) => 
   const displayItems =
     order.items && order.items.length > 0
       ? order.items
-      : orderDetails?.data.orderItems?.map((item, index) => ({
+      : orderDetails?.data?.orderItems?.map((item, index) => ({
           id: `${index}`,
           name: item.name,
           price: item.price,
