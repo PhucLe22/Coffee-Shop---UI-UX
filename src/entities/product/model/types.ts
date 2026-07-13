@@ -17,6 +17,7 @@ export interface ProductOption {
   basePrice: number;
   price: number | null;
   sortOrder: number;
+  isActive?: boolean;
 }
 
 export interface ProductOptionGroup {

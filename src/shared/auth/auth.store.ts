@@ -56,6 +56,9 @@ const createAuthStore = (storageName: string) =>
             accessToken: null,
             refreshToken: null,
           })
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(storageName)
+          }
         },
         setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
       }),

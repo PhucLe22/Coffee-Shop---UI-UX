@@ -22,7 +22,8 @@ export interface OptionGroup {
 
 export interface OptionGroupValue {
   optionId: string;
-  price: number;
+  price?: number;
+  isActive?: boolean;
 }
 
 export interface UpdateProductOptionGroupPayload {

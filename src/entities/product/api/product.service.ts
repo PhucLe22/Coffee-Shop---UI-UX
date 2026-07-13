@@ -40,6 +40,11 @@ export const ProductService = {
     return response.data;
   },
 
+  getAdminProductById: async (id: string): Promise<ApiResponse<Product>> => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PRODUCTS.ADMIN_BY_ID(id));
+    return response.data;
+  },
+
   createProduct: async (formData: FormData): Promise<ApiResponse<Product>> => {
     const response = await axiosInstance.post(API_ENDPOINTS.PRODUCTS.INTERNAL, formData, {
       headers: {
