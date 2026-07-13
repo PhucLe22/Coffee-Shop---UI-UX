@@ -31,7 +31,7 @@ export function LoginForm() {
 
   const errorMessage = error instanceof AxiosError 
     ? error.response?.data?.message 
-    : "Email, số điện thoại hoặc mật khẩu không hợp lệ";
+    : null;
 
   return (
     <div className="flex w-full flex-col gap-lg">
