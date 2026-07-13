@@ -22,7 +22,7 @@ export const CreateStaffDialog = () => {
       <DialogTrigger asChild>
         <AppButton className="h-10 px-md">
           <Plus className="mr-2 h-4 w-4" />
-          Add Staff
+          Thêm nhân viên
         </AppButton>
       </DialogTrigger>
       <DialogContent
@@ -33,7 +33,7 @@ export const CreateStaffDialog = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <DialogTitle className="text-h3-bold text-text-primary text-left">
-                Register New Staff
+                Thêm nhân viên mới
               </DialogTitle>
               <DialogDescription className="text-[10px] text-text-muted text-left uppercase tracking-widest leading-tight">
                 ADD A NEW TEAM MEMBER. FILL IN THE DETAILS BELOW.

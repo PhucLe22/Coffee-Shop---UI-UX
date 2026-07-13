@@ -3,10 +3,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { createProductSchema, CreateProductFormValues } from "@/features/create-product";
 import { useUpdateProduct, useUpdateOptionGroup } from "../api/use-update-product-actions";
 import { useCategories } from "@/entities/category";
 import { useOptionGroups } from "@/entities/option-group";
+import { ProductService } from "@/entities/product";
 import { Input } from "@/shared/ui/input";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { AppButton } from "@/shared/ui/app-button";
@@ -27,7 +29,19 @@ interface OptionGroupSelection {
   enabled: boolean;
   sortOrder: number;
   optionPrices: Record<string, string>;
+  optionActive: Record<string, boolean>;
 }
+
+const groupNameMap: Record<string, string> = {
+  "Size": "Kích thước",
+  "Sugar Level": "Mức đường",
+  "Sugar lvl": "Mức đường",
+  "Ice Level": "Mức đá",
+  "Ice lvl": "Mức đá",
+  "Toppings": "Toppings",
+};
+
+const translateGroupName = (name: string) => groupNameMap[name] || name;
 
 export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps) => {
   const [previewImage, setPreviewImage] = useState<string | null>(product.thumbnail || null);
@@ -40,6 +54,13 @@ export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps
   const { data: optionGroupsData, isLoading: isLoadingOptionGroups } = useOptionGroups();
   const { mutate: updateProduct, isPending: isUpdatingProduct } = useUpdateProduct();
   const { mutateAsync: updateOptionGroup } = useUpdateOptionGroup();
+
+  const { data: fullProduct, isLoading: isLoadingFullProduct } = useQuery({
+    queryKey: ["product-detail", product.id],
+    queryFn: () => ProductService.getProductBySlug(product.slug),
+    enabled: !!product.slug,
+    select: (res) => res.data,
+  });
 
   const {
     register,
@@ -61,22 +82,28 @@ export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps
 
   useEffect(() => {
     if (!optionGroupsData) return;
+    const groups = (fullProduct?.optionGroups || product.optionGroups) as any[] | undefined;
     const initialState: Record<string, OptionGroupSelection> = {};
     for (const group of optionGroupsData.data) {
-      const existingGroup = product.optionGroups?.find((og) => og.id === group.id);
+      const existingGroup = groups?.find(
+        (og) => og.id === group.id || og.optionGroupId === group.id
+      );
       const optPrices: Record<string, string> = {};
+      const optActive: Record<string, boolean> = {};
       for (const opt of group.options) {
-        const existingOpt = existingGroup?.options.find((o) => o.id === opt.id);
+        const existingOpt = existingGroup?.options?.find((o: any) => o.id === opt.id);
         optPrices[opt.id] = existingOpt?.price?.toString() ?? "";
+        optActive[opt.id] = existingOpt ? (existingOpt as any)?.isActive !== false : false;
       }
       initialState[group.id] = {
         enabled: !!existingGroup,
         sortOrder: existingGroup?.sortOrder ?? group.sortOrder,
         optionPrices: optPrices,
+        optionActive: optActive,
       };
     }
     setOptionGroupsState(initialState);
-  }, [optionGroupsData, product.optionGroups]);
+  }, [optionGroupsData, fullProduct, product.optionGroups]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -99,19 +126,28 @@ export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps
     setSavingOptions(true);
     const promises: Promise<unknown>[] = [];
     for (const [groupId, selection] of Object.entries(optionGroupsState)) {
-      if (!selection.enabled) continue;
+      if (!selection.enabled) {
+        promises.push(
+          updateOptionGroup({
+            productId,
+            optionGroupId: groupId,
+            data: { isActive: false },
+          })
+        );
+        continue;
+      }
       const optionValues = Object.entries(selection.optionPrices)
-        .filter(([, price]) => price !== "")
+        .filter(([optionId, price]) => price !== "" || selection.optionActive[optionId] === false)
         .map(([optionId, price]) => ({
           optionId,
-          price: Number(price),
+          ...(price !== "" ? { price: Number(price) } : {}),
+          ...(selection.optionActive[optionId] === false ? { isActive: false } : {}),
         }));
-      if (optionValues.length === 0) continue;
       promises.push(
         updateOptionGroup({
           productId,
           optionGroupId: groupId,
-          data: { sortOrder: selection.sortOrder, optionValues },
+          data: { isActive: true, sortOrder: selection.sortOrder, optionValues },
         })
       );
     }
@@ -176,6 +212,16 @@ export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps
       [groupId]: {
         ...prev[groupId],
         optionPrices: { ...prev[groupId].optionPrices, [optionId]: price },
+      },
+    }));
+  };
+
+  const toggleOptionActive = (groupId: string, optionId: string) => {
+    setOptionGroupsState((prev) => ({
+      ...prev,
+      [groupId]: {
+        ...prev[groupId],
+        optionActive: { ...prev[groupId].optionActive, [optionId]: !prev[groupId].optionActive[optionId] },
       },
     }));
   };
@@ -382,7 +428,7 @@ export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps
                           htmlFor={`group-${group.id}`}
                           className="text-body-md-bold text-text-primary cursor-pointer"
                         >
-                          {group.name}
+                          {translateGroupName(group.name)}
                         </Label>
                         {group.isRequired && (
                           <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest bg-brand-primary/10 px-2 py-0.5 rounded-full">BẮT BUỘC</span>
@@ -403,26 +449,41 @@ export const UpdateProductForm = ({ product, onSuccess }: UpdateProductFormProps
                       </div>
                     </div>
 
-                    {selection.enabled && (
-                      <div className="ml-7 space-y-2">
-                        {group.options.map((opt) => (
-                          <div key={opt.id} className="flex items-center gap-3">
-                            <span className="text-body-sm-reg text-text-secondary min-w-[80px]">{opt.name}</span>
-                            <span className="text-[11px] text-text-muted">Giá gốc: {opt.basePrice.toLocaleString()}đ</span>
-                            <div className="flex items-center gap-2 ml-auto">
-                              <Label className="text-[11px] text-text-secondary whitespace-nowrap">Giá tùy chỉnh</Label>
-                              <Input
-                                type="number"
-                                value={selection.optionPrices[opt.id] ?? ""}
-                                onChange={(e) => updateOptionPrice(group.id, opt.id, e.target.value)}
-                                placeholder={opt.basePrice.toString()}
-                                className="w-28 h-8 bg-surface-accent border-border-primary-50 rounded-md text-body-sm-reg text-right"
-                              />
-                            </div>
+                    <div className="ml-7 space-y-2">
+                      {group.options.map((opt) => (
+                        <div key={opt.id} className="flex items-center gap-3">
+                          <Checkbox
+                            id={`opt-${group.id}-${opt.id}`}
+                            checked={selection.optionActive[opt.id] !== false}
+                            onChange={() => toggleOptionActive(group.id, opt.id)}
+                            className="border-text-secondary/50 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                          />
+                          <Label
+                            htmlFor={`opt-${group.id}-${opt.id}`}
+                            className={cn(
+                              "text-body-sm-reg min-w-[80px] cursor-pointer",
+                              selection.optionActive[opt.id] === false && "text-text-muted line-through"
+                            )}
+                          >
+                            {opt.name}
+                          </Label>
+                          <span className="text-[11px] text-text-muted">
+                            {selection.optionActive[opt.id] === false ? "Đã ẩn" : `Giá gốc: ${opt.basePrice.toLocaleString()}đ`}
+                          </span>
+                          <div className="flex items-center gap-2 ml-auto">
+                            <Label className="text-[11px] text-text-secondary whitespace-nowrap">Giá tùy chỉnh</Label>
+                            <Input
+                              type="number"
+                              value={selection.optionPrices[opt.id] ?? ""}
+                              onChange={(e) => updateOptionPrice(group.id, opt.id, e.target.value)}
+                              placeholder={opt.basePrice.toString()}
+                              disabled={selection.optionActive[opt.id] === false}
+                              className="w-28 h-8 bg-surface-accent border-border-primary-50 rounded-md text-body-sm-reg text-right"
+                            />
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })

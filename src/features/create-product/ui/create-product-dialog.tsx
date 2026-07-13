@@ -21,13 +21,13 @@ export const CreateProductDialog = () => {
       <DialogTrigger asChild>
         <AppButton className="h-10 px-md">
           <Plus className="mr-2 h-4 w-4" />
-          Add Product
+          Thêm sản phẩm
         </AppButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto rounded-md border-0 p-xl">
         <DialogHeader className="mb-6">
           <DialogTitle className="text-h3-bold text-text-primary text-left">
-            Create New Product
+            Thêm sản phẩm mới
           </DialogTitle>
           <DialogDescription className="text-overline text-text-muted text-left uppercase tracking-widest mt-1">
             ADD A NEW PRODUCT TO YOUR INVENTORY. FILL IN THE DETAILS BELOW.

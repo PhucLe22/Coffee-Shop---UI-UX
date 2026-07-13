@@ -55,6 +55,9 @@ export const API_ENDPOINTS = {
     SCHEDULE: '/internal/kitchen/delivery-schedule',
     SHIPPER_ROUTES: '/internal/admin/shipper-routes',
   },
+  KITCHEN: {
+    SOLVE_NETWORK: '/internal/kitchen/solve-network',
+  },
   ADDRESSES: {
     BASE: '/addresses',
     BY_ID: (id: string) => `/addresses/${id}`,

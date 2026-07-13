@@ -2,17 +2,18 @@
 
 import React, { useState } from "react";
 import { 
-  Search,
   TrendingUp, 
   TrendingDown, 
   Minus,
   ChevronRight,
-  Truck
+  Truck,
+  Network
 } from "lucide-react";
-import { Input } from "@/shared/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Button } from "@/shared/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { useShipperRoutes } from "@/entities/delivery/api/use-shipper-routes";
+import { useSolveNetwork } from "@/entities/delivery/api/use-solve-network";
 import { ShipperRouteMap } from "@/widgets/shipper-route-map";
 
 export default function DashboardPage() {
@@ -21,6 +22,7 @@ export default function DashboardPage() {
   const { data: filteredData } = useShipperRoutes(
     selectedShipperId === "ALL" ? undefined : selectedShipperId
   );
+  const { mutate: solveNetwork, isPending: isSolving } = useSolveNetwork();
 
   const allShippers = allData?.data?.shippers || [];
   const shippers = filteredData?.data?.shippers || [];
@@ -30,13 +32,14 @@ export default function DashboardPage() {
     <div className="flex flex-col p-md md:p-lg gap-md md:gap-lg animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-md">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-md top-1/2 -translate-y-1/2 size-5 text-text-muted" />
-          <Input 
-            placeholder="Tìm kiếm phân tích, nhật ký..." 
-            className="pl-xl h-12 bg-white/50 border-border-primary-50 rounded-md focus:bg-white transition-colors"
-          />
-        </div>
+        <Button
+          onClick={() => solveNetwork()}
+          disabled={isSolving}
+          className="h-12 gap-md whitespace-nowrap bg-brand-primary text-inverse-text hover:bg-brand-accent"
+        >
+          <Network className="size-5" />
+          {isSolving ? "Đang kích hoạt..." : "Kích hoạt solver"}
+        </Button>
 
       </div>
 

@@ -22,7 +22,7 @@ export const CreateVoucherDialog = () => {
       <DialogTrigger asChild>
         <AppButton className="h-10 px-md">
           <Plus className="mr-2 h-4 w-4" />
-          New Voucher
+          Thêm voucher
         </AppButton>
       </DialogTrigger>
       <DialogContent
@@ -33,7 +33,7 @@ export const CreateVoucherDialog = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <DialogTitle className="text-h3-bold text-text-primary text-left">
-                Create New Voucher
+                Thêm voucher mới
               </DialogTitle>
               <DialogDescription className="text-[10px] text-text-muted text-left uppercase tracking-widest leading-tight">
                 ADD A NEW DISCOUNT VOUCHER. FILL IN THE DETAILS BELOW.

@@ -22,7 +22,7 @@ export const CreateStoreDialog = () => {
       <DialogTrigger asChild>
         <AppButton className="h-10 px-md">
           <Plus className="mr-2 h-4 w-4" />
-          Add New Store
+          Thêm cửa hàng
         </AppButton>
       </DialogTrigger>
       <DialogContent
@@ -33,7 +33,7 @@ export const CreateStoreDialog = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <DialogTitle className="text-h3-bold text-text-primary text-left">
-                Create New Store
+                Thêm cửa hàng mới
               </DialogTitle>
               <DialogDescription className="text-[10px] text-text-muted text-left uppercase tracking-widest leading-tight">
                 ADD A NEW STORE LOCATION. FILL IN THE DETAILS BELOW.

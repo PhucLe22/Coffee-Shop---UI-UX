@@ -251,12 +251,6 @@ export default function InternalInventoryPage() {
         />
       )}
 
-      {/* Mobile Floating Search */}
-      <div className="md:hidden fixed bottom-24 right-md z-40">
-        <Button size="icon" className="size-14 rounded-full bg-brand-primary text-white shadow-xl">
-          <Search className="size-6" />
-        </Button>
-      </div>
     </div>
   );
 }
