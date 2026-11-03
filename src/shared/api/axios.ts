@@ -11,6 +11,14 @@ const axiosInstance = axios.create({
   },
 });
 
+// Demo mode: answer every request from the in-browser seed dataset (no backend needed).
+if (process.env.NEXT_PUBLIC_USE_MOCK === "true") {
+  const lazyMockAdapter = async (config: InternalAxiosRequestConfig) =>
+    (await import("./mock/adapter")).mockAdapter(config);
+  axiosInstance.defaults.adapter = lazyMockAdapter;
+  axios.defaults.adapter = lazyMockAdapter; // token refresh uses the bare axios instance
+}
+
 // Request interceptor: Attach Access Token as Bearer
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
