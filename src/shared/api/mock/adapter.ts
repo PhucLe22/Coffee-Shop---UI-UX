@@ -1,7 +1,39 @@
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { handle, MockHttpError, userFromToken } from "./handlers";
+import * as db from "./data";
 
 const LATENCY_MS = 250;
+
+// Changes are saved per browser tab, so they survive full page loads (the static
+// export reloads on some navigations). Closing the tab resets the demo.
+const STORAGE_KEY = "coffee-collective-demo-db-v1";
+const collections = {
+  categories: db.categories, optionGroups: db.optionGroups, products: db.products, stores: db.stores,
+  customers: db.customers, staff: db.staff, addresses: db.addresses, vouchers: db.vouchers, orders: db.orders,
+} as Record<string, unknown[]>;
+
+function restore() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "null");
+    if (!saved) return;
+    for (const [key, list] of Object.entries(collections)) {
+      if (Array.isArray(saved[key])) list.splice(0, list.length, ...saved[key]);
+    }
+    db.syncOrderSeq();
+  } catch {
+    // Storage unavailable or corrupt: start from the seed data.
+  }
+}
+
+function persist() {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(collections));
+  } catch {
+    // Ignore quota / privacy-mode errors; the demo keeps working in memory.
+  }
+}
+
+if (typeof window !== "undefined") restore();
 
 function parseBody(data: unknown) {
   if (data == null || data === "") return {};
@@ -36,6 +68,7 @@ export async function mockAdapter(config: InternalAxiosRequestConfig): Promise<A
 
   try {
     const { status, body } = handle({ method, path, query, body: parseBody(config.data), user });
+    if (method !== "GET") persist();
     return { data: body, status, statusText: "OK", headers: {}, config, request: {} };
   } catch (e) {
     const status = e instanceof MockHttpError ? e.status : 500;

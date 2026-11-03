@@ -286,6 +286,11 @@ const DELIVERY_ADDRESSES: Array<[string, number, number]> = [
 export const orders: any[] = [];
 let orderSeq = 0;
 
+/** Continue order codes after restoring saved orders (see adapter persistence). */
+export function syncOrderSeq() {
+  for (const o of orders) orderSeq = Math.max(orderSeq, Number(String(o.orderCode).slice(2)) - 260000 || 0);
+}
+
 export function buildOrder(input: {
   store: any; customer: any | null; type: string; status: string; createdMinutesAgo: number;
   lines: Array<{ product: any; quantity: number; optionIds?: string[]; note?: string }>;
