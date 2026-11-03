@@ -1,7 +1,7 @@
-import { useSyncExternalStore } from "react";
+"use client";
 
-/** Placeholder segment pre-rendered for dynamic routes in the static export. */
-export const STATIC_PLACEHOLDER_PARAM = "_";
+import { useSyncExternalStore } from "react";
+import { STATIC_PLACEHOLDER_PARAM } from "./static-route-param";
 
 const noopSubscribe = () => () => {};
 

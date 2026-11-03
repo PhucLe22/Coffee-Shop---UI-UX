@@ -1,5 +1,5 @@
 import { products } from "@/shared/api/mock/data";
-import { STATIC_PLACEHOLDER_PARAM } from "@/shared/lib/use-route-param";
+import { STATIC_PLACEHOLDER_PARAM } from "@/shared/lib/static-route-param";
 import { ProductDetailView } from "./product-detail-view";
 
 // Pre-render demo products (+ a placeholder for products created at runtime) for the static export.

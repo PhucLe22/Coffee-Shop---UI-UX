@@ -1,5 +1,5 @@
 import { orders } from "@/shared/api/mock/data";
-import { STATIC_PLACEHOLDER_PARAM } from "@/shared/lib/use-route-param";
+import { STATIC_PLACEHOLDER_PARAM } from "@/shared/lib/static-route-param";
 import { OrderDetailView } from "./order-detail-view";
 
 // Pre-render demo orders (+ a placeholder for orders placed at runtime) for the static export.
