@@ -51,7 +51,8 @@ function parseBody(data: unknown) {
 function resolvePath(config: InternalAxiosRequestConfig) {
   let url = config.url ?? "";
   if (config.baseURL && url.startsWith(config.baseURL)) url = url.slice(config.baseURL.length);
-  url = url.replace(/^https?:\/\/[^/]+/, "").replace(/^\/api(?=\/)/, "");
+  // Strip any host, the "undefined" prefix left when NEXT_PUBLIC_API_URL is unset, and an /api prefix.
+  url = url.replace(/^https?:\/\/[^/]+/, "").replace(/^undefined(?=\/)/, "").replace(/^\/api(?=\/)/, "");
   const [path, search] = url.split("?");
   const query: Record<string, unknown> = Object.fromEntries(new URLSearchParams(search ?? ""));
   for (const [k, v] of Object.entries(config.params ?? {})) if (v !== undefined && v !== null) query[k] = v;

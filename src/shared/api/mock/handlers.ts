@@ -78,7 +78,19 @@ function filterProducts(list: any[], query: Record<string, any>) {
 
 // --- auth -----------------------------------------------------------------------
 
-export const tokenFor = (id: string) => `mock.${id}`;
+// JWT-shaped (header.payload.signature) because the auth store decodes the payload.
+const b64url = (s: string) => btoa(s).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+export const tokenFor = (id: string) => `${b64url('{"alg":"none","typ":"JWT"}')}.${b64url(JSON.stringify({ sub: id }))}.mock`;
+
+function idFromToken(token: string) {
+  const [first, payload] = token.split(".");
+  if (first === "mock") return payload; // tokens issued before the JWT shape
+  try {
+    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))).sub as string;
+  } catch {
+    return null;
+  }
+}
 
 function findAccount(identifier: string) {
   const id = identifier?.trim().toLowerCase();
@@ -93,8 +105,8 @@ function findAccount(identifier: string) {
 }
 
 export function userFromToken(token?: string | null) {
-  if (!token?.startsWith("mock.")) return null;
-  const id = token.slice(5);
+  const id = token ? idFromToken(token) : null;
+  if (!id) return null;
   const s = staff.find((x) => x.id === id);
   if (s) return findAccount(s.email);
   const c = customers.find((x) => x.id === id);
